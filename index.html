@@ -1,222 +1,307 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>RPG Quest</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>RPG Quest</title>
 
-<link rel="stylesheet" href="style.css">
-</head>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-<body>
-<div id="game">
-  <div id="arenaWrap">
-    <div id="arena"></div>
-  </div>
-
-  <div id="sidebar">
-    <div class="topRow">
-      <h2 id="partyTitle">Grupo</h2>
-      <div class="pills">
-        <div class="pill" title="Seu nome">
-          👤 <strong id="meName">-</strong>
-        </div>
-        <button id="masterToggle" class="toggleBtn" onclick="toggleMasterMode()">🛠️ Mestre: OFF</button>
+  <body>
+    <div id="game">
+      <div id="arenaWrap">
+        <div id="arena"></div>
       </div>
-    </div>
 
-    <div id="scenePanel">
-      <div style="font-weight:900; margin-bottom:8px;">Cena</div>
-
-      <div class="sceneGrid">
-        <div class="field full">
-          <label>Background (URL) — cole um link direto de imagem</label>
-          <input id="bgUrl" placeholder="Ex: https://.../mapa.png" />
-        </div>
-
-        <div class="field full">
-          <label>Ou carregue um arquivo (local)</label>
-          <input id="bgFile" type="file" accept="image/*" />
-          <div class="sceneHint">Dica: arquivo local funciona só no seu PC; se quiser que “multiplayer” veja igual, use URL.</div>
-        </div>
-
-        <div class="field">
-          <label>Zoom (Scale)</label>
-          <input id="bgScale" type="range" min="40" max="300" value="120" />
-        </div>
-        <div class="field">
-          <label>Opacidade</label>
-          <input id="bgOpacity" type="range" min="0" max="100" value="65" />
-        </div>
-
-        <div class="field">
-          <label>Offset X</label>
-          <input id="bgX" type="range" min="-600" max="600" value="0" />
-        </div>
-        <div class="field">
-          <label>Offset Y</label>
-          <input id="bgY" type="range" min="-600" max="600" value="0" />
-        </div>
-
-        <div class="field full">
-          <label>Ferramenta de Tiles (pintar módulos)</label>
-          <div class="toolRow">
-            <button class="toolBtn active" id="toolFloor" onclick="setTool('floor')">🟦 Chão</button>
-            <button class="toolBtn" id="toolWall" onclick="setTool('wall')">🧱 Parede</button>
-            <button class="toolBtn" id="toolVoid" onclick="setTool('void')">⬛ Vazio</button>
-            <button class="toolBtn" onclick="fillAll('floor')">Preencher: Chão</button>
-            <button class="toolBtn" onclick="fillAll('wall')">Preencher: Parede</button>
-            <button class="toolBtn" onclick="fillAll('void')">Preencher: Vazio</button>
-            <button class="toolBtn" onclick="clearScene()">Limpar Cena</button>
-          </div>
-
-          <div class="sceneHint" style="margin-top:8px;">
-            Pintura rápida: clique e arraste.<br/>
-            Atalhos: <kbd>Shift</kbd> pinta Parede, <kbd>Alt</kbd> pinta Vazio, sem tecla pinta Chão.
+      <div id="sidebar">
+        <div class="topRow">
+          <h2 id="partyTitle">Grupo</h2>
+          <div class="pills">
+            <div class="pill" title="Seu nome">
+              👤 <strong id="meName">-</strong>
+            </div>
+            <button
+              id="masterToggle"
+              class="toggleBtn"
+              onclick="toggleMasterMode()"
+            >
+              🛠️ Mestre: OFF
+            </button>
           </div>
         </div>
-      </div>
 
-      <hr class="sep"/>
+        <div id="scenePanel">
+          <div style="font-weight: 900; margin-bottom: 8px">Cena</div>
 
-      <div class="sceneHint">
-        Movimento: setas do teclado. Agora o token <strong>não entra</strong> em Parede/Vazio.
-      </div>
-    </div>
+          <div class="sceneGrid">
+            <div class="field full">
+              <label>Background (URL) — cole um link direto de imagem</label>
+              <input id="bgUrl" placeholder="Ex: https://.../mapa.png" />
+            </div>
 
-    <div id="party"></div>
+            <div class="field full">
+              <label>Ou carregue um arquivo (local)</label>
+              <input id="bgFile" type="file" accept="image/*" />
+              <div class="sceneHint">
+                Dica: arquivo local funciona só no seu PC; se quiser que
+                “multiplayer” veja igual, use URL.
+              </div>
+            </div>
 
-    <div id="chat"></div>
+            <div class="field">
+              <label>Zoom (Scale)</label>
+              <input id="bgScale" type="range" min="40" max="300" value="120" />
+            </div>
+            <div class="field">
+              <label>Opacidade</label>
+              <input id="bgOpacity" type="range" min="0" max="100" value="65" />
+            </div>
 
-    <div id="chatInput">
-      <input id="messageInput" placeholder="Digite mensagem... (Enter envia)" />
-      <button onclick="sendMessage()">Enviar</button>
-    </div>
-  </div>
-</div>
+            <div class="field">
+              <label>Offset X</label>
+              <input id="bgX" type="range" min="-600" max="600" value="0" />
+            </div>
+            <div class="field">
+              <label>Offset Y</label>
+              <input id="bgY" type="range" min="-600" max="600" value="0" />
+            </div>
 
-<!-- Modal Ficha -->
-<div id="sheetOverlay" class="modalOverlay">
-  <div class="modal">
-    <div class="modalHeader">
-      <div>
-        <h3 id="sheetTitle" class="modalTitle">Ficha</h3>
-        <div id="sheetSub" class="modalSub"></div>
-      </div>
-      <button class="btn" onclick="closeSheet()">Fechar</button>
-    </div>
+            <div class="field full">
+              <label>Ferramenta de Tiles (pintar módulos)</label>
+              <div class="toolRow">
+                <button
+                  class="toolBtn active"
+                  id="toolFloor"
+                  onclick="setTool('floor')"
+                >
+                  🟦 Chão
+                </button>
+                <button class="toolBtn" id="toolWall" onclick="setTool('wall')">
+                  🧱 Parede
+                </button>
+                <button class="toolBtn" id="toolVoid" onclick="setTool('void')">
+                  ⬛ Vazio
+                </button>
+                <button class="toolBtn" onclick="fillAll('floor')">
+                  Preencher: Chão
+                </button>
+                <button class="toolBtn" onclick="fillAll('wall')">
+                  Preencher: Parede
+                </button>
+                <button class="toolBtn" onclick="fillAll('void')">
+                  Preencher: Vazio
+                </button>
+                <button class="toolBtn" onclick="clearScene()">
+                  Limpar Cena
+                </button>
+              </div>
 
-    <div class="sheetColumns">
-      <div class="panel">
-        <div class="field">
-          <label>Controlador (jogador)</label>
-          <input id="sheetOwner" placeholder="Ex: Helton" />
-        </div>
-        <div class="field">
-          <label>Nível</label>
-          <input id="sheetLevel" type="number" min="1" max="20" step="1" />
-        </div>
-        <div class="field">
-          <label>Raça</label>
-          <select id="sheetRace"></select>
-        </div>
-        <div class="field">
-          <label>Classe</label>
-          <select id="sheetClass"></select>
-        </div>
-
-        <div style="font-weight:900; margin:10px 0 8px;">Equipados (vem do Inventário)</div>
-        <div id="equipSlots"></div>
-        <div style="opacity:0.7; font-size:12px; margin-top:8px;">
-          Para comprar/trocar/usar itens: abra o 🎒 Inventário.
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="kv"><span>FOR</span><strong id="statSTR">-</strong></div>
-        <div class="kv"><span>DES</span><strong id="statDEX">-</strong></div>
-        <div class="kv"><span>ESP</span><strong id="statSPR">-</strong></div>
-        <div class="kv"><span>Defesa</span><strong id="statDEF">-</strong></div>
-        <div class="kv"><span>HP Máx</span><strong id="statHPMax">-</strong></div>
-        <div class="kv"><span>MP Máx</span><strong id="statMPMax">-</strong></div>
-        <div class="kv"><span>HP Atual</span><strong id="statHPNow">-</strong></div>
-        <div class="kv"><span>MP Atual</span><strong id="statMPNow">-</strong></div>
-
-        <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
-          <button class="smallBtn" onclick="editStat(sheetTargetName,'hp')">❤️ HP (+/-)</button>
-          <button class="smallBtn" onclick="editStat(sheetTargetName,'mana')">🔵 MP (+/-)</button>
-          <button class="smallBtn smallBtnPrimary" onclick="openInventory(sheetTargetName)">🎒 Inventário</button>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div style="font-weight:900; margin-bottom:8px;">Habilidades (clicáveis)</div>
-        <div id="sheetAbilities" class="abilities"></div>
-      </div>
-    </div>
-
-    <div class="sheetActions">
-      <button class="btn" onclick="closeSheet()">Cancelar</button>
-      <button class="btn btnPrimary" onclick="saveSheet()">Salvar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Inventário + Loja -->
-<div id="invOverlay" class="modalOverlay">
-  <div class="modal">
-    <div class="modalHeader">
-      <div>
-        <h3 id="invTitle" class="modalTitle">Inventário</h3>
-        <div id="invSub" class="modalSub"></div>
-      </div>
-      <button class="btn" onclick="closeInventory()">Fechar</button>
-    </div>
-
-    <div class="invColumns">
-      <div class="panel">
-        <div class="invHeaderRow">
-          <div class="goldPill">
-            <span>🪙</span>
-            <span>Ouro:</span>
-            <strong id="goldValue">0</strong>
-            <span style="opacity:.7">|</span>
-            <span style="opacity:.85">Slots:</span>
-            <strong id="invSlotsValue">0/0</strong>
+              <div class="sceneHint" style="margin-top: 8px">
+                Pintura rápida: clique e arraste.<br />
+                Atalhos: <kbd>Shift</kbd> pinta Parede, <kbd>Alt</kbd> pinta
+                Vazio, sem tecla pinta Chão.
+              </div>
+            </div>
           </div>
-          <button class="smallBtn smallBtnPrimary" onclick="openSheet(invTargetName)">📜 Voltar pra Ficha</button>
-        </div>
 
-        <div style="font-weight:900; margin-bottom:8px;">Itens no Inventário</div>
-        <div id="invList" class="invList"></div>
-      </div>
+          <hr class="sep" />
 
-      <div class="panel">
-        <div class="invHeaderRow">
-          <div style="display:flex; gap:8px; align-items:center;">
-            <div style="font-weight:900;">Loja</div>
-            <span class="badge">resumo</span>
+          <div class="sceneHint">
+            Movimento: setas do teclado. Agora o token
+            <strong>não entra</strong> em Parede/Vazio.
           </div>
-          <select id="shopFilter" class="smallBtn" style="padding:8px 10px;">
-            <option value="all">Todos</option>
-            <option value="weapon">Armas</option>
-            <option value="armor">Armaduras</option>
-            <option value="shield">Escudos</option>
-            <option value="ring">Acessórios</option>
-            <option value="potion">Poções</option>
-          </select>
         </div>
 
-        <div id="shopList" class="shopList"></div>
+        <div id="party"></div>
 
-        <div style="opacity:0.7; font-size:12px; margin-top:10px;">
-          Itens equipáveis vão pra ficha quando equipados.
+        <div id="chat"></div>
+
+        <div id="chatInput">
+          <input
+            id="messageInput"
+            placeholder="Digite mensagem... (Enter envia)"
+          />
+          <button onclick="sendMessage()">Enviar</button>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-<script src="app.js"></script>
-</body>
+    <!-- Modal Ficha -->
+    <div id="sheetOverlay" class="modalOverlay">
+      <div class="modal">
+        <div class="modalHeader">
+          <div>
+            <h3 id="sheetTitle" class="modalTitle">Ficha</h3>
+            <div id="sheetSub" class="modalSub"></div>
+          </div>
+          <button class="btn" onclick="closeSheet()">Fechar</button>
+        </div>
+
+        <div class="sheetColumns">
+          <div class="panel">
+            <div class="field">
+              <label>Controlador (jogador)</label>
+              <input id="sheetOwner" placeholder="Ex: Helton" />
+            </div>
+            <div class="field">
+              <label>Nível</label>
+              <input id="sheetLevel" type="number" min="1" max="20" step="1" />
+            </div>
+            <div class="field">
+              <label>Raça</label>
+              <select id="sheetRace"></select>
+            </div>
+            <div class="field">
+              <label>Classe</label>
+              <select id="sheetClass"></select>
+            </div>
+
+            <div style="font-weight: 900; margin: 10px 0 8px">
+              Equipados (vem do Inventário)
+            </div>
+            <div id="equipSlots"></div>
+            <div style="opacity: 0.7; font-size: 12px; margin-top: 8px">
+              Para comprar/trocar/usar itens: abra o 🎒 Inventário.
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="kv">
+              <span>FOR</span><strong id="statSTR">-</strong>
+            </div>
+            <div class="kv">
+              <span>DES</span><strong id="statDEX">-</strong>
+            </div>
+            <div class="kv">
+              <span>ESP</span><strong id="statSPR">-</strong>
+            </div>
+            <div class="kv">
+              <span>Defesa</span><strong id="statDEF">-</strong>
+            </div>
+            <div class="kv">
+              <span>HP Máx</span><strong id="statHPMax">-</strong>
+            </div>
+            <div class="kv">
+              <span>MP Máx</span><strong id="statMPMax">-</strong>
+            </div>
+            <div class="kv">
+              <span>HP Atual</span><strong id="statHPNow">-</strong>
+            </div>
+            <div class="kv">
+              <span>MP Atual</span><strong id="statMPNow">-</strong>
+            </div>
+
+            <div
+              style="
+                margin-top: 12px;
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+              "
+            >
+              <button
+                class="smallBtn"
+                onclick="editStat(sheetTargetName, 'hp')"
+              >
+                ❤️ HP (+/-)
+              </button>
+              <button
+                class="smallBtn"
+                onclick="editStat(sheetTargetName, 'mana')"
+              >
+                🔵 MP (+/-)
+              </button>
+              <button
+                class="smallBtn smallBtnPrimary"
+                onclick="openInventory(sheetTargetName)"
+              >
+                🎒 Inventário
+              </button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div style="font-weight: 900; margin-bottom: 8px">
+              Habilidades (clicáveis)
+            </div>
+            <div id="sheetAbilities" class="abilities"></div>
+          </div>
+        </div>
+
+        <div class="sheetActions">
+          <button class="btn" onclick="closeSheet()">Cancelar</button>
+          <button class="btn btnPrimary" onclick="saveSheet()">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Inventário + Loja -->
+    <div id="invOverlay" class="modalOverlay">
+      <div class="modal">
+        <div class="modalHeader">
+          <div>
+            <h3 id="invTitle" class="modalTitle">Inventário</h3>
+            <div id="invSub" class="modalSub"></div>
+          </div>
+          <button class="btn" onclick="closeInventory()">Fechar</button>
+        </div>
+
+        <div class="invColumns">
+          <div class="panel">
+            <div class="invHeaderRow">
+              <div class="goldPill">
+                <span>🪙</span>
+                <span>Ouro:</span>
+                <strong id="goldValue">0</strong>
+                <span style="opacity: 0.7">|</span>
+                <span style="opacity: 0.85">Slots:</span>
+                <strong id="invSlotsValue">0/0</strong>
+              </div>
+              <button
+                class="smallBtn smallBtnPrimary"
+                onclick="openSheet(invTargetName)"
+              >
+                📜 Voltar pra Ficha
+              </button>
+            </div>
+
+            <div style="font-weight: 900; margin-bottom: 8px">
+              Itens no Inventário
+            </div>
+            <div id="invList" class="invList"></div>
+          </div>
+
+          <div class="panel">
+            <div class="invHeaderRow">
+              <div style="display: flex; gap: 8px; align-items: center">
+                <div style="font-weight: 900">Loja</div>
+                <span class="badge">resumo</span>
+              </div>
+              <select
+                id="shopFilter"
+                class="smallBtn"
+                style="padding: 8px 10px"
+              >
+                <option value="all">Todos</option>
+                <option value="weapon">Armas</option>
+                <option value="armor">Armaduras</option>
+                <option value="shield">Escudos</option>
+                <option value="ring">Acessórios</option>
+                <option value="potion">Poções</option>
+              </select>
+            </div>
+
+            <div id="shopList" class="shopList"></div>
+
+            <div style="opacity: 0.7; font-size: 12px; margin-top: 10px">
+              Itens equipáveis vão pra ficha quando equipados.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
 </html>
