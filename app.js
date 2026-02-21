@@ -487,9 +487,27 @@ function ensurePlayerSchema(p) {
   if (p.attributes === undefined) {
     p.attributes = { forca: 5, destreza: 5, espirito: 5 };
   }
-  if (p.skills === undefined) p.skills = [];
-  if (p.inventory === undefined) p.inventory = [];
-  if (p.equipped === undefined) p.equipped = createEmptyEquipped();
+  if (!Array.isArray(p.skills)) p.skills = [];
+
+  if (!Array.isArray(p.inventory)) {
+    if (typeof p.inventory === "string" && p.inventory.trim()) {
+      p.inventory = [p.inventory.trim()];
+    } else if (
+      p.inventory &&
+      typeof p.inventory === "object" &&
+      Array.isArray(p.inventory.items)
+    ) {
+      p.inventory = p.inventory.items.filter(Boolean);
+    } else {
+      p.inventory = [];
+    }
+  }
+
+  if (!p.equipped || typeof p.equipped !== "object" || Array.isArray(p.equipped)) {
+    p.equipped = createEmptyEquipped();
+  } else {
+    p.equipped = { ...createEmptyEquipped(), ...p.equipped };
+  }
 
   if (p.color === undefined) p.color = randomColor();
 
