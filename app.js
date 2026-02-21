@@ -430,10 +430,89 @@ function sendMessage() {
   let input = document.getElementById("messageInput");
   let text = input.value.trim();
   if (!text) return;
+
+  if (handleRollCommand(text)) {
+    input.value = "";
+    return;
+  }
+
   pushChat(currentUser, text);
   input.value = "";
   updateChat();
 }
+
+function clampDiceCount(value) {
+  const n = parseInt(value, 10);
+  if (Number.isNaN(n)) return 1;
+  return Math.min(20, Math.max(1, n));
+}
+
+function rollPool(count, sides) {
+  const rolls = [];
+  for (let i = 0; i < count; i++) {
+    rolls.push(Math.floor(Math.random() * sides) + 1);
+  }
+  const total = rolls.reduce((sum, n) => sum + n, 0);
+  return { count, sides, rolls, total };
+}
+
+function parseDiceExpression(rawExpression) {
+  const expression = (rawExpression || "").toLowerCase().replace(/\s+/g, "");
+  if (!expression) return null;
+
+  const allowedSides = new Set([4, 6, 8, 10, 12, 20, 100]);
+  const parts = expression.split("+").filter(Boolean);
+  if (parts.length === 0) return null;
+
+  const pools = [];
+  for (const part of parts) {
+    const m = part.match(/^(\d*)d(\d+)$/);
+    if (!m) return null;
+
+    const rawCount = m[1] || "1";
+    const sides = parseInt(m[2], 10);
+    if (!allowedSides.has(sides)) return null;
+
+    const count = clampDiceCount(rawCount);
+    pools.push({ count, sides });
+  }
+  return pools;
+}
+
+function formatRollAction(pools, sourceExpression) {
+  const rolled = pools.map((p) => rollPool(p.count, p.sides));
+  const total = rolled.reduce((sum, p) => sum + p.total, 0);
+  const details = rolled
+    .map((p) => `${p.count}d${p.sides}=[${p.rolls.join(",")}]`)
+    .join(" + ");
+  return `rolou ${sourceExpression} → ${details} = ${total}`;
+}
+
+function handleRollCommand(text) {
+  const cmd = text.match(/^\/(r|roll)\s*(.*)$/i);
+  if (!cmd) return false;
+
+  const expression = (cmd[2] || "").trim();
+  const pools = parseDiceExpression(expression);
+  if (!pools) {
+    pushChat("Sistema", "Uso: /roll 2d6 + 1d4 (dados: d4,d6,d8,d10,d12,d20,d100)");
+    return true;
+  }
+
+  const normalized = pools.map((p) => `${p.count}d${p.sides}`).join(" + ");
+  pushAction(currentUser, formatRollAction(pools, normalized));
+  return true;
+}
+
+function rollDiceFromTray(sides) {
+  const input = document.getElementById(`diceCount${sides}`);
+  const count = clampDiceCount(input?.value || "1");
+  if (input) input.value = String(count);
+
+  const pools = [{ count, sides }];
+  pushAction(currentUser, formatRollAction(pools, `${count}d${sides}`));
+}
+
 document.getElementById("messageInput").addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
