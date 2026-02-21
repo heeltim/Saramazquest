@@ -5,6 +5,11 @@ let currentUser =
   prompt("Digite seu nome:") || "Jogador" + Math.floor(Math.random() * 1000);
 document.getElementById("meName").textContent = currentUser;
 
+const QUICK_REACTIONS = ["👍", "😂", "🔥", "❤️", "😮"];
+const PICKER_EMOJIS = ["😀", "😁", "😂", "🤣", "🙂", "😉", "😎", "🤔", "😮", "😢", "😡", "❤️", "🔥", "👏", "🎲", "⚔️", "🛡️", "✨"];
+let pendingReplyId = null;
+let chatSenderKey = "player";
+
 /* ================= SCENE DEFAULT ================= */
 const DEFAULT_COLS = 20;
 const DEFAULT_ROWS = 12;
@@ -295,13 +300,46 @@ function save(data) {
 }
 
 function normalizeChatMessage(message) {
-  if (typeof message === "string") return { user: "Sistema", text: message };
+  if (typeof message === "string") {
+    return {
+      id: `m_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      user: "Sistema",
+      text: message,
+      senderType: "system",
+      senderProfile: null,
+      replyTo: null,
+      reactions: {},
+      createdAt: Date.now(),
+    };
+  }
   if (!message || typeof message !== "object") return null;
 
   const user = String(message.user || message.name || "Sistema").trim();
   const text = String(message.text || message.message || "").trim();
   if (!text) return null;
-  return { user, text };
+
+  return {
+    id:
+      String(message.id || "").trim() ||
+      `m_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    user,
+    text,
+    senderType: String(message.senderType || "player"),
+    senderProfile: message.senderProfile ? String(message.senderProfile) : null,
+    replyTo: message.replyTo ? String(message.replyTo) : null,
+    reactions:
+      message.reactions && typeof message.reactions === "object"
+        ? Object.fromEntries(
+            Object.entries(message.reactions).map(([emoji, users]) => [
+              emoji,
+              Array.isArray(users)
+                ? users.map((u) => String(u)).filter(Boolean)
+                : [],
+            ])
+          )
+        : {},
+    createdAt: Number(message.createdAt) || Date.now(),
+  };
 }
 
 function getRoomChat(data, roomName) {
@@ -315,6 +353,16 @@ function getRoomChat(data, roomName) {
     .filter(Boolean);
 
   return data.chat[roomName];
+}
+
+function getRoomChatProfiles(data, roomName) {
+  if (!data.chatProfiles || typeof data.chatProfiles !== "object") data.chatProfiles = {};
+  if (!Array.isArray(data.chatProfiles[roomName])) data.chatProfiles[roomName] = [];
+  data.chatProfiles[roomName] = data.chatProfiles[roomName]
+    .map((n) => String(n || "").trim())
+    .filter(Boolean)
+    .filter((n, idx, arr) => arr.indexOf(n) === idx);
+  return data.chatProfiles[roomName];
 }
 
 let data = load();
@@ -438,10 +486,43 @@ function ensureAllPlayersSchema() {
 ensureAllPlayersSchema();
 
 /* ================= CHAT ================= */
-function pushChat(user, text) {
+function createChatMessage({ user, text, senderType = "player", senderProfile = null }) {
+  return {
+    id: `m_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    user,
+    text,
+    senderType,
+    senderProfile,
+    replyTo: pendingReplyId,
+    reactions: {},
+    createdAt: Date.now(),
+  };
+}
+
+function resolveSenderIdentity() {
+  if (chatSenderKey === "character") {
+    return { label: "Personagem", senderType: "character", senderProfile: null };
+  }
+  if (chatSenderKey.startsWith("profile:")) {
+    const profileName = chatSenderKey.replace("profile:", "").trim();
+    return {
+      label: profileName || currentUser,
+      senderType: "profile",
+      senderProfile: profileName || null,
+    };
+  }
+  return { label: currentUser, senderType: "player", senderProfile: null };
+}
+
+function clearReplyState() {
+  pendingReplyId = null;
+  renderReplyPreview();
+}
+
+function pushChat(user, text, meta = {}) {
   let data = load();
   const roomChat = getRoomChat(data, room);
-  roomChat.push({ user, text });
+  roomChat.push(createChatMessage({ user, text, ...meta }));
   save(data);
   updateChat();
 }
@@ -459,8 +540,13 @@ function sendMessage() {
     return;
   }
 
-  pushChat(currentUser, text);
+  const sender = resolveSenderIdentity();
+  pushChat(sender.label, text, {
+    senderType: sender.senderType,
+    senderProfile: sender.senderProfile,
+  });
   input.value = "";
+  clearReplyState();
   updateChat();
 }
 
@@ -592,6 +678,108 @@ document.getElementById("messageInput").addEventListener("keydown", (e) => {
     sendMessage();
   }
 });
+
+function setReplyTarget(messageId) {
+  pendingReplyId = messageId;
+  renderReplyPreview();
+  document.getElementById("messageInput")?.focus();
+}
+
+function renderReplyPreview() {
+  const box = document.getElementById("replyPreview");
+  if (!box) return;
+
+  if (!pendingReplyId) {
+    box.classList.add("hidden");
+    box.innerHTML = "";
+    return;
+  }
+
+  const data = load();
+  const roomChat = getRoomChat(data, room);
+  const original = roomChat.find((m) => m.id === pendingReplyId);
+  if (!original) {
+    pendingReplyId = null;
+    box.classList.add("hidden");
+    box.innerHTML = "";
+    return;
+  }
+
+  box.classList.remove("hidden");
+  box.innerHTML = `<div class="replyPreviewHeader">Respondendo <strong>${escapeHtml(original.user)}</strong></div><div class="replyPreviewText">${escapeHtml(original.text)}</div><button type="button" onclick="clearReplyState()">Cancelar</button>`;
+}
+
+function toggleReaction(messageId, emoji) {
+  let data = load();
+  const roomChat = getRoomChat(data, room);
+  const msg = roomChat.find((m) => m.id === messageId);
+  if (!msg) return;
+
+  if (!msg.reactions || typeof msg.reactions !== "object") msg.reactions = {};
+  if (!Array.isArray(msg.reactions[emoji])) msg.reactions[emoji] = [];
+
+  const already = msg.reactions[emoji].includes(currentUser);
+  if (already) {
+    msg.reactions[emoji] = msg.reactions[emoji].filter((u) => u !== currentUser);
+  } else {
+    msg.reactions[emoji].push(currentUser);
+  }
+
+  if (msg.reactions[emoji].length === 0) delete msg.reactions[emoji];
+
+  save(data);
+  updateChat();
+}
+
+function toggleEmojiPicker() {
+  const picker = document.getElementById("emojiPicker");
+  if (!picker) return;
+  picker.classList.toggle("hidden");
+}
+
+function addEmojiToInput(emoji) {
+  const input = document.getElementById("messageInput");
+  if (!input) return;
+  input.value = `${input.value}${emoji}`;
+  input.focus();
+}
+
+function refreshSenderSelect() {
+  const select = document.getElementById("chatSenderSelect");
+  if (!select) return;
+
+  const data = load();
+  const profiles = getRoomChatProfiles(data, room);
+
+  const options = [
+    { value: "player", label: `👤 Jogador (${currentUser})` },
+    { value: "character", label: "🎭 Personagem" },
+    ...profiles.map((name) => ({ value: `profile:${name}`, label: `🧩 ${name}` })),
+  ];
+
+  select.innerHTML = options
+    .map((opt) => `<option value="${escapeHtml(opt.value)}">${escapeHtml(opt.label)}</option>`)
+    .join("");
+
+  if (!options.some((opt) => opt.value === chatSenderKey)) chatSenderKey = "player";
+  select.value = chatSenderKey;
+}
+
+function addChatProfile() {
+  const input = document.getElementById("chatProfileName");
+  const name = String(input?.value || "").trim();
+  if (!name) return;
+
+  let data = load();
+  const profiles = getRoomChatProfiles(data, room);
+  if (!profiles.includes(name)) profiles.push(name);
+  save(data);
+
+  chatSenderKey = `profile:${name}`;
+  input.value = "";
+  refreshSenderSelect();
+}
+
 function updateChat() {
   let data = load();
   const roomChat = getRoomChat(data, room);
@@ -604,29 +792,77 @@ function updateChat() {
     const safeUser = escapeHtml(msg.user);
     const safeText = escapeHtml(msg.text);
 
+    if (msg.replyTo) {
+      const original = roomChat.find((candidate) => candidate.id === msg.replyTo);
+      if (original) {
+        const replyDiv = document.createElement("div");
+        replyDiv.className = "chatReplyRef";
+        replyDiv.innerHTML = `<strong>${escapeHtml(original.user)}</strong>: ${escapeHtml(original.text)}`;
+        div.appendChild(replyDiv);
+      }
+    }
+
+    const content = document.createElement("div");
+
     if (msg.text.startsWith("*")) {
       div.classList.add("chatAction");
       const actionText = msg.text.replace(/^\*\s*/, "");
       const rollHtml = renderRollDetails(actionText);
       if (rollHtml) {
         div.classList.add("chatRoll");
-        div.innerHTML = `<div class="chatActionHead"><strong>${safeUser}</strong> <span>rolou</span></div>${rollHtml}`;
+        content.innerHTML = `<div class="chatActionHead"><strong>${safeUser}</strong> <span>rolou</span></div>${rollHtml}`;
       } else {
-        div.innerHTML = `<strong>${safeUser}</strong> ${safeText}`;
+        content.innerHTML = `<strong>${safeUser}</strong> ${safeText}`;
       }
     } else if (msg.text.startsWith("(")) {
       div.classList.add("chatOOC");
-      div.innerHTML = safeText;
+      content.innerHTML = safeText;
     } else {
       div.classList.add("chatSpeak");
-      div.innerHTML = `<strong>${safeUser}:</strong> ${safeText}`;
+      content.innerHTML = `<strong>${safeUser}:</strong> ${safeText}`;
     }
 
+    div.appendChild(content);
+
+    const actions = document.createElement("div");
+    actions.className = "chatMetaRow";
+    actions.innerHTML = `<button type="button" class="chatMiniBtn" onclick="setReplyTarget('${escapeHtml(msg.id)}')">Responder</button>`;
+
+    QUICK_REACTIONS.forEach((emoji) => {
+      const count = Array.isArray(msg.reactions?.[emoji]) ? msg.reactions[emoji].length : 0;
+      const mine = Array.isArray(msg.reactions?.[emoji]) && msg.reactions[emoji].includes(currentUser);
+      const reactionBtn = document.createElement("button");
+      reactionBtn.type = "button";
+      reactionBtn.className = `chatReactionBtn ${mine ? "active" : ""}`;
+      reactionBtn.textContent = count > 0 ? `${emoji} ${count}` : emoji;
+      reactionBtn.onclick = () => toggleReaction(msg.id, emoji);
+      actions.appendChild(reactionBtn);
+    });
+
+    div.appendChild(actions);
     chatBox.appendChild(div);
   });
 
+  renderReplyPreview();
   chatBox.scrollTop = chatBox.scrollHeight;
   save(data);
+}
+
+function initChatComposer() {
+  const picker = document.getElementById("emojiPicker");
+  if (picker) {
+    picker.innerHTML = PICKER_EMOJIS.map((emoji) => `<button type="button" onclick="addEmojiToInput('${emoji}')">${emoji}</button>`).join("");
+  }
+
+  const select = document.getElementById("chatSenderSelect");
+  if (select) {
+    select.onchange = () => {
+      chatSenderKey = select.value;
+    };
+  }
+
+  refreshSenderSelect();
+  renderReplyPreview();
 }
 
 /* ================= ITENS ================= */
@@ -1791,6 +2027,7 @@ function clearPaintHighlights() {
 createGrid();
 applySceneCSS();
 updateArena();
+initChatComposer();
 updateChat();
 
 /* realtime local */

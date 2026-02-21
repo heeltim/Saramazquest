@@ -174,12 +174,22 @@
 
         <div id="chat"></div>
 
+        <div id="replyPreview" class="hidden"></div>
+
         <div id="chatInput">
           <input
             id="messageInput"
             placeholder="Digite mensagem... (Enter envia)"
           />
+          <button id="emojiBtn" type="button" onclick="toggleEmojiPicker()">😀</button>
+          <div id="emojiPicker" class="hidden"></div>
           <button onclick="sendMessage()">Enviar</button>
+        </div>
+
+        <div id="chatIdentityRow">
+          <select id="chatSenderSelect"></select>
+          <input id="chatProfileName" placeholder="Novo perfil (ex: Narrador)" />
+          <button type="button" onclick="addChatProfile()">Salvar perfil</button>
         </div>
       </div>
     </div>

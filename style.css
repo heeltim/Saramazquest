@@ -513,9 +513,65 @@ body {
   color: #ffffff;
 }
 
+#replyPreview {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(126, 201, 255, 0.45);
+  background: rgba(126, 201, 255, 0.1);
+}
+.replyPreviewHeader {
+  font-size: 12px;
+  opacity: 0.9;
+}
+.replyPreviewText {
+  margin-top: 4px;
+  font-size: 13px;
+  opacity: 0.95;
+}
+#replyPreview button {
+  margin-top: 6px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.2);
+  color: #fff;
+  cursor: pointer;
+}
+
+.chatReplyRef {
+  font-size: 12px;
+  margin-bottom: 6px;
+  padding: 5px 7px;
+  border-radius: 8px;
+  border-left: 3px solid rgba(126, 201, 255, 0.8);
+  background: rgba(126, 201, 255, 0.08);
+  opacity: 0.9;
+}
+.chatMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 7px;
+}
+.chatMiniBtn,
+.chatReactionBtn {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 11px;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+.chatReactionBtn.active {
+  border-color: rgba(126, 201, 255, 0.8);
+  background: rgba(126, 201, 255, 0.2);
+}
+
 #chatInput {
   display: flex;
   gap: 8px;
+  position: relative;
 }
 #chatInput input {
   flex: 1;
@@ -537,6 +593,43 @@ body {
 }
 #chatInput button:hover {
   filter: brightness(1.08);
+}
+
+#emojiBtn {
+  width: 44px;
+}
+#emojiPicker {
+  position: absolute;
+  bottom: 46px;
+  right: 88px;
+  background: rgba(20, 24, 36, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  z-index: 5;
+}
+#emojiPicker button {
+  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 4px;
+  cursor: pointer;
+}
+#emojiPicker button:hover {
+  background: rgba(76, 92, 255, 0.28);
+}
+
+#chatIdentityRow {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr auto;
+  gap: 8px;
+}
+
+.hidden {
+  display: none !important;
 }
 
 /* ================= MENU FLUTUANTE ================= */
