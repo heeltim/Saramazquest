@@ -12,6 +12,47 @@
     <div id="game">
       <div id="arenaWrap">
         <div id="arena"></div>
+        <div id="diceTray">
+          <div class="diceHeader">🎲 Rolagem rápida</div>
+          <div class="diceControls">
+            <div class="dieControl">
+              <label for="diceCount4">d4</label>
+              <input id="diceCount4" type="number" min="1" max="20" value="1" />
+              <button class="dieBtn" onclick="rollDiceFromTray(4)">Rolar</button>
+            </div>
+            <div class="dieControl">
+              <label for="diceCount6">d6</label>
+              <input id="diceCount6" type="number" min="1" max="20" value="1" />
+              <button class="dieBtn" onclick="rollDiceFromTray(6)">Rolar</button>
+            </div>
+            <div class="dieControl">
+              <label for="diceCount8">d8</label>
+              <input id="diceCount8" type="number" min="1" max="20" value="1" />
+              <button class="dieBtn" onclick="rollDiceFromTray(8)">Rolar</button>
+            </div>
+            <div class="dieControl">
+              <label for="diceCount10">d10</label>
+              <input id="diceCount10" type="number" min="1" max="20" value="1" />
+              <button class="dieBtn" onclick="rollDiceFromTray(10)">Rolar</button>
+            </div>
+            <div class="dieControl">
+              <label for="diceCount12">d12</label>
+              <input id="diceCount12" type="number" min="1" max="20" value="1" />
+              <button class="dieBtn" onclick="rollDiceFromTray(12)">Rolar</button>
+            </div>
+            <div class="dieControl">
+              <label for="diceCount20">d20</label>
+              <input id="diceCount20" type="number" min="1" max="20" value="1" />
+              <button class="dieBtn" onclick="rollDiceFromTray(20)">Rolar</button>
+            </div>
+            <div class="dieControl">
+              <label for="diceCount100">d100</label>
+              <input id="diceCount100" type="number" min="1" max="20" value="1" />
+              <button class="dieBtn" onclick="rollDiceFromTray(100)">Rolar</button>
+            </div>
+          </div>
+          <div id="diceResult">Use também no chat: <code>/roll 2d6 + 1d4</code> (ou <code>/r</code>).</div>
+        </div>
       </div>
 
       <div id="sidebar">
