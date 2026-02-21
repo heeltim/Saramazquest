@@ -68,58 +68,69 @@ body {
 #diceTray {
   position: absolute;
   left: 50%;
-  bottom: 12px;
+  bottom: 10px;
   transform: translateX(-50%);
-  min-width: 620px;
-  max-width: min(92%, 900px);
-  padding: 10px 12px;
+  width: min(94%, 1040px);
+  padding: 8px 10px;
   border-radius: 14px;
-  background: rgba(20, 24, 36, 0.92);
+  background: linear-gradient(180deg, rgba(28, 33, 48, 0.95), rgba(18, 22, 33, 0.92));
   border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
   z-index: 3;
 }
+.diceTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
 .diceHeader {
-  font-size: 13px;
-  font-weight: 800;
-  margin-bottom: 8px;
-  opacity: 0.9;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  opacity: 0.95;
+  text-transform: uppercase;
 }
 .diceControls {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 6px;
 }
 .dieControl {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px;
-  border-radius: 10px;
+  padding: 4px 6px;
+  border-radius: 9px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.07);
 }
 .dieControl label {
-  font-weight: 700;
-  font-size: 12px;
-  opacity: 0.9;
+  font-weight: 800;
+  font-size: 11px;
+  min-width: 34px;
+  opacity: 0.92;
 }
 .dieControl input {
-  width: 72px;
-  padding: 6px 8px;
-  border-radius: 8px;
+  width: 44px;
+  padding: 4px 5px;
+  border-radius: 7px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.07);
   color: #fff;
+  font-size: 12px;
+  text-align: center;
 }
 .dieBtn {
+  margin-left: auto;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
-  border-radius: 10px;
-  padding: 6px 10px;
-  font-weight: 700;
+  border-radius: 8px;
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 800;
   cursor: pointer;
 }
 .dieBtn:hover {
@@ -127,10 +138,19 @@ body {
   border-color: rgba(76, 92, 255, 0.75);
 }
 #diceResult {
-  margin-top: 8px;
   opacity: 0.9;
-  font-size: 13px;
-  min-height: 18px;
+  font-size: 12px;
+  min-height: 16px;
+  white-space: nowrap;
+}
+@media (max-width: 980px) {
+  .diceTopRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  #diceResult {
+    white-space: normal;
+  }
 }
 
 /* background da cena (fica atrás das células) */
