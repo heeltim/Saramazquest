@@ -65,6 +65,67 @@ body {
   overflow: hidden;
 }
 
+#combatSpellSlots {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 12;
+  padding: 8px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(8, 10, 17, 0.95);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.combatSlot {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+}
+
+.combatSlot:hover {
+  border-color: rgba(255, 215, 94, 0.9);
+  background: rgba(255, 215, 94, 0.18);
+}
+
+.combatSlot.empty {
+  opacity: 0.55;
+}
+
+.slotIcon {
+  font-size: 19px;
+}
+
+.slotIndex {
+  position: absolute;
+  right: 4px;
+  bottom: 2px;
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+.combatSlotTooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  width: 260px;
+  display: none;
+  z-index: 15;
+}
+
+.combatSlot:hover .combatSlotTooltip {
+  display: block;
+}
+
 #diceTrayToggle {
   position: absolute;
   left: 12px;
