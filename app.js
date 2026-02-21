@@ -289,6 +289,106 @@ let selectedShopId = "taberna";
 let selectedArsenalType = "weapon";
 let pendingUpgradeId = null;
 
+
+const SPELL_EFFECTS_CATALOG = [
+  {
+    id: "direct_damage",
+    name: "Dano direto",
+    type: "dano",
+    baseCost: 3,
+    unitCost: 2,
+    minUnits: 1,
+    maxUnits: 6,
+    unitLabel: "+1d6",
+    defaultDamageType: "arcano",
+  },
+  {
+    id: "area_control",
+    name: "Controle de área",
+    type: "controle",
+    baseCost: 5,
+    unitCost: 2,
+    minUnits: 1,
+    maxUnits: 3,
+    unitLabel: "+1 intensidade",
+    status: "movimento reduzido",
+  },
+  {
+    id: "temp_buff",
+    name: "Bônus temporário",
+    type: "buff",
+    baseCost: 3,
+    unitCost: 2,
+    minUnits: 1,
+    maxUnits: 3,
+    unitLabel: "+1 bônus",
+    stat: "defesa",
+  },
+  {
+    id: "healing",
+    name: "Cura",
+    type: "cura",
+    baseCost: 4,
+    unitCost: 2,
+    minUnits: 1,
+    maxUnits: 4,
+    unitLabel: "+1d8",
+  },
+  {
+    id: "debuff",
+    name: "Debuff",
+    type: "debuff",
+    baseCost: 4,
+    unitCost: 2,
+    minUnits: 1,
+    maxUnits: 3,
+    unitLabel: "+1 intensidade",
+    stat: "ataque",
+  },
+  {
+    id: "summon",
+    name: "Invocação",
+    type: "invocacao",
+    baseCost: 8,
+    unitCost: 3,
+    minUnits: 1,
+    maxUnits: 2,
+    unitLabel: "+1 duração",
+  },
+];
+
+const SPELL_CREATION_LEVEL_LIMITS = [
+  { minLevel: 1, maxLevel: 1, points: 10 },
+  { minLevel: 2, maxLevel: 2, points: 15 },
+  { minLevel: 3, maxLevel: 4, points: 20 },
+  { minLevel: 5, maxLevel: 20, points: 30 },
+];
+
+const SPELL_SLOTS_BY_LEVEL = {
+  1: [2],
+  2: [3],
+  3: [4, 2],
+  4: [4, 3],
+  5: [4, 3, 2],
+  6: [4, 3, 3],
+  7: [4, 3, 3, 1],
+  8: [4, 3, 3, 2],
+  9: [4, 3, 3, 3, 1],
+  10: [4, 3, 3, 3, 2],
+  11: [4, 3, 3, 3, 2, 1],
+  12: [4, 3, 3, 3, 2, 1],
+  13: [4, 3, 3, 3, 2, 1, 1],
+  14: [4, 3, 3, 3, 2, 1, 1],
+  15: [4, 3, 3, 3, 2, 1, 1, 1],
+  16: [4, 3, 3, 3, 2, 1, 1, 1],
+  17: [4, 3, 3, 3, 2, 1, 1, 1, 1],
+  18: [4, 3, 3, 3, 3, 1, 1, 1, 1],
+  19: [4, 3, 3, 3, 3, 2, 1, 1, 1],
+  20: [4, 3, 3, 3, 3, 2, 2, 1, 1],
+};
+
+let grimoireTargetName = null;
+
 /* ================= STORAGE ================= */
 function load() {
   const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
@@ -488,6 +588,11 @@ function ensurePlayerSchema(p) {
     p.attributes = { forca: 5, destreza: 5, espirito: 5 };
   }
   if (!Array.isArray(p.skills)) p.skills = [];
+  if (!Array.isArray(p.customSpells)) p.customSpells = [];
+
+  if (!p.spellcasting || typeof p.spellcasting !== "object") p.spellcasting = {};
+  if (!Array.isArray(p.spellcasting.slotsMax)) p.spellcasting.slotsMax = [];
+  if (!Array.isArray(p.spellcasting.slotsCurrent)) p.spellcasting.slotsCurrent = [];
 
   if (!Array.isArray(p.inventory)) {
     if (typeof p.inventory === "string" && p.inventory.trim()) {
@@ -1248,6 +1353,7 @@ function recalcFromSheet(p) {
   p.defense = 10 + destreza + (itemMods.defense || 0);
   p.skills = [...(race.abilities || []), ...(cls.abilities || [])];
   p.invMax = 12 + (itemMods.invExtra || 0);
+  syncSpellcasting(p);
 }
 
 /* ================= CREATE USER ================= */
@@ -1542,6 +1648,7 @@ function showMenu(name, element) {
   const actions = [
     { icon: "🎒", title: "Inventário", run: () => openInventory(name) },
     { icon: "📜", title: "Ficha", run: () => openSheet(name) },
+    { icon: "📖", title: "Grimório", run: () => openGrimoire(name) },
     { icon: "❤️", title: "HP (+/-)", run: () => editStat(name, "hp") },
     { icon: "🔵", title: "MP (+/-)", run: () => editStat(name, "mana") },
     { icon: "🗑️", title: "Remover da mesa", run: () => removeFromTable(name) },
@@ -1561,9 +1668,22 @@ function showMenu(name, element) {
 
   document.body.appendChild(menu);
 
-  let rect = element.getBoundingClientRect();
-  menu.style.left = rect.left + rect.width / 2 - 104 + "px";
-  menu.style.top = rect.top - 62 + "px";
+  const rect = element.getBoundingClientRect();
+  const menuRect = menu.getBoundingClientRect();
+  const margin = 8;
+
+  let left = rect.left + rect.width / 2 - menuRect.width / 2;
+  let top = rect.top - menuRect.height - 10;
+
+  if (top < margin) {
+    top = rect.bottom + 10;
+  }
+
+  left = Math.max(margin, Math.min(left, window.innerWidth - menuRect.width - margin));
+  top = Math.max(margin, Math.min(top, window.innerHeight - menuRect.height - margin));
+
+  menu.style.left = `${left}px`;
+  menu.style.top = `${top}px`;
 
   setTimeout(() => {
     document.addEventListener("click", removeMenu);
@@ -1827,6 +1947,303 @@ function saveSheet() {
 function closeSheet() {
   document.getElementById("sheetOverlay").style.display = "none";
   sheetTargetName = null;
+}
+
+/* ================= GRIMÓRIO / MAGIAS CUSTOM ================= */
+function getSpellCreationLimit(level) {
+  for (const row of SPELL_CREATION_LEVEL_LIMITS) {
+    if (level >= row.minLevel && level <= row.maxLevel) return row.points;
+  }
+  return 10;
+}
+
+function getSpellSlotsForLevel(level) {
+  const lv = Math.max(1, Math.min(20, parseInt(level || 1, 10) || 1));
+  return [...(SPELL_SLOTS_BY_LEVEL[lv] || SPELL_SLOTS_BY_LEVEL[1])];
+}
+
+function syncSpellcasting(p) {
+  if (!p.spellcasting || typeof p.spellcasting !== "object") p.spellcasting = {};
+
+  const slotsMax = getSpellSlotsForLevel(p.level || 1);
+  const oldCurrent = Array.isArray(p.spellcasting.slotsCurrent)
+    ? p.spellcasting.slotsCurrent
+    : [];
+
+  p.spellcasting.slotsMax = slotsMax;
+  p.spellcasting.slotsCurrent = slotsMax.map((max, idx) => {
+    const prev = parseInt(oldCurrent[idx], 10);
+    if (Number.isNaN(prev)) return max;
+    return Math.max(0, Math.min(max, prev));
+  });
+}
+
+function openGrimoire(name) {
+  const data = load();
+  const p = data.rooms[room][name];
+  if (!p) return;
+
+  ensurePlayerSchema(p);
+  recalcFromSheet(p);
+  save(data);
+
+  grimoireTargetName = name;
+  document.getElementById("grimoireTitle").textContent = `Grimório — ${name}`;
+  document.getElementById("grimoireSub").textContent = "Crie magias homebrew por pontos e use slots por nível.";
+  document.getElementById("grimoireOverlay").style.display = "flex";
+
+  setupGrimoireFormDefaults();
+  renderGrimoire(p);
+}
+
+function closeGrimoire() {
+  document.getElementById("grimoireOverlay").style.display = "none";
+  grimoireTargetName = null;
+}
+
+function setupGrimoireFormDefaults() {
+  const recalc = () => refreshSpellCostSummary();
+  ["spellName", "spellLevel", "spellCastingTime", "spellRange", "spellDescription", "compV", "compS", "compM"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.oninput = recalc;
+    if (el && el.type === "checkbox") el.onchange = recalc;
+  });
+}
+
+function renderGrimoire(p) {
+  renderSpellMeta(p);
+  renderSpellSlots(p);
+  renderSpellEffectsCatalog();
+  renderCustomSpells(p);
+  refreshSpellCostSummary();
+}
+
+function renderSpellMeta(p) {
+  const meta = document.getElementById("grimoireMeta");
+  const limit = getSpellCreationLimit(p.level || 1);
+  const maxSpellLevel = Math.min(9, Math.max(1, Math.ceil((p.level || 1) / 2)));
+
+  meta.innerHTML = `
+    <div class="kv"><span>Nível do personagem</span><strong>${p.level}</strong></div>
+    <div class="kv"><span>Pontos de criação</span><strong>${limit}</strong></div>
+    <div class="kv"><span>Nível máximo da magia</span><strong>${maxSpellLevel}</strong></div>
+    <div class="kv"><span>Magias customizadas</span><strong>${(p.customSpells || []).length}</strong></div>
+  `;
+
+  const spellLevelInput = document.getElementById("spellLevel");
+  spellLevelInput.max = String(maxSpellLevel);
+  const val = parseInt(spellLevelInput.value || "1", 10);
+  if (Number.isNaN(val) || val > maxSpellLevel || val < 1) {
+    spellLevelInput.value = String(Math.min(maxSpellLevel, Math.max(1, val || 1)));
+  }
+}
+
+function renderSpellSlots(p) {
+  const wrap = document.getElementById("grimoireSlots");
+  const rows = (p.spellcasting?.slotsMax || []).map((max, idx) => {
+    const current = p.spellcasting?.slotsCurrent?.[idx] ?? max;
+    const lvl = idx + 1;
+    return `<div class="kv"><span>Slot nível ${lvl}</span><strong>${current}/${max}</strong></div>`;
+  });
+  wrap.innerHTML = rows.join("") || '<div style="opacity:.7">Sem slots.</div>';
+}
+
+function renderSpellEffectsCatalog() {
+  const box = document.getElementById("spellEffectsCatalog");
+  box.innerHTML = SPELL_EFFECTS_CATALOG.map((fx) => `
+    <div class="effectCard">
+      <div><strong>${fx.name}</strong> <span style="opacity:.7">(${fx.baseCost} pts base)</span></div>
+      <div style="opacity:.75; font-size:12px;">Escala: ${fx.unitLabel} custa +${fx.unitCost} pts (máx ${fx.maxUnits})</div>
+      <div class="effectRow">
+        <label>Intensidade</label>
+        <input type="number" min="0" max="${fx.maxUnits}" value="0" id="effect_${fx.id}" oninput="refreshSpellCostSummary()" />
+      </div>
+    </div>
+  `).join("");
+}
+
+function getSelectedEffects() {
+  return SPELL_EFFECTS_CATALOG.map((fx) => {
+    const el = document.getElementById(`effect_${fx.id}`);
+    const units = Math.max(0, Math.min(fx.maxUnits, parseInt(el?.value || "0", 10) || 0));
+    return { fx, units };
+  }).filter((x) => x.units > 0);
+}
+
+function computeSpellDraftCost() {
+  const selected = getSelectedEffects();
+  const total = selected.reduce((sum, item) => sum + item.fx.baseCost + item.units * item.fx.unitCost, 0);
+  return { selected, total };
+}
+
+function refreshSpellCostSummary() {
+  if (!grimoireTargetName) return;
+  const data = load();
+  const p = data.rooms[room][grimoireTargetName];
+  if (!p) return;
+  const limit = getSpellCreationLimit(p.level || 1);
+  const { selected, total } = computeSpellDraftCost();
+
+  const details = selected.length
+    ? selected.map((s) => `${s.fx.name}: ${s.fx.baseCost} + (${s.units}×${s.fx.unitCost}) = <strong>${s.fx.baseCost + s.units * s.fx.unitCost}</strong>`).join("<br>")
+    : "Nenhum efeito selecionado.";
+
+  document.getElementById("spellCostSummary").innerHTML = `
+    <div><strong>Custo total:</strong> ${total} / ${limit} pontos</div>
+    <div style="margin-top:6px; opacity:.85; font-size:12px;">${details}</div>
+  `;
+}
+
+function buildCustomSpellEffects(selected) {
+  return selected.map(({ fx, units }) => {
+    if (fx.type === "dano") {
+      return { type: "dano", damageDice: `${units}d6`, damageType: fx.defaultDamageType, area: "alvo único" };
+    }
+    if (fx.type === "cura") {
+      return { type: "cura", healDice: `${units}d8` };
+    }
+    if (fx.type === "controle") {
+      return { type: "status", effect: fx.status, duration: `${units} turnos` };
+    }
+    if (fx.type === "buff") {
+      return { type: "buff", stat: fx.stat, bonus: units, duration: "1 turno" };
+    }
+    if (fx.type === "debuff") {
+      return { type: "debuff", stat: fx.stat, penalty: units, duration: "1 turno" };
+    }
+    return { type: "invocacao", creaturePower: units, duration: `${units} turnos` };
+  });
+}
+
+function createCustomSpell() {
+  if (!grimoireTargetName) return;
+  const data = load();
+  const p = data.rooms[room][grimoireTargetName];
+  if (!p) return;
+
+  ensurePlayerSchema(p);
+  recalcFromSheet(p);
+
+  const name = (document.getElementById("spellName").value || "").trim();
+  const level = parseInt(document.getElementById("spellLevel").value || "1", 10) || 1;
+  const maxSpellLevel = Math.min(9, Math.max(1, Math.ceil((p.level || 1) / 2)));
+  const limit = getSpellCreationLimit(p.level || 1);
+  const castingTime = (document.getElementById("spellCastingTime").value || "1 ação").trim();
+  const range = (document.getElementById("spellRange").value || "18m").trim();
+  const description = (document.getElementById("spellDescription").value || "").trim();
+
+  const { selected, total } = computeSpellDraftCost();
+  if (!name) return alert("Dê um nome para a magia.");
+  if (selected.length === 0) return alert("Selecione ao menos 1 efeito.");
+  if (level > maxSpellLevel) return alert(`Nível de magia acima do permitido para o personagem (máx ${maxSpellLevel}).`);
+  if (total > limit) return alert(`Custo excede o limite de criação (${limit} pontos).`);
+
+  const components = [];
+  if (document.getElementById("compV").checked) components.push("V");
+  if (document.getElementById("compS").checked) components.push("S");
+  if (document.getElementById("compM").checked) components.push("M");
+
+  const spell = {
+    id: `custom_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    name,
+    level,
+    creatorLevel: p.level,
+    effects: buildCustomSpellEffects(selected),
+    pointCost: total,
+    castingTime,
+    range,
+    components,
+    description,
+    rules: {
+      usesSpellSlots: true,
+      preparedType: ["Mago", "Feiticeiro"].includes(p.class) ? "known" : "prepared",
+    },
+  };
+
+  p.customSpells.push(spell);
+  save(data);
+
+  pushAction(currentUser, `${grimoireTargetName} criou a magia customizada 📖 ${spell.name} (Nível ${spell.level}, custo ${spell.pointCost} pts).`);
+  renderGrimoire(p);
+  updateArena();
+}
+
+function renderCustomSpells(p) {
+  const box = document.getElementById("customSpellsList");
+  const spells = p.customSpells || [];
+  if (spells.length === 0) {
+    box.innerHTML = '<div style="opacity:.7; font-size:12px;">Nenhuma magia customizada ainda.</div>';
+    return;
+  }
+
+  box.innerHTML = spells.map((spell) => {
+    const effects = (spell.effects || []).map((fx) => {
+      if (fx.type === "dano") return `• Dano ${fx.damageDice} (${fx.damageType})`;
+      if (fx.type === "cura") return `• Cura ${fx.healDice}`;
+      if (fx.type === "status") return `• Controle: ${fx.effect} (${fx.duration})`;
+      if (fx.type === "buff") return `• Bônus: +${fx.bonus} ${fx.stat}`;
+      if (fx.type === "debuff") return `• Debuff: -${fx.penalty} ${fx.stat}`;
+      return `• Invocação (${fx.duration})`;
+    }).join("<br>");
+
+    return `
+      <div class="spellCard">
+        <div class="spellHead">
+          <strong>${spell.name}</strong>
+          <span>Nv ${spell.level} • ${spell.pointCost} pts</span>
+        </div>
+        <div style="opacity:.8; font-size:12px;">${spell.description || "Sem descrição."}</div>
+        <div style="margin:6px 0; font-size:12px;">${effects}</div>
+        <div class="spellFooter">
+          <span>Componentes: ${(spell.components || []).join(", ") || "—"}</span>
+          <button class="smallBtn" onclick="castCustomSpell('${spell.id}')">Conjurar</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function castCustomSpell(spellId) {
+  if (!grimoireTargetName) return;
+  const data = load();
+  const p = data.rooms[room][grimoireTargetName];
+  if (!p) return;
+
+  ensurePlayerSchema(p);
+  recalcFromSheet(p);
+
+  const spell = (p.customSpells || []).find((s) => s.id === spellId);
+  if (!spell) return;
+
+  const slotIndex = Math.max(0, (spell.level || 1) - 1);
+  const current = p.spellcasting.slotsCurrent[slotIndex] ?? 0;
+  if (current <= 0) {
+    alert(`Sem slots de nível ${spell.level} disponíveis.`);
+    return;
+  }
+
+  p.spellcasting.slotsCurrent[slotIndex] = current - 1;
+  save(data);
+
+  pushAction(currentUser, `${grimoireTargetName} conjurou ✨ ${spell.name} usando 1 slot de nível ${spell.level}.`);
+  renderGrimoire(p);
+  updateArena();
+}
+
+function resetSpellSlots(name) {
+  const data = load();
+  const p = data.rooms[room][name];
+  if (!p) return;
+
+  ensurePlayerSchema(p);
+  recalcFromSheet(p);
+  p.spellcasting.slotsCurrent = [...(p.spellcasting.slotsMax || [])];
+  save(data);
+
+  pushAction(currentUser, `${name} concluiu descanso longo e recuperou todos os slots de magia.`);
+
+  if (grimoireTargetName === name) renderGrimoire(p);
+  updateArena();
 }
 
 /* ================= INVENTÁRIO + LOJA ================= */
