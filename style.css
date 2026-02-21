@@ -83,10 +83,29 @@ body {
   border-color: rgba(76, 92, 255, 0.75);
 }
 
-#diceTray {
+#grimoireQuickToggle {
   position: absolute;
   left: 12px;
   top: 56px;
+  z-index: 5;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(15, 18, 27, 0.9);
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+#grimoireQuickToggle:hover {
+  background: rgba(76, 92, 255, 0.3);
+  border-color: rgba(76, 92, 255, 0.75);
+}
+
+#diceTray {
+  position: absolute;
+  left: 12px;
+  top: 100px;
   width: min(420px, calc(100% - 24px));
   max-height: calc(100% - 70px);
   overflow: auto;
