@@ -1539,13 +1539,25 @@ function showMenu(name, element) {
   let menu = document.createElement("div");
   menu.className = "floatingMenu";
 
-  menu.innerHTML = `
-    <div class="menuBtn" title="Inventário" onclick="openInventory('${name}')">🎒</div>
-    <div class="menuBtn" title="Ficha" onclick="openSheet('${name}')">📜</div>
-    <div class="menuBtn" title="HP (+/-)" onclick="editStat('${name}','hp')">❤️</div>
-    <div class="menuBtn" title="MP (+/-)" onclick="editStat('${name}','mana')">🔵</div>
-    <div class="menuBtn" title="Remover da mesa" onclick="removeFromTable('${name}')">🗑️</div>
-  `;
+  const actions = [
+    { icon: "🎒", title: "Inventário", run: () => openInventory(name) },
+    { icon: "📜", title: "Ficha", run: () => openSheet(name) },
+    { icon: "❤️", title: "HP (+/-)", run: () => editStat(name, "hp") },
+    { icon: "🔵", title: "MP (+/-)", run: () => editStat(name, "mana") },
+    { icon: "🗑️", title: "Remover da mesa", run: () => removeFromTable(name) },
+  ];
+
+  actions.forEach((action) => {
+    const btn = document.createElement("div");
+    btn.className = "menuBtn";
+    btn.title = action.title;
+    btn.textContent = action.icon;
+    btn.onclick = (evt) => {
+      evt.stopPropagation();
+      action.run();
+    };
+    menu.appendChild(btn);
+  });
 
   document.body.appendChild(menu);
 
@@ -1838,8 +1850,15 @@ function openInventory(name) {
   document.getElementById("invSub").textContent =
     `Ações via menu ⋯. Loja com ouro. Itens equipados refletem na ficha.`;
 
-  renderInventoryModal(p);
   document.getElementById("invOverlay").style.display = "flex";
+  try {
+    renderInventoryModal(p);
+  } catch (err) {
+    console.error("Falha ao abrir inventário:", err);
+    document.getElementById("invList").innerHTML =
+      `<div style="opacity:.8;font-size:12px;">Não foi possível renderizar o inventário deste personagem.</div>`;
+    document.getElementById("shopList").innerHTML = "";
+  }
 }
 function closeInventory() {
   document.getElementById("invOverlay").style.display = "none";
