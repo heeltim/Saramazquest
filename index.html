@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>RPG Quest</title>
 
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style.css?v=20260221b" />
   </head>
 
   <body>
@@ -210,7 +210,10 @@
             <h3 id="sheetTitle" class="modalTitle">Ficha</h3>
             <div id="sheetSub" class="modalSub"></div>
           </div>
-          <button class="btn" onclick="closeSheet()">Fechar</button>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn" onclick="openGrimoire(sheetTargetName)">📖 Abrir Grimório</button>
+            <button class="btn" onclick="closeSheet()">Fechar</button>
+          </div>
         </div>
 
         <div class="sheetColumns">
@@ -293,6 +296,12 @@
               >
                 🎒 Inventário
               </button>
+              <button
+                class="smallBtn smallBtnPrimary"
+                onclick="openGrimoire(sheetTargetName)"
+              >
+                📖 Grimório
+              </button>
             </div>
           </div>
 
@@ -307,6 +316,59 @@
         <div class="sheetActions">
           <button class="btn" onclick="closeSheet()">Cancelar</button>
           <button class="btn btnPrimary" onclick="saveSheet()">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Grimório -->
+    <div id="grimoireOverlay" class="modalOverlay">
+      <div class="modal">
+        <div class="modalHeader">
+          <div>
+            <h3 id="grimoireTitle" class="modalTitle">Grimório</h3>
+            <div id="grimoireSub" class="modalSub"></div>
+          </div>
+          <button class="btn" onclick="closeGrimoire()">Fechar</button>
+        </div>
+
+        <div class="grimoireColumns">
+          <div class="panel">
+            <div style="font-weight:900; margin-bottom:8px;">Recursos do conjurador</div>
+            <div id="grimoireMeta" class="kvList"></div>
+            <div style="font-weight:900; margin:14px 0 8px;">Slots de magia</div>
+            <div id="grimoireSlots"></div>
+            <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="smallBtn" onclick="resetSpellSlots(grimoireTargetName)">🌙 Resetar slots (descanso longo)</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div style="font-weight:900; margin-bottom:8px;">Criar magia customizada</div>
+            <div class="field"><label>Nome</label><input id="spellName" placeholder="Ex: Explosão Flamejante" /></div>
+            <div class="field"><label>Nível da magia</label><input id="spellLevel" type="number" min="1" max="9" value="1" /></div>
+            <div class="field"><label>Tempo de conjuração</label><input id="spellCastingTime" placeholder="Ex: 1 ação" value="1 ação" /></div>
+            <div class="field"><label>Alcance</label><input id="spellRange" placeholder="Ex: 18m" value="18m" /></div>
+            <div class="field"><label>Descrição</label><textarea id="spellDescription" rows="3" placeholder="Resumo da magia"></textarea></div>
+
+            <div class="field">
+              <label>Componentes</label>
+              <div class="chipRow">
+                <label><input type="checkbox" id="compV" checked /> V</label>
+                <label><input type="checkbox" id="compS" checked /> S</label>
+                <label><input type="checkbox" id="compM" /> M</label>
+              </div>
+            </div>
+
+            <div style="font-weight:900; margin:12px 0 8px;">Efeitos (cards)</div>
+            <div id="spellEffectsCatalog" class="effectsCatalog"></div>
+            <div id="spellCostSummary" class="spellCostSummary"></div>
+            <button class="btn btnPrimary" onclick="createCustomSpell()">Salvar magia</button>
+          </div>
+
+          <div class="panel">
+            <div style="font-weight:900; margin-bottom:8px;">Magias customizadas</div>
+            <div id="customSpellsList"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -367,6 +429,6 @@
       </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=20260221b"></script>
   </body>
 </html>
