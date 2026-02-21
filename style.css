@@ -44,7 +44,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 100dvh;
   padding: 18px;
+  overflow: auto;
   background: radial-gradient(circle at top, rgba(76, 92, 255, 0.32), rgba(10, 12, 17, 0.95));
 }
 
@@ -112,6 +114,15 @@ body {
 .setupAvatarBtn:hover {
   border-color: rgba(255, 215, 94, 0.95);
   background: rgba(255, 215, 94, 0.24);
+}
+
+
+.setupAvatarIcon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  image-rendering: auto;
+  pointer-events: none;
 }
 
 .setupSpriteField {

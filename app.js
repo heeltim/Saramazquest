@@ -37,16 +37,56 @@ function getLoggedAccount() {
   return { email, account: acc };
 }
 
-const START_AVATARS = ["🧙", "⚔️", "🏹", "🛡️", "🧝", "🧛", "🐺", "🐉", "🔥", "✨"];
+const START_AVATARS = [
+  { type: "emoji", value: "🧙" },
+  { type: "emoji", value: "⚔️" },
+  { type: "emoji", value: "🏹" },
+  { type: "emoji", value: "🛡️" },
+  { type: "emoji", value: "🧝" },
+  { type: "emoji", value: "🧛" },
+  {
+    type: "icon",
+    label: "Guerreiro",
+    url: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9dd-200d-2642-fe0f.svg",
+    fallback: "🧙",
+  },
+  {
+    type: "icon",
+    label: "Arqueira",
+    url: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9dd-200d-2640-fe0f.svg",
+    fallback: "🏹",
+  },
+  {
+    type: "icon",
+    label: "Vampiro",
+    url: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9db.svg",
+    fallback: "🧛",
+  },
+  {
+    type: "icon",
+    label: "Fada",
+    url: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9da.svg",
+    fallback: "✨",
+  },
+];
 const DEFAULT_SPRITE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif";
 
 function isSpriteAvatar(avatar) {
   return !!avatar && typeof avatar === "object" && avatar.type === "sprite" && typeof avatar.url === "string";
 }
 
+function isIconAvatar(avatar) {
+  return !!avatar && typeof avatar === "object" && avatar.type === "icon" && typeof avatar.url === "string";
+}
+
 function getAvatarEmoji(avatar) {
-  if (isSpriteAvatar(avatar)) return String(avatar.fallback || "🧙");
+  if (isSpriteAvatar(avatar) || isIconAvatar(avatar)) return String(avatar.fallback || "🧙");
   return String(avatar || "🧙").trim() || "🧙";
+}
+
+function getAvatarSelectionKey(avatar) {
+  if (isSpriteAvatar(avatar) || isIconAvatar(avatar)) return String(avatar.url || "");
+  return getAvatarEmoji(avatar);
 }
 
 function normalizeAvatar(avatar) {
@@ -57,6 +97,14 @@ function normalizeAvatar(avatar) {
       fallback: getAvatarEmoji(avatar),
     };
   }
+  if (isIconAvatar(avatar)) {
+    return {
+      type: "icon",
+      url: String(avatar.url || "").trim(),
+      fallback: getAvatarEmoji(avatar),
+      label: String(avatar.label || "Personagem").trim() || "Personagem",
+    };
+  }
   return getAvatarEmoji(avatar);
 }
 
@@ -65,6 +113,15 @@ function createSpriteAvatar(fallbackEmoji = "🧙") {
     type: "sprite",
     url: DEFAULT_SPRITE_URL,
     fallback: getAvatarEmoji(fallbackEmoji),
+  };
+}
+
+function createIconAvatar(url, fallbackEmoji = "🧙", label = "Personagem") {
+  return {
+    type: "icon",
+    url: String(url || "").trim(),
+    fallback: getAvatarEmoji(fallbackEmoji),
+    label: String(label || "Personagem").trim() || "Personagem",
   };
 }
 
@@ -221,13 +278,31 @@ function initCharacterSetup() {
 
   function renderAvatars() {
     avatarWrap.innerHTML = "";
-    START_AVATARS.forEach((avatar) => {
+    START_AVATARS.forEach((avatarOption) => {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "setupAvatarBtn" + (getAvatarEmoji(selectedAvatar) === avatar ? " active" : "");
-      btn.textContent = avatar;
+      const targetAvatar = avatarOption.type === "icon"
+        ? createIconAvatar(avatarOption.url, avatarOption.fallback, avatarOption.label)
+        : avatarOption.value;
+      btn.className = "setupAvatarBtn" + (getAvatarSelectionKey(selectedAvatar) === getAvatarSelectionKey(targetAvatar) ? " active" : "");
+      if (avatarOption.type === "icon") {
+        const icon = document.createElement("img");
+        icon.src = avatarOption.url;
+        icon.alt = avatarOption.label;
+        icon.className = "setupAvatarIcon";
+        icon.loading = "lazy";
+        icon.onerror = () => {
+          icon.remove();
+          btn.textContent = avatarOption.fallback || "🧙";
+        };
+        btn.appendChild(icon);
+      } else {
+        btn.textContent = avatarOption.value;
+      }
       btn.onclick = () => {
-        selectedAvatar = selectedUseSprite ? createSpriteAvatar(avatar) : avatar;
+        selectedAvatar = selectedUseSprite
+          ? createSpriteAvatar(getAvatarEmoji(targetAvatar))
+          : normalizeAvatar(targetAvatar);
         renderAvatars();
       };
       avatarWrap.appendChild(btn);
@@ -2062,11 +2137,11 @@ function updateArena() {
     token.style.background = p.color;
     const avatarEmoji = getAvatarEmoji(p.avatar || name[0].toUpperCase());
     token.innerHTML = "";
-    if (isSpriteAvatar(p.avatar)) {
+    if (isSpriteAvatar(p.avatar) || isIconAvatar(p.avatar)) {
       const sprite = document.createElement("img");
       sprite.className = "tokenSprite";
       sprite.src = p.avatar.url;
-      sprite.alt = `${name} sprite`;
+      sprite.alt = `${name} avatar`;
       sprite.loading = "lazy";
       sprite.onerror = () => {
         sprite.remove();
