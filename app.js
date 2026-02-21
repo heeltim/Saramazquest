@@ -9,6 +9,7 @@ const QUICK_REACTIONS = ["👍", "😂", "🔥", "❤️", "😮"];
 const PICKER_EMOJIS = ["😀", "😁", "😂", "🤣", "🙂", "😉", "😎", "🤔", "😮", "😢", "😡", "❤️", "🔥", "👏", "🎲", "⚔️", "🛡️", "✨"];
 let pendingReplyId = null;
 let chatSenderKey = "player";
+let chatContextCleanup = null;
 
 /* ================= SCENE DEFAULT ================= */
 const DEFAULT_COLS = 20;
@@ -731,6 +732,73 @@ function toggleReaction(messageId, emoji) {
   updateChat();
 }
 
+function closeChatContextMenu() {
+  const existing = document.getElementById("chatContextMenu");
+  if (existing) existing.remove();
+  if (typeof chatContextCleanup === "function") {
+    chatContextCleanup();
+    chatContextCleanup = null;
+  }
+}
+
+function openChatContextMenu(messageId, x, y) {
+  closeChatContextMenu();
+
+  const menu = document.createElement("div");
+  menu.id = "chatContextMenu";
+  menu.className = "chatContextMenu";
+
+  const replyBtn = document.createElement("button");
+  replyBtn.type = "button";
+  replyBtn.textContent = "Responder";
+  replyBtn.onclick = () => {
+    setReplyTarget(messageId);
+    closeChatContextMenu();
+  };
+  menu.appendChild(replyBtn);
+
+  const reactionWrap = document.createElement("div");
+  reactionWrap.className = "chatContextReactions";
+  QUICK_REACTIONS.forEach((emoji) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = emoji;
+    btn.title = `Reagir com ${emoji}`;
+    btn.onclick = () => {
+      toggleReaction(messageId, emoji);
+      closeChatContextMenu();
+    };
+    reactionWrap.appendChild(btn);
+  });
+  menu.appendChild(reactionWrap);
+
+  document.body.appendChild(menu);
+
+  const rect = menu.getBoundingClientRect();
+  const margin = 10;
+  const left = Math.min(x, window.innerWidth - rect.width - margin);
+  const top = Math.min(y, window.innerHeight - rect.height - margin);
+  menu.style.left = `${Math.max(margin, left)}px`;
+  menu.style.top = `${Math.max(margin, top)}px`;
+
+  const onWindowClick = (event) => {
+    if (!menu.contains(event.target)) closeChatContextMenu();
+  };
+  const onEsc = (event) => {
+    if (event.key === "Escape") closeChatContextMenu();
+  };
+
+  window.addEventListener("click", onWindowClick);
+  window.addEventListener("contextmenu", onWindowClick);
+  window.addEventListener("keydown", onEsc);
+
+  chatContextCleanup = () => {
+    window.removeEventListener("click", onWindowClick);
+    window.removeEventListener("contextmenu", onWindowClick);
+    window.removeEventListener("keydown", onEsc);
+  };
+}
+
 function toggleEmojiPicker() {
   const picker = document.getElementById("emojiPicker");
   if (!picker) return;
@@ -789,6 +857,11 @@ function updateChat() {
   roomChat.forEach((msg) => {
     let div = document.createElement("div");
     div.className = "chatMessage";
+    div.title = "Clique com o botão direito para responder ou reagir";
+    div.addEventListener("contextmenu", (event) => {
+      event.preventDefault();
+      openChatContextMenu(msg.id, event.clientX, event.clientY);
+    });
     const safeUser = escapeHtml(msg.user);
     const safeText = escapeHtml(msg.text);
 
@@ -824,25 +897,23 @@ function updateChat() {
 
     div.appendChild(content);
 
-    const actions = document.createElement("div");
-    actions.className = "chatMetaRow";
-    actions.innerHTML = `<button type="button" class="chatMiniBtn" onclick="setReplyTarget('${escapeHtml(msg.id)}')">Responder</button>`;
-
+    const reactionSummary = document.createElement("div");
+    reactionSummary.className = "chatReactionSummary";
     QUICK_REACTIONS.forEach((emoji) => {
-      const count = Array.isArray(msg.reactions?.[emoji]) ? msg.reactions[emoji].length : 0;
-      const mine = Array.isArray(msg.reactions?.[emoji]) && msg.reactions[emoji].includes(currentUser);
-      const reactionBtn = document.createElement("button");
-      reactionBtn.type = "button";
-      reactionBtn.className = `chatReactionBtn ${mine ? "active" : ""}`;
-      reactionBtn.textContent = count > 0 ? `${emoji} ${count}` : emoji;
-      reactionBtn.onclick = () => toggleReaction(msg.id, emoji);
-      actions.appendChild(reactionBtn);
+      const users = Array.isArray(msg.reactions?.[emoji]) ? msg.reactions[emoji] : [];
+      if (!users.length) return;
+      const mine = users.includes(currentUser);
+      const chip = document.createElement("span");
+      chip.className = `chatReactionChip ${mine ? "mine" : ""}`;
+      chip.textContent = `${emoji} ${users.length}`;
+      reactionSummary.appendChild(chip);
     });
+    if (reactionSummary.children.length > 0) div.appendChild(reactionSummary);
 
-    div.appendChild(actions);
     chatBox.appendChild(div);
   });
 
+  closeChatContextMenu();
   renderReplyPreview();
   chatBox.scrollTop = chatBox.scrollHeight;
   save(data);

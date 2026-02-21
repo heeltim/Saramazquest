@@ -547,25 +547,56 @@ body {
   background: rgba(126, 201, 255, 0.08);
   opacity: 0.9;
 }
-.chatMetaRow {
+.chatReactionSummary {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 7px;
 }
-.chatMiniBtn,
-.chatReactionBtn {
+.chatReactionChip {
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.06);
   color: #fff;
   border-radius: 999px;
   font-size: 11px;
   padding: 3px 8px;
-  cursor: pointer;
 }
-.chatReactionBtn.active {
+.chatReactionChip.mine {
   border-color: rgba(126, 201, 255, 0.8);
   background: rgba(126, 201, 255, 0.2);
+}
+
+.chatContextMenu {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 220px;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(20, 24, 36, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+  z-index: 140;
+}
+.chatContextMenu > button,
+.chatContextReactions button {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border-radius: 10px;
+  font-size: 12px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+.chatContextMenu > button:hover,
+.chatContextReactions button:hover {
+  background: rgba(76, 92, 255, 0.28);
+}
+.chatContextReactions {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
 }
 
 #chatInput {
