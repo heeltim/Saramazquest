@@ -624,8 +624,48 @@ body {
 
 #chatIdentityRow {
   display: grid;
-  grid-template-columns: 1.2fr 1fr auto;
+  grid-template-columns: 1fr;
   gap: 8px;
+  width: 100%;
+}
+
+#chatProfileCreateRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(116px, 34%);
+  gap: 8px;
+  width: 100%;
+}
+
+#chatIdentityRow select,
+#chatProfileCreateRow input,
+#chatProfileCreateRow button {
+  min-width: 0;
+}
+
+#chatProfileCreateRow button {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--accent);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+#chatProfileCreateRow button:hover {
+  filter: brightness(1.08);
+}
+
+@media (max-width: 540px) {
+  #chatProfileCreateRow {
+    grid-template-columns: 1fr;
+  }
+
+  #chatProfileCreateRow button {
+    width: 100%;
+  }
 }
 
 .hidden {
