@@ -1910,7 +1910,25 @@ function editStat(name, stat) {
 /* ================= FICHA ================= */
 let sheetTargetName = null;
 
+function closeAllCharacterModals() {
+  const sheet = document.getElementById("sheetOverlay");
+  const inv = document.getElementById("invOverlay");
+  const grim = document.getElementById("grimoireOverlay");
+  if (sheet) sheet.style.display = "none";
+  if (inv) inv.style.display = "none";
+  if (grim) grim.style.display = "none";
+  sheetTargetName = null;
+  invTargetName = null;
+  grimoireTargetName = null;
+}
+
 function openSheet(name) {
+  if (!name) return;
+  removeMenu();
+  const invOpen = document.getElementById("invOverlay").style.display === "flex";
+  const grimOpen = document.getElementById("grimoireOverlay").style.display === "flex";
+  if (invOpen || grimOpen) closeAllCharacterModals();
+
   let data = load();
   let p = data.rooms[room][name];
   if (!p) return;
