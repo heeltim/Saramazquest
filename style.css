@@ -1018,6 +1018,18 @@ select {
   border-radius: 999px;
 }
 
+.shopTabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.smithApplyBox {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 /* ================= MINI MENU (inventário) ================= */
 .miniMenu {
   position: absolute;

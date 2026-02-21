@@ -39,6 +39,10 @@ function createEmptyEquipped() {
   return { ...DEFAULT_EQUIPPED };
 }
 
+function makeRuntimeItemId(baseId) {
+  return `${baseId}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+}
+
 /* ================= BANCO: RAÇAS / CLASSES ================= */
 const RACES = {
   Humano: {
@@ -271,22 +275,19 @@ const ITEM_DB = {
     consume: { mana: +8 },
   },
 };
-const SHOP = [
-  { id: "dagger", price: 8 },
-  { id: "short_sword", price: 15 },
-  { id: "arcane_staff", price: 12 },
-  { id: "icebolt", price: 0 },
-  { id: "firebolt", price: 0 },
-  { id: "leather_armor", price: 10 },
-  { id: "chainmail", price: 30 },
-  { id: "shield", price: 10 },
-  { id: "heavy_shield", price: 25 },
-  { id: "ring_protection", price: 40 },
-  { id: "elven_cloak", price: 35 },
-  { id: "backpack", price: 12 },
-  { id: "potion_healing", price: 8 },
-  { id: "potion_mana", price: 10 },
+const SHOP_TABS = [
+  { id: "taberna", label: "Taberna" },
+  { id: "arsenal", label: "Arsenal" },
+  { id: "ferreiro", label: "Ferreiro" },
 ];
+const SHOP_DB = {
+  taberna: { shopId: "taberna", shopName: "Taberna & Suprimentos", items: [] },
+  arsenal: { shopId: "arsenal", shopName: "Arsenal", items: [] },
+  ferreiro: { shopId: "ferreiro", shopName: "Ferreiro", items: [] },
+};
+let selectedShopId = "taberna";
+let selectedArsenalType = "weapon";
+let pendingUpgradeId = null;
 
 /* ================= STORAGE ================= */
 function load() {
@@ -298,6 +299,27 @@ function load() {
 }
 function save(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+async function loadShopCatalogs() {
+  const files = {
+    taberna: "data/shops/shop_taberna.json",
+    arsenal: "data/shops/shop_arsenal.json",
+    ferreiro: "data/shops/shop_ferreiro.json",
+  };
+
+  await Promise.all(
+    Object.entries(files).map(async ([shopId, file]) => {
+      try {
+        const resp = await fetch(file, { cache: "no-store" });
+        if (!resp.ok) return;
+        const json = await resp.json();
+        if (json && Array.isArray(json.items)) SHOP_DB[shopId] = json;
+      } catch (_) {
+        // fallback silencioso
+      }
+    })
+  );
 }
 
 function normalizeChatMessage(message) {
@@ -1103,19 +1125,26 @@ function invMax(p) {
 }
 
 function addItemToPlayer(p, itemId) {
-  if (!ITEM_DB[itemId]) return { ok: false, msg: "Item não existe" };
+  if (!itemId) return { ok: false, msg: "Item não existe" };
   if (invCount(p) >= invMax(p)) return { ok: false, msg: "Inventário cheio" };
   p.inventory.push(itemId);
   return { ok: true };
 }
 function removeItemFromPlayer(p, itemId) {
-  const idx = (p.inventory || []).indexOf(itemId);
+  const idx = (p.inventory || []).findIndex((entry) => {
+    const it = resolveInventoryItem(entry);
+    return it && it.id === itemId;
+  });
   if (idx >= 0) p.inventory.splice(idx, 1);
 }
 function equipItem(p, itemId) {
   const it = ITEM_DB[itemId];
   if (!it || !it.equipSlot) return;
-  if (!(p.inventory || []).includes(itemId)) return;
+  const hasItem = (p.inventory || []).some((entry) => {
+    const invIt = resolveInventoryItem(entry);
+    return invIt && invIt.id === itemId;
+  });
+  if (!hasItem) return;
   p.equipped[it.equipSlot] = itemId;
 }
 function unequipSlot(p, slot) {
@@ -1125,7 +1154,11 @@ function unequipSlot(p, slot) {
 function useConsumable(p, itemId) {
   const it = ITEM_DB[itemId];
   if (!it || !it.consume) return { ok: false };
-  if (!(p.inventory || []).includes(itemId)) return { ok: false };
+  const idx = (p.inventory || []).findIndex((entry) => {
+    const invIt = resolveInventoryItem(entry);
+    return invIt && invIt.id === itemId;
+  });
+  if (idx < 0) return { ok: false };
 
   if (it.consume.hp) {
     p.hp = Math.max(0, Math.min(p.hpMax, p.hp + it.consume.hp));
@@ -1133,7 +1166,7 @@ function useConsumable(p, itemId) {
   if (it.consume.mana) {
     p.mana = Math.max(0, Math.min(p.manaMax, p.mana + it.consume.mana));
   }
-  removeItemFromPlayer(p, itemId);
+  p.inventory.splice(idx, 1);
   return { ok: true };
 }
 
@@ -1779,19 +1812,13 @@ function openInventory(name) {
   save(data);
 
   invTargetName = name;
+  selectedShopId = "taberna";
+  selectedArsenalType = "weapon";
+  pendingUpgradeId = null;
+
   document.getElementById("invTitle").textContent = `Inventário — ${name}`;
   document.getElementById("invSub").textContent =
     `Ações via menu ⋯. Loja com ouro. Itens equipados refletem na ficha.`;
-
-  const filter = document.getElementById("shopFilter");
-  filter.onchange = () => {
-    const p2 = load().rooms[room][invTargetName];
-    if (p2) {
-      ensurePlayerSchema(p2);
-      recalcFromSheet(p2);
-      renderInventoryModal(p2);
-    }
-  };
 
   renderInventoryModal(p);
   document.getElementById("invOverlay").style.display = "flex";
@@ -1799,6 +1826,7 @@ function openInventory(name) {
 function closeInventory() {
   document.getElementById("invOverlay").style.display = "none";
   invTargetName = null;
+  pendingUpgradeId = null;
   removeMiniMenu();
 }
 function renderInventoryModal(p) {
@@ -1808,6 +1836,14 @@ function renderInventoryModal(p) {
   renderInvList(p);
   renderShop(p);
 }
+
+function resolveInventoryItem(entry) {
+  if (!entry) return null;
+  if (typeof entry === "string") return ITEM_DB[entry] || null;
+  if (typeof entry === "object") return entry;
+  return null;
+}
+
 function renderInvList(p) {
   const box = document.getElementById("invList");
   const inv = p.inventory || [];
@@ -1816,55 +1852,158 @@ function renderInvList(p) {
     return;
   }
   box.innerHTML = inv
-    .map((id, idx) => {
-      const it = ITEM_DB[id];
+    .map((entry, idx) => {
+      const it = resolveInventoryItem(entry);
       if (!it) return "";
       return `
-      <div class="invItem" data-item="${id}" data-idx="${idx}">
-        <div class="invIcon">${it.icon}</div>
+      <div class="invItem" data-idx="${idx}">
+        <div class="invIcon">${it.icon || "📦"}</div>
         <div style="flex:1;">
-          <div class="invName">${it.name}</div>
-          <div class="invDesc">${it.desc}</div>
+          <div class="invName">${it.name || "Item"}</div>
+          <div class="invDesc">${it.desc || it.description || "Sem descrição."}</div>
         </div>
-        <button class="dotBtn" title="Ações" onclick="openItemMenu(event,'${id}',${idx})">⋯</button>
+        <button class="dotBtn" title="Ações" onclick="openItemMenu(event,${idx})">⋯</button>
       </div>
     `;
     })
     .join("");
 }
+
+function iconForShopItem(item) {
+  const iconMap = {
+    rope: "🪢",
+    anvil: "🔨",
+    sword: "⚔️",
+    shield: "🛡️",
+    armor: "🥋",
+    backpack: "🎒",
+  };
+  if (item.icon && item.icon.length <= 3) return item.icon;
+  if (iconMap[item.icon]) return iconMap[item.icon];
+  if (item.type === "weapon") return "⚔️";
+  if (item.type === "armor") return "🥋";
+  if (item.type === "shield") return "🛡️";
+  if (item.type === "upgrade") return "🔨";
+  if (item.type === "consumable" || item.type === "utility") return "🎒";
+  return "📦";
+}
+
+function renderShopTabs() {
+  const tabs = document.getElementById("shopTabs");
+  tabs.innerHTML = SHOP_TABS.map((tab) => `
+    <button class="smallBtn ${selectedShopId === tab.id ? "smallBtnPrimary" : ""}" onclick="selectShop('${tab.id}')">${tab.label}</button>
+  `).join("");
+}
+
+function selectShop(shopId) {
+  selectedShopId = shopId;
+  pendingUpgradeId = null;
+  const p = load().rooms[room][invTargetName];
+  if (!p) return;
+  renderInventoryModal(p);
+}
+
+function selectArsenalType(type) {
+  selectedArsenalType = type;
+  const p = load().rooms[room][invTargetName];
+  if (!p) return;
+  renderShop(p);
+}
+
 function renderShop(p) {
   const list = document.getElementById("shopList");
-  const filter = document.getElementById("shopFilter").value;
-  const rows = SHOP.filter((s) => {
-    const it = ITEM_DB[s.id];
-    if (!it) return false;
-    if (filter === "all") return true;
-    return it.type === filter || it.equipSlot === filter;
-  });
+  const smithApplyBox = document.getElementById("smithApplyBox");
+  const arsenalSubTabs = document.getElementById("arsenalSubTabs");
+  renderShopTabs();
+
+  if (selectedShopId === "arsenal") {
+    arsenalSubTabs.innerHTML = ["weapon", "armor", "shield"].map((t) => `
+      <button class="smallBtn ${selectedArsenalType === t ? "smallBtnPrimary" : ""}" onclick="selectArsenalType('${t}')">${t === "weapon" ? "Armas" : t === "armor" ? "Armaduras" : "Escudos"}</button>
+    `).join("");
+  } else {
+    arsenalSubTabs.innerHTML = "";
+  }
+
+  const shop = SHOP_DB[selectedShopId] || { items: [] };
+  let rows = shop.items || [];
+  if (selectedShopId === "arsenal") rows = rows.filter((it) => it.type === selectedArsenalType);
 
   list.innerHTML = rows
-    .map((s) => {
-      const it = ITEM_DB[s.id];
-      const price = s.price;
+    .map((it) => {
+      const price = it.priceGold ?? 0;
       const affordable = (p.gold ?? 0) >= price;
+      const actionLabel = selectedShopId === "ferreiro" ? "Aplicar" : "Comprar";
+      const actionOnclick = selectedShopId === "ferreiro" ? `startApplyUpgrade('${it.id}')` : `buyItem('${it.id}')`;
       return `
       <div class="shopItem">
-        <div class="invIcon">${it.icon}</div>
+        <div class="invIcon">${iconForShopItem(it)}</div>
         <div style="flex:1;">
           <div class="invName">${it.name} ${price === 0 ? `<span class="badge">grátis</span>` : ""}</div>
-          <div class="invDesc">${it.desc}</div>
+          <div class="invDesc">${it.description || "Sem descrição."}</div>
         </div>
         <div class="price">
           <span>🪙 <strong>${price}</strong></span>
-          <button class="smallBtn ${affordable ? "smallBtnPrimary" : ""}" onclick="buyItem('${s.id}')">
-            Comprar
-          </button>
+          <button class="smallBtn ${affordable ? "smallBtnPrimary" : ""}" onclick="${actionOnclick}" ${affordable ? "" : "disabled"}>${actionLabel}</button>
         </div>
       </div>
     `;
     })
     .join("");
+
+  if (selectedShopId === "ferreiro") {
+    renderSmithApplyBox(p);
+    smithApplyBox.style.display = "block";
+  } else {
+    smithApplyBox.style.display = "none";
+    smithApplyBox.innerHTML = "";
+  }
 }
+
+function createInventoryItemFromShopEntry(entry) {
+  const id = makeRuntimeItemId(entry.id);
+  const runtimeItem = {
+    id,
+    baseId: entry.id,
+    name: entry.name,
+    icon: iconForShopItem(entry),
+    type: entry.type,
+    desc: entry.description || "",
+    upgrades: [],
+  };
+
+  if (entry.type === "weapon") {
+    runtimeItem.equipSlot = "weapon";
+    runtimeItem.mods = { attack: 0 };
+    runtimeItem.stats = {
+      damage: entry.damage || null,
+      crit: entry.crit || null,
+      range: entry.range || null,
+      damageType: entry.damageType || null,
+      proficiency: entry.proficiency || null,
+    };
+  }
+  if (entry.type === "armor") {
+    runtimeItem.equipSlot = "armor";
+    runtimeItem.mods = { defense: entry.defenseBonus || 0 };
+    runtimeItem.stats = {
+      defenseBonus: entry.defenseBonus || 0,
+      penalty: entry.penalty || 0,
+      category: entry.category || "",
+    };
+  }
+  if (entry.type === "shield") {
+    runtimeItem.equipSlot = "shield";
+    runtimeItem.mods = { defense: entry.defenseBonus || 0 };
+    runtimeItem.stats = {
+      defenseBonus: entry.defenseBonus || 0,
+      penalty: entry.penalty || 0,
+    };
+  }
+
+  ITEM_DB[id] = runtimeItem;
+  return id;
+}
+
 function buyItem(itemId) {
   if (!invTargetName) return;
   let data = load();
@@ -1874,17 +2013,19 @@ function buyItem(itemId) {
   ensurePlayerSchema(p);
   recalcFromSheet(p);
 
-  const shopEntry = SHOP.find((s) => s.id === itemId);
+  const shop = SHOP_DB[selectedShopId] || { items: [] };
+  const shopEntry = (shop.items || []).find((s) => s.id === itemId);
   if (!shopEntry) return;
 
-  const price = shopEntry.price ?? 0;
+  const price = shopEntry.priceGold ?? 0;
   const gold = p.gold ?? 0;
   if (gold < price) {
     alert("Ouro insuficiente.");
     return;
   }
 
-  const res = addItemToPlayer(p, itemId);
+  const runtimeItemId = createInventoryItemFromShopEntry(shopEntry);
+  const res = addItemToPlayer(p, runtimeItemId);
   if (!res.ok) {
     alert(res.msg || "Não foi possível comprar.");
     return;
@@ -1892,27 +2033,114 @@ function buyItem(itemId) {
 
   p.gold = gold - price;
 
-  const it = ITEM_DB[itemId];
+  const it = ITEM_DB[runtimeItemId];
   if (it && it.equipSlot === "weapon" && !p.equipped.weapon) {
-    p.equipped.weapon = itemId;
+    p.equipped.weapon = runtimeItemId;
   }
 
   recalcFromSheet(p);
   save(data);
 
-  pushAction(
-    currentUser,
-    `${invTargetName} comprou ${it.icon} ${it.name} por 🪙${price}.`,
-  );
+  pushAction(currentUser, `${invTargetName} comprou ${it.icon || "📦"} ${it.name} por 🪙${price}.`);
+  updateArena();
+}
+
+function startApplyUpgrade(upgradeId) {
+  pendingUpgradeId = upgradeId;
+  const p = load().rooms[room][invTargetName];
+  if (!p) return;
+  renderSmithApplyBox(p);
+}
+
+function renderSmithApplyBox(p) {
+  const box = document.getElementById("smithApplyBox");
+  const ferreiro = SHOP_DB.ferreiro || { items: [] };
+  const upgrade = (ferreiro.items || []).find((u) => u.id === pendingUpgradeId);
+  if (!upgrade) {
+    box.innerHTML = `<div class="invDesc">Escolha uma melhoria e clique em Aplicar.</div>`;
+    return;
+  }
+
+  const compatible = (p.inventory || []).map((entry, idx) => ({ idx, item: resolveInventoryItem(entry) }))
+    .filter(({ item }) => item && upgrade.appliesTo.includes(item.type));
+
+  if (!compatible.length) {
+    box.innerHTML = `<div class="invDesc">Nenhum item compatível para <strong>${upgrade.name}</strong>.</div>`;
+    return;
+  }
+
+  box.innerHTML = `
+    <div class="invName" style="margin-bottom:8px;">Aplicar ${upgrade.name}</div>
+    ${compatible.map(({ idx, item }) => `
+      <div class="shopItem">
+        <div class="invIcon">${item.icon || "📦"}</div>
+        <div style="flex:1;">
+          <div class="invName">${item.name}</div>
+          <div class="invDesc">${item.desc || item.description || ""}</div>
+        </div>
+        <button class="smallBtn smallBtnPrimary" onclick="confirmApplyUpgrade('${upgrade.id}', ${idx})">Confirmar</button>
+      </div>
+    `).join("")}
+  `;
+}
+
+function confirmApplyUpgrade(upgradeId, inventoryIndex) {
+  if (!invTargetName) return;
+  let data = load();
+  const p = data.rooms[room][invTargetName];
+  if (!p) return;
+
+  const ferreiro = SHOP_DB.ferreiro || { items: [] };
+  const upgrade = (ferreiro.items || []).find((u) => u.id === upgradeId);
+  if (!upgrade) return;
+
+  const price = upgrade.priceGold ?? 0;
+  if ((p.gold ?? 0) < price) {
+    alert("Ouro insuficiente.");
+    return;
+  }
+
+  const entry = (p.inventory || [])[inventoryIndex];
+  const item = resolveInventoryItem(entry);
+  if (!item || !upgrade.appliesTo.includes(item.type)) {
+    alert("Item incompatível.");
+    return;
+  }
+
+  if (!item.upgrades) item.upgrades = [];
+  item.upgrades.push({
+    id: upgrade.id,
+    name: upgrade.name,
+    effect: upgrade.effect || {},
+    priceGold: price,
+  });
+
+  if (!item.mods) item.mods = {};
+  const eff = upgrade.effect || {};
+  if (eff.defenseBonus) item.mods.defense = (item.mods.defense || 0) + eff.defenseBonus;
+  if (eff.damageBonus) item.mods.str = (item.mods.str || 0) + eff.damageBonus;
+  if (eff.attackBonus) item.mods.dex = (item.mods.dex || 0) + eff.attackBonus;
+
+  p.gold -= price;
+  p.inventory[inventoryIndex] = item;
+
+  recalcFromSheet(p);
+  save(data);
+  pendingUpgradeId = null;
+
+  pushAction(currentUser, `${invTargetName} aplicou 🔨 ${upgrade.name} em ${item.name} por 🪙${price}.`);
   updateArena();
 }
 
 /* mini menu inv */
-function openItemMenu(evt, itemId, idx) {
+function openItemMenu(evt, idx) {
   evt.stopPropagation();
   removeMiniMenu();
 
-  const it = ITEM_DB[itemId];
+  const p = load().rooms[room][invTargetName];
+  if (!p) return;
+  const it = resolveInventoryItem((p.inventory || [])[idx]);
+  if (!it) return;
   const anchor = evt.currentTarget;
   const r = anchor.getBoundingClientRect();
 
@@ -1925,10 +2153,10 @@ function openItemMenu(evt, itemId, idx) {
 
   menu.innerHTML = `
     <div class="muted">${it.icon} ${it.name}</div>
-    ${canEquip ? `<button onclick="menuEquip('${itemId}')">🧷 Equipar</button>` : `<div class="muted">Não equipável</div>`}
-    ${canUse ? `<button onclick="menuUse('${itemId}')">🧪 Usar</button>` : `<div class="muted">Não consumível</div>`}
-    <button onclick="menuSend('${itemId}')">📦 Enviar para jogador</button>
-    <button onclick="menuDrop('${itemId}')">🗑️ Descartar</button>
+    ${canEquip ? `<button onclick="menuEquip(${idx})">🧷 Equipar</button>` : `<div class="muted">Não equipável</div>`}
+    ${canUse ? `<button onclick="menuUse(${idx})">🧪 Usar</button>` : `<div class="muted">Não consumível</div>`}
+    <button onclick="menuSend(${idx})">📦 Enviar para jogador</button>
+    <button onclick="menuDrop(${idx})">🗑️ Descartar</button>
   `;
 
   document.body.appendChild(menu);
@@ -1946,24 +2174,25 @@ function removeMiniMenu() {
   if (m) m.remove();
   document.removeEventListener("click", removeMiniMenu);
 }
-function menuEquip(itemId) {
+function menuEquip(idx) {
   if (!invTargetName) return;
   let data = load();
   const p = data.rooms[room][invTargetName];
   if (!p) return;
   ensurePlayerSchema(p);
 
-  equipItem(p, itemId);
+  const item = resolveInventoryItem((p.inventory || [])[idx]);
+  if (!item) return;
+  equipItem(p, item.id);
   recalcFromSheet(p);
   save(data);
 
-  const it = ITEM_DB[itemId];
-  pushAction(currentUser, `${invTargetName} equipou ${it.icon} ${it.name}.`);
+  pushAction(currentUser, `${invTargetName} equipou ${item.icon || "📦"} ${item.name}.`);
 
   removeMiniMenu();
   updateArena();
 }
-function menuUse(itemId) {
+function menuUse(idx) {
   if (!invTargetName) return;
   let data = load();
   const p = data.rooms[room][invTargetName];
@@ -1971,17 +2200,18 @@ function menuUse(itemId) {
   ensurePlayerSchema(p);
   recalcFromSheet(p);
 
-  const it = ITEM_DB[itemId];
-  const ok = useConsumable(p, itemId);
+  const item = resolveInventoryItem((p.inventory || [])[idx]);
+  if (!item) return;
+  const ok = useConsumable(p, item.id);
   if (!ok.ok) return;
 
   save(data);
-  pushAction(currentUser, `${invTargetName} usou ${it.icon} ${it.name}.`);
+  pushAction(currentUser, `${invTargetName} usou ${item.icon || "📦"} ${item.name}.`);
 
   removeMiniMenu();
   updateArena();
 }
-function menuDrop(itemId) {
+function menuDrop(idx) {
   if (!invTargetName) return;
   if (!confirm("Descartar este item?")) return;
 
@@ -1990,18 +2220,19 @@ function menuDrop(itemId) {
   if (!p) return;
   ensurePlayerSchema(p);
 
-  const it = ITEM_DB[itemId];
-  if (it && it.equipSlot && p.equipped && p.equipped[it.equipSlot] === itemId) {
-    p.equipped[it.equipSlot] = null;
+  const item = resolveInventoryItem((p.inventory || [])[idx]);
+  if (!item) return;
+  if (item.equipSlot && p.equipped && p.equipped[item.equipSlot] === item.id) {
+    p.equipped[item.equipSlot] = null;
   }
-  removeItemFromPlayer(p, itemId);
+  (p.inventory || []).splice(idx, 1);
   recalcFromSheet(p);
   save(data);
 
   removeMiniMenu();
   updateArena();
 }
-function menuSend(itemId) {
+function menuSend(idx) {
   if (!invTargetName) return;
 
   let data = load();
@@ -2026,24 +2257,23 @@ function menuSend(itemId) {
   recalcFromSheet(from);
   recalcFromSheet(to);
 
-  if (!(from.inventory || []).includes(itemId)) return;
+  const item = resolveInventoryItem((from.inventory || [])[idx]);
+  if (!item) return;
   if (invCount(to) >= invMax(to)) {
     alert("Inventário do destino está cheio.");
     return;
   }
 
-  const it = ITEM_DB[itemId];
   if (
-    it &&
-    it.equipSlot &&
+    item.equipSlot &&
     from.equipped &&
-    from.equipped[it.equipSlot] === itemId
+    from.equipped[item.equipSlot] === item.id
   ) {
-    from.equipped[it.equipSlot] = null;
+    from.equipped[item.equipSlot] = null;
   }
 
-  removeItemFromPlayer(from, itemId);
-  to.inventory.push(itemId);
+  (from.inventory || []).splice(idx, 1);
+  to.inventory.push(item);
 
   recalcFromSheet(from);
   recalcFromSheet(to);
@@ -2051,7 +2281,7 @@ function menuSend(itemId) {
 
   pushAction(
     currentUser,
-    `${invTargetName} entregou ${it.icon} ${it.name} para ${targetName}.`,
+    `${invTargetName} entregou ${item.icon || "📦"} ${item.name} para ${targetName}.`,
   );
 
   removeMiniMenu();
@@ -2230,6 +2460,12 @@ applySceneCSS();
 updateArena();
 initChatComposer();
 updateChat();
+loadShopCatalogs().then(() => {
+  if (!invTargetName) return;
+  const p = load().rooms[room][invTargetName];
+  if (!p) return;
+  renderShop(p);
+});
 
 /* realtime local */
 window.addEventListener("storage", () => {
