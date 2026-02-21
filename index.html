@@ -235,6 +235,10 @@
               <label>Classe</label>
               <select id="sheetClass"></select>
             </div>
+            <div class="field">
+              <label>Background</label>
+              <select id="sheetBackground"></select>
+            </div>
 
             <div style="font-weight: 900; margin: 10px 0 8px">
               Equipados (vem do Inventário)
@@ -246,30 +250,24 @@
           </div>
 
           <div class="panel">
-            <div class="kv">
-              <span>FOR</span><strong id="statSTR">-</strong>
+            <div style="font-weight: 900; margin-bottom: 8px">Atributos (mod)</div>
+            <div class="statGrid">
+              <div class="kv"><span>FOR</span><strong id="statSTR">-</strong></div>
+              <div class="kv"><span>DES</span><strong id="statDEX">-</strong></div>
+              <div class="kv"><span>CON</span><strong id="statCON">-</strong></div>
+              <div class="kv"><span>INT</span><strong id="statINT">-</strong></div>
+              <div class="kv"><span>SAB</span><strong id="statWIS">-</strong></div>
+              <div class="kv"><span>CAR</span><strong id="statCHA">-</strong></div>
+              <div class="kv"><span>Prof.</span><strong id="statProf">-</strong></div>
+              <div class="kv"><span>Defesa</span><strong id="statDEF">-</strong></div>
+              <div class="kv"><span>HP Máx</span><strong id="statHPMax">-</strong></div>
+              <div class="kv"><span>MP Máx</span><strong id="statMPMax">-</strong></div>
+              <div class="kv"><span>HP Atual</span><strong id="statHPNow">-</strong></div>
+              <div class="kv"><span>MP Atual</span><strong id="statMPNow">-</strong></div>
             </div>
-            <div class="kv">
-              <span>DES</span><strong id="statDEX">-</strong>
-            </div>
-            <div class="kv">
-              <span>ESP</span><strong id="statSPR">-</strong>
-            </div>
-            <div class="kv">
-              <span>Defesa</span><strong id="statDEF">-</strong>
-            </div>
-            <div class="kv">
-              <span>HP Máx</span><strong id="statHPMax">-</strong>
-            </div>
-            <div class="kv">
-              <span>MP Máx</span><strong id="statMPMax">-</strong>
-            </div>
-            <div class="kv">
-              <span>HP Atual</span><strong id="statHPNow">-</strong>
-            </div>
-            <div class="kv">
-              <span>MP Atual</span><strong id="statMPNow">-</strong>
-            </div>
+
+            <div style="font-weight: 900; margin: 10px 0 8px">Point Buy <span id="pointBuyUsed">0/27</span></div>
+            <div id="sheetPointBuy" class="pointBuyGrid"></div>
 
             <div
               style="
@@ -307,9 +305,9 @@
           </div>
 
           <div class="panel">
-            <div style="font-weight: 900; margin-bottom: 8px">
-              Habilidades (clicáveis)
-            </div>
+            <div style="font-weight: 900; margin-bottom: 8px">Perícias</div>
+            <div id="sheetSkills" class="skillsList"></div>
+            <div style="font-weight: 900; margin: 12px 0 8px">Habilidades (clicáveis)</div>
             <div id="sheetAbilities" class="abilities"></div>
           </div>
         </div>
