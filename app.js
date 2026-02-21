@@ -246,6 +246,7 @@ function initCharacterSetup() {
   const avatarWrap = document.getElementById("setupAvatarOptions");
   const useSpriteInput = document.getElementById("setupUseSprite");
   const startBtn = document.getElementById("setupStartBtn");
+  const skipBtn = document.getElementById("setupSkipBtn");
 
   if (!currentAccountEmail) {
     overlay.classList.add("hidden");
@@ -329,13 +330,14 @@ function initCharacterSetup() {
   }
   overlay.classList.remove("hidden");
 
-  startBtn.onclick = () => {
-    const chosenName = String(nameInput.value || "").trim() || "Jogador";
-    const chosenRace = raceSelect.value || "Humano";
-    const chosenClass = classSelect.value || "Guerreiro";
-
+  const finishSetup = ({
+    chosenName = String(nameInput.value || "").trim() || "Jogador",
+    chosenRace = raceSelect.value || "Humano",
+    chosenClass = classSelect.value || "Guerreiro",
+    chosenAvatar = selectedAvatar || "🧙",
+  } = {}) => {
     currentUser = chosenName;
-    currentAvatar = normalizeAvatar(selectedAvatar || "🧙");
+    currentAvatar = normalizeAvatar(chosenAvatar);
     pendingCharacterSetup = {
       race: chosenRace,
       className: chosenClass,
@@ -361,6 +363,21 @@ function initCharacterSetup() {
     updateChat();
     overlay.classList.add("hidden");
   };
+
+  startBtn.onclick = () => finishSetup();
+
+  if (skipBtn) {
+    skipBtn.onclick = () => {
+      const safeRace = Object.keys(RACES).includes("Humano") ? "Humano" : Object.keys(RACES)[0] || "Humano";
+      const safeClass = Object.keys(CLASSES).includes("Guerreiro") ? "Guerreiro" : Object.keys(CLASSES)[0] || "Guerreiro";
+      finishSetup({
+        chosenName: String(nameInput.value || "").trim() || currentUser || "Jogador",
+        chosenRace: safeRace,
+        chosenClass: safeClass,
+        chosenAvatar: "🧙",
+      });
+    };
+  }
 }
 
 

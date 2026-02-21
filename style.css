@@ -153,6 +153,22 @@ body {
   filter: brightness(1.08);
 }
 
+.setupSecondaryBtn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.setupSecondaryBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
 
 .authCard {
   max-width: 520px;
