@@ -43,10 +43,60 @@ function makeRuntimeItemId(baseId) {
   return `${baseId}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
 }
 
+/* ================= ATRIBUTOS / PERÍCIAS (5e - mods) ================= */
+const ATTRIBUTES = [
+  { id: "str", name: "Força", short: "FOR" },
+  { id: "dex", name: "Destreza", short: "DES" },
+  { id: "con", name: "Constituição", short: "CON" },
+  { id: "int", name: "Inteligência", short: "INT" },
+  { id: "wis", name: "Sabedoria", short: "SAB" },
+  { id: "cha", name: "Carisma", short: "CAR" },
+];
+
+const ATTRIBUTE_POINT_BUY = [
+  { score: 8, cost: 0, mod: -1 },
+  { score: 9, cost: 1, mod: -1 },
+  { score: 10, cost: 2, mod: 0 },
+  { score: 11, cost: 3, mod: 0 },
+  { score: 12, cost: 4, mod: 1 },
+  { score: 13, cost: 5, mod: 1 },
+  { score: 14, cost: 7, mod: 2 },
+  { score: 15, cost: 9, mod: 2 },
+];
+const POINT_BUY_BUDGET = 27;
+
+const SKILLS = [
+  { id: "athletics", name: "Atletismo", ability: "str" },
+  { id: "acrobatics", name: "Acrobacia", ability: "dex" },
+  { id: "sleightOfHand", name: "Prestidigitação", ability: "dex" },
+  { id: "stealth", name: "Furtividade", ability: "dex" },
+  { id: "arcana", name: "Arcanismo", ability: "int" },
+  { id: "history", name: "História", ability: "int" },
+  { id: "investigation", name: "Investigação", ability: "int" },
+  { id: "nature", name: "Natureza", ability: "int" },
+  { id: "religion", name: "Religião", ability: "int" },
+  { id: "animalHandling", name: "Lidar com Animais", ability: "wis" },
+  { id: "insight", name: "Intuição", ability: "wis" },
+  { id: "medicine", name: "Medicina", ability: "wis" },
+  { id: "perception", name: "Percepção", ability: "wis" },
+  { id: "survival", name: "Sobrevivência", ability: "wis" },
+  { id: "deception", name: "Enganação", ability: "cha" },
+  { id: "intimidation", name: "Intimidação", ability: "cha" },
+  { id: "performance", name: "Atuação", ability: "cha" },
+  { id: "persuasion", name: "Persuasão", ability: "cha" },
+];
+
 /* ================= BANCO: RAÇAS / CLASSES ================= */
 const RACES = {
   Humano: {
-    bonus: { forca: 1, destreza: 1, espirito: 1 },
+    abilityBonuses: [
+      { ability: "str", modDelta: 1 },
+      { ability: "dex", modDelta: 1 },
+      { ability: "con", modDelta: 1 },
+      { ability: "int", modDelta: 1 },
+      { ability: "wis", modDelta: 1 },
+      { ability: "cha", modDelta: 1 },
+    ],
     abilities: [
       {
         icon: "🌍",
@@ -63,7 +113,10 @@ const RACES = {
     ],
   },
   Elfo: {
-    bonus: { forca: 0, destreza: 2, espirito: 1 },
+    abilityBonuses: [
+      { ability: "dex", modDelta: 2 },
+      { ability: "wis", modDelta: 1 },
+    ],
     abilities: [
       {
         icon: "🌙",
@@ -80,7 +133,10 @@ const RACES = {
     ],
   },
   Anao: {
-    bonus: { forca: 2, destreza: 0, espirito: 1 },
+    abilityBonuses: [
+      { ability: "str", modDelta: 2 },
+      { ability: "con", modDelta: 1 },
+    ],
     abilities: [
       {
         icon: "🛡️",
@@ -100,7 +156,12 @@ const RACES = {
 
 const CLASSES = {
   Guerreiro: {
-    bonus: { forca: 2, destreza: 0, espirito: 0 },
+    primaryAbilities: ["str", "con"],
+    savingThrowProficiencies: ["str", "con"],
+    skillChoices: {
+      choose: 2,
+      from: ["athletics", "animalHandling", "intimidation", "survival", "perception"],
+    },
     hpMod: 6,
     manaMod: -2,
     abilities: [
@@ -119,7 +180,12 @@ const CLASSES = {
     ],
   },
   Mago: {
-    bonus: { forca: 0, destreza: 0, espirito: 2 },
+    primaryAbilities: ["int"],
+    savingThrowProficiencies: ["int", "wis"],
+    skillChoices: {
+      choose: 2,
+      from: ["arcana", "history", "insight", "investigation", "medicine", "religion"],
+    },
     hpMod: -2,
     manaMod: 10,
     abilities: [
@@ -138,7 +204,12 @@ const CLASSES = {
     ],
   },
   Arqueiro: {
-    bonus: { forca: 0, destreza: 2, espirito: 0 },
+    primaryAbilities: ["dex", "wis"],
+    savingThrowProficiencies: ["dex", "wis"],
+    skillChoices: {
+      choose: 3,
+      from: ["acrobatics", "athletics", "nature", "perception", "stealth", "survival"],
+    },
     hpMod: 2,
     manaMod: 2,
     abilities: [
@@ -155,6 +226,18 @@ const CLASSES = {
         manaCost: 1,
       },
     ],
+  },
+};
+
+
+const BACKGROUNDS = {
+  Nenhum: {
+    abilityBonuses: [],
+    skillProficiencies: [],
+  },
+  Sabio: {
+    abilityBonuses: [{ ability: "int", modDelta: 1 }],
+    skillProficiencies: ["arcana", "history"],
   },
 };
 
@@ -570,6 +653,60 @@ function randomColor() {
   );
 }
 
+function defaultAttributeScores() {
+  return { str: 8, dex: 8, con: 8, int: 8, wis: 8, cha: 8 };
+}
+
+function defaultAttributeMods() {
+  return { str: -1, dex: -1, con: -1, int: -1, wis: -1, cha: -1 };
+}
+
+function getPointBuyRow(score) {
+  return ATTRIBUTE_POINT_BUY.find((r) => r.score === score);
+}
+
+function pointBuyCost(score) {
+  const row = getPointBuyRow(score);
+  return row ? row.cost : 0;
+}
+
+function scoreToMod(score) {
+  const row = getPointBuyRow(score);
+  return row ? row.mod : -1;
+}
+
+function normalizeScore(score) {
+  const n = parseInt(score, 10);
+  if (Number.isNaN(n)) return 8;
+  return Math.max(8, Math.min(15, n));
+}
+
+function normalizeAttributeScores(scores) {
+  const next = defaultAttributeScores();
+  ATTRIBUTES.forEach((a) => {
+    next[a.id] = normalizeScore(scores?.[a.id]);
+  });
+  return next;
+}
+
+function totalPointBuyCost(scores) {
+  return ATTRIBUTES.reduce((acc, a) => acc + pointBuyCost(scores[a.id]), 0);
+}
+
+function computeProficiencyBonus(level) {
+  const lv = Math.max(1, parseInt(level || 1, 10) || 1);
+  return 2 + Math.floor((lv - 1) / 4);
+}
+
+function abilityShort(abilityId) {
+  const found = ATTRIBUTES.find((a) => a.id === abilityId);
+  return found ? found.short : abilityId.toUpperCase();
+}
+
+function fmtMod(value) {
+  return value >= 0 ? `+${value}` : `${value}`;
+}
+
 function ensurePlayerSchema(p) {
   if (p.hp === undefined) p.hp = 100;
   if (p.hpMax === undefined) p.hpMax = 100;
@@ -578,15 +715,18 @@ function ensurePlayerSchema(p) {
 
   if (p.race === undefined) p.race = "Humano";
   if (p.class === undefined) p.class = "Guerreiro";
+  if (p.background === undefined) p.background = "Nenhum";
   if (p.level === undefined) p.level = 1;
   if (p.owner === undefined) p.owner = "";
   if (p.onTable === undefined) p.onTable = true;
 
   if (p.gold === undefined) p.gold = 60;
 
-  if (p.attributes === undefined) {
-    p.attributes = { forca: 5, destreza: 5, espirito: 5 };
-  }
+  p.attributeScores = normalizeAttributeScores(p.attributeScores);
+  p.attributeMods = { ...defaultAttributeMods(), ...(p.attributeMods || {}) };
+  if (!Array.isArray(p.skillProficiencies)) p.skillProficiencies = [];
+  if (!Array.isArray(p.expertiseSkills)) p.expertiseSkills = [];
+
   if (!Array.isArray(p.skills)) p.skills = [];
   if (!Array.isArray(p.customSpells)) p.customSpells = [];
 
@@ -1304,9 +1444,9 @@ function ensureMageFreeWeapon(p) {
 }
 
 function recalcFromSheet(p) {
-  const base = { forca: 3, destreza: 3, espirito: 3 };
   const race = RACES[p.race] || RACES.Humano;
   const cls = CLASSES[p.class] || CLASSES.Guerreiro;
+  const bg = BACKGROUNDS[p.background] || BACKGROUNDS.Nenhum;
 
   let level = parseInt(p.level, 10);
   if (isNaN(level) || level < 1) level = 1;
@@ -1314,24 +1454,31 @@ function recalcFromSheet(p) {
 
   ensureMageFreeWeapon(p);
 
-  const bonusR = race.bonus;
-  const bonusC = cls.bonus;
+  p.attributeScores = normalizeAttributeScores(p.attributeScores);
+  const totalCost = totalPointBuyCost(p.attributeScores);
+  if (totalCost > POINT_BUY_BUDGET) {
+    p.attributeScores = defaultAttributeScores();
+  }
 
-  let forca = base.forca + (bonusR.forca || 0) + (bonusC.forca || 0);
-  let destreza =
-    base.destreza + (bonusR.destreza || 0) + (bonusC.destreza || 0);
-  let espirito =
-    base.espirito + (bonusR.espirito || 0) + (bonusC.espirito || 0);
+  const mods = defaultAttributeMods();
+  ATTRIBUTES.forEach((attr) => {
+    mods[attr.id] = scoreToMod(p.attributeScores[attr.id]);
+  });
+
+  [...(race.abilityBonuses || []), ...(bg.abilityBonuses || [])].forEach((entry) => {
+    if (!entry || !mods.hasOwnProperty(entry.ability)) return;
+    mods[entry.ability] += parseInt(entry.modDelta || 0, 10) || 0;
+  });
 
   const itemMods = computeItemMods(p);
-  forca += itemMods.str;
-  destreza += itemMods.dex;
-  espirito += itemMods.spr;
+  mods.str += itemMods.str;
+  mods.dex += itemMods.dex;
+  mods.wis += itemMods.spr;
 
-  p.attributes = { forca, destreza, espirito };
+  p.attributeMods = mods;
 
-  let hpMax = 10 + forca * 3 + cls.hpMod + (level - 1) * 2;
-  let manaMax = 5 + espirito * 3 + cls.manaMod + (level - 1) * 2;
+  let hpMax = 10 + (mods.con + 2) * 3 + cls.hpMod + (level - 1) * 2;
+  let manaMax = 5 + (mods.int + mods.wis + 2) * 2 + cls.manaMod + (level - 1) * 2;
 
   if (p.race === "Anao") hpMax += level * 2;
 
@@ -1350,7 +1497,9 @@ function recalcFromSheet(p) {
   p.hp = Math.round(Math.max(0, Math.min(p.hpMax, p.hpMax * hpRatio)));
   p.mana = Math.round(Math.max(0, Math.min(p.manaMax, p.manaMax * manaRatio)));
 
-  p.defense = 10 + destreza + (itemMods.defense || 0);
+  p.defense = 10 + mods.dex + (itemMods.defense || 0);
+  p.proficiencyBonus = computeProficiencyBonus(level);
+  p.skillProficiencies = Array.from(new Set([...(p.skillProficiencies || []), ...(bg.skillProficiencies || [])]));
   p.skills = [...(race.abilities || []), ...(cls.abilities || [])];
   p.invMax = 12 + (itemMods.invExtra || 0);
   syncSpellcasting(p);
@@ -1369,9 +1518,13 @@ if (!data.rooms[room][currentUser]) {
     manaMax: 50,
     race: "Humano",
     class: "Guerreiro",
+    background: "Nenhum",
     level: 1,
     owner: "",
-    attributes: { forca: 5, destreza: 5, espirito: 5 },
+    attributeScores: defaultAttributeScores(),
+    attributeMods: defaultAttributeMods(),
+    skillProficiencies: [],
+    expertiseSkills: [],
     skills: [],
     gold: 60,
     inventory: ["potion_healing"],
@@ -1757,7 +1910,25 @@ function editStat(name, stat) {
 /* ================= FICHA ================= */
 let sheetTargetName = null;
 
+function closeAllCharacterModals() {
+  const sheet = document.getElementById("sheetOverlay");
+  const inv = document.getElementById("invOverlay");
+  const grim = document.getElementById("grimoireOverlay");
+  if (sheet) sheet.style.display = "none";
+  if (inv) inv.style.display = "none";
+  if (grim) grim.style.display = "none";
+  sheetTargetName = null;
+  invTargetName = null;
+  grimoireTargetName = null;
+}
+
 function openSheet(name) {
+  if (!name) return;
+  removeMenu();
+  const invOpen = document.getElementById("invOverlay").style.display === "flex";
+  const grimOpen = document.getElementById("grimoireOverlay").style.display === "flex";
+  if (invOpen || grimOpen) closeAllCharacterModals();
+
   let data = load();
   let p = data.rooms[room][name];
   if (!p) return;
@@ -1770,11 +1941,15 @@ function openSheet(name) {
 
   const raceSel = document.getElementById("sheetRace");
   const classSel = document.getElementById("sheetClass");
+  const bgSel = document.getElementById("sheetBackground");
   raceSel.innerHTML = Object.keys(RACES)
     .map((r) => `<option value="${r}">${r}</option>`)
     .join("");
   classSel.innerHTML = Object.keys(CLASSES)
     .map((c) => `<option value="${c}">${c}</option>`)
+    .join("");
+  bgSel.innerHTML = Object.keys(BACKGROUNDS)
+    .map((b) => `<option value="${b}">${b}</option>`)
     .join("");
 
   document.getElementById("sheetTitle").textContent = `Ficha — ${name}`;
@@ -1785,13 +1960,17 @@ function openSheet(name) {
   document.getElementById("sheetLevel").value = p.level || 1;
   raceSel.value = p.race;
   classSel.value = p.class;
+  bgSel.value = p.background || "Nenhum";
 
+  renderPointBuy(p);
   renderSheetComputed(p);
+  renderSkills(p);
   renderEquip(p);
   renderAbilities(p);
 
   raceSel.onchange = () => previewSheet();
   classSel.onchange = () => previewSheet();
+  bgSel.onchange = () => previewSheet();
   document.getElementById("sheetLevel").oninput = () => previewSheet();
 
   document.getElementById("sheetOverlay").style.display = "flex";
@@ -1806,26 +1985,113 @@ function previewSheet() {
 
   p.race = document.getElementById("sheetRace").value;
   p.class = document.getElementById("sheetClass").value;
+  p.background = document.getElementById("sheetBackground").value;
   p.level = parseInt(document.getElementById("sheetLevel").value || "1", 10);
+  p.attributeScores = readPointBuyFromUI();
+  const { profs, exps } = collectSkillFlags();
+  p.skillProficiencies = profs;
+  p.expertiseSkills = exps;
   recalcFromSheet(p);
   save(data);
 
+  renderPointBuy(p);
   renderSheetComputed(p);
+  renderSkills(p);
   renderEquip(p);
   renderAbilities(p);
   updateArena();
 }
 
+function readPointBuyFromUI() {
+  const scores = defaultAttributeScores();
+  ATTRIBUTES.forEach((attr) => {
+    const input = document.getElementById(`attrScore_${attr.id}`);
+    scores[attr.id] = normalizeScore(input ? input.value : 8);
+  });
+  return scores;
+}
+
+function renderPointBuy(p) {
+  const wrap = document.getElementById("sheetPointBuy");
+  wrap.innerHTML = ATTRIBUTES.map((attr) => {
+    const score = p.attributeScores[attr.id];
+    return `
+      <div class="pointRow">
+        <div class="pointLabel">${attr.short}</div>
+        <input id="attrScore_${attr.id}" type="number" min="8" max="15" step="1" value="${score}" />
+      </div>
+    `;
+  }).join("");
+
+  ATTRIBUTES.forEach((attr) => {
+    const input = document.getElementById(`attrScore_${attr.id}`);
+    if (input) input.oninput = () => previewSheet();
+  });
+}
+
+function renderSkills(p) {
+  const profSet = new Set(p.skillProficiencies || []);
+  const expSet = new Set(p.expertiseSkills || []);
+  const prof = p.proficiencyBonus || 2;
+  const wrap = document.getElementById("sheetSkills");
+
+  wrap.innerHTML = SKILLS.map((skill) => {
+    const trained = profSet.has(skill.id);
+    const expert = expSet.has(skill.id);
+    const attrMod = p.attributeMods[skill.ability] || 0;
+    const bonus = attrMod + (expert ? prof * 2 : trained ? prof : 0);
+    return `
+      <label class="skillRow">
+        <div class="skillMain">
+          <input type="checkbox" data-skill-prof="${skill.id}" ${trained ? "checked" : ""} />
+          <span>${skill.name}</span>
+          <small>(${abilityShort(skill.ability)})</small>
+        </div>
+        <div class="skillMeta">
+          <input type="checkbox" data-skill-exp="${skill.id}" ${expert ? "checked" : ""} ${trained ? "" : "disabled"} title="Especialização" />
+          <strong>${fmtMod(bonus)}</strong>
+        </div>
+      </label>
+    `;
+  }).join("");
+
+  wrap.querySelectorAll("input[data-skill-prof]").forEach((el) => {
+    el.onchange = () => previewSheet();
+  });
+  wrap.querySelectorAll("input[data-skill-exp]").forEach((el) => {
+    el.onchange = () => previewSheet();
+  });
+}
+
+function collectSkillFlags() {
+  const profs = [];
+  const exps = [];
+  document.querySelectorAll("input[data-skill-prof]").forEach((el) => {
+    if (el.checked) profs.push(el.dataset.skillProf);
+  });
+  document.querySelectorAll("input[data-skill-exp]").forEach((el) => {
+    if (el.checked) exps.push(el.dataset.skillExp);
+  });
+  return { profs, exps };
+}
+
 function renderSheetComputed(p) {
-  document.getElementById("statSTR").textContent = p.attributes.forca;
-  document.getElementById("statDEX").textContent = p.attributes.destreza;
-  document.getElementById("statSPR").textContent = p.attributes.espirito;
-  document.getElementById("statDEF").textContent =
-    p.defense ?? 10 + p.attributes.destreza;
+  document.getElementById("statSTR").textContent = fmtMod(p.attributeMods.str || 0);
+  document.getElementById("statDEX").textContent = fmtMod(p.attributeMods.dex || 0);
+  document.getElementById("statCON").textContent = fmtMod(p.attributeMods.con || 0);
+  document.getElementById("statINT").textContent = fmtMod(p.attributeMods.int || 0);
+  document.getElementById("statWIS").textContent = fmtMod(p.attributeMods.wis || 0);
+  document.getElementById("statCHA").textContent = fmtMod(p.attributeMods.cha || 0);
+  document.getElementById("statProf").textContent = fmtMod(p.proficiencyBonus || 2);
+  document.getElementById("statDEF").textContent = p.defense ?? 10 + (p.attributeMods.dex || 0);
   document.getElementById("statHPMax").textContent = p.hpMax;
   document.getElementById("statMPMax").textContent = p.manaMax;
   document.getElementById("statHPNow").textContent = p.hp;
   document.getElementById("statMPNow").textContent = p.mana;
+
+  const used = totalPointBuyCost(p.attributeScores || defaultAttributeScores());
+  document.getElementById("pointBuyUsed").textContent = `${used}/${POINT_BUY_BUDGET}`;
+  document.getElementById("pointBuyUsed").className = used > POINT_BUY_BUDGET ? "warn" : "";
 }
 
 function renderAbilities(p) {
@@ -1937,6 +2203,11 @@ function saveSheet() {
   p.level = parseInt(document.getElementById("sheetLevel").value || "1", 10);
   p.race = document.getElementById("sheetRace").value;
   p.class = document.getElementById("sheetClass").value;
+  p.background = document.getElementById("sheetBackground").value;
+  p.attributeScores = readPointBuyFromUI();
+  const { profs, exps } = collectSkillFlags();
+  p.skillProficiencies = profs;
+  p.expertiseSkills = exps;
 
   recalcFromSheet(p);
   save(data);
