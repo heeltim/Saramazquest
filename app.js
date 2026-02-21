@@ -860,6 +860,10 @@ function openChatContextMenu(messageId, x, y) {
   const menu = document.createElement("div");
   menu.id = "chatContextMenu";
   menu.className = "chatContextMenu";
+  menu.addEventListener("contextmenu", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  });
 
   const replyBtn = document.createElement("button");
   replyBtn.type = "button";
@@ -902,12 +906,12 @@ function openChatContextMenu(messageId, x, y) {
   };
 
   window.addEventListener("click", onWindowClick);
-  window.addEventListener("contextmenu", onWindowClick);
+  window.addEventListener("pointerdown", onWindowClick);
   window.addEventListener("keydown", onEsc);
 
   chatContextCleanup = () => {
     window.removeEventListener("click", onWindowClick);
-    window.removeEventListener("contextmenu", onWindowClick);
+    window.removeEventListener("pointerdown", onWindowClick);
     window.removeEventListener("keydown", onEsc);
   };
 }
@@ -970,11 +974,24 @@ function updateChat() {
   roomChat.forEach((msg) => {
     let div = document.createElement("div");
     div.className = "chatMessage";
-    div.title = "Clique com o botão direito para responder ou reagir";
+    div.title = "Botão direito ou ⋯ para responder e reagir";
     div.addEventListener("contextmenu", (event) => {
       event.preventDefault();
+      event.stopPropagation();
       openChatContextMenu(msg.id, event.clientX, event.clientY);
     });
+
+    const actionsBtn = document.createElement("button");
+    actionsBtn.type = "button";
+    actionsBtn.className = "chatMessageMenuBtn";
+    actionsBtn.textContent = "⋯";
+    actionsBtn.title = "Responder ou reagir";
+    actionsBtn.onclick = (event) => {
+      event.stopPropagation();
+      const rect = actionsBtn.getBoundingClientRect();
+      openChatContextMenu(msg.id, rect.left + rect.width / 2, rect.bottom + 6);
+    };
+    div.appendChild(actionsBtn);
     const safeUser = escapeHtml(msg.user);
     const safeText = escapeHtml(msg.text);
 
