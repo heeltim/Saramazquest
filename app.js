@@ -1,9 +1,21 @@
 /* ================= CONFIG ================= */
 const STORAGE_KEY = "rpgquest_v2_scene";
+const LAST_LOGIN_KEY = "rpgquest_last_login";
 let room = "arena";
-let currentUser =
-  prompt("Digite seu nome:") || "Jogador" + Math.floor(Math.random() * 1000);
+let currentUser = resolveCurrentUser();
 document.getElementById("meName").textContent = currentUser;
+
+function resolveCurrentUser() {
+  const savedName = (localStorage.getItem(LAST_LOGIN_KEY) || "").trim();
+  const fallbackName = savedName || "Jogador";
+  let inputName = prompt("Digite seu nome para entrar:", fallbackName);
+
+  if (inputName === null) inputName = fallbackName;
+
+  const cleanName = String(inputName || "").trim() || fallbackName;
+  localStorage.setItem(LAST_LOGIN_KEY, cleanName);
+  return cleanName;
+}
 
 const QUICK_REACTIONS = ["👍", "😂", "🔥", "❤️", "😮"];
 const PICKER_EMOJIS = ["😀", "😁", "😂", "🤣", "🙂", "😉", "😎", "🤔", "😮", "😢", "😡", "❤️", "🔥", "👏", "🎲", "⚔️", "🛡️", "✨"];
