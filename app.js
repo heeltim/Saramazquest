@@ -1,27 +1,93 @@
 /* ================= CONFIG ================= */
 const STORAGE_KEY = "rpgquest_v2_scene";
 const LAST_LOGIN_KEY = "rpgquest_last_login";
+const LAST_AVATAR_KEY = "rpgquest_last_avatar";
 let room = "arena";
-let currentUser = resolveCurrentUser();
+let currentUser = (localStorage.getItem(LAST_LOGIN_KEY) || "").trim() || "Jogador";
+let currentAvatar = (localStorage.getItem(LAST_AVATAR_KEY) || "").trim() || "🧙";
+let pendingCharacterSetup = null;
 document.getElementById("meName").textContent = currentUser;
 
-function resolveCurrentUser() {
-  const savedName = (localStorage.getItem(LAST_LOGIN_KEY) || "").trim();
-  const fallbackName = savedName || "Jogador";
-  let inputName = prompt("Digite seu nome para entrar:", fallbackName);
-
-  if (inputName === null) inputName = fallbackName;
-
-  const cleanName = String(inputName || "").trim() || fallbackName;
-  localStorage.setItem(LAST_LOGIN_KEY, cleanName);
-  return cleanName;
-}
+const START_AVATARS = ["🧙", "⚔️", "🏹", "🛡️", "🧝", "🧛", "🐺", "🐉", "🔥", "✨"];
 
 const QUICK_REACTIONS = ["👍", "😂", "🔥", "❤️", "😮"];
 const PICKER_EMOJIS = ["😀", "😁", "😂", "🤣", "🙂", "😉", "😎", "🤔", "😮", "😢", "😡", "❤️", "🔥", "👏", "🎲", "⚔️", "🛡️", "✨"];
 let pendingReplyId = null;
 let chatSenderKey = "player";
 let chatContextCleanup = null;
+
+function initCharacterSetup() {
+  const overlay = document.getElementById("characterSetup");
+  if (!overlay) return;
+
+  const nameInput = document.getElementById("setupName");
+  const raceSelect = document.getElementById("setupRace");
+  const classSelect = document.getElementById("setupClass");
+  const avatarWrap = document.getElementById("setupAvatarOptions");
+  const startBtn = document.getElementById("setupStartBtn");
+
+  nameInput.value = currentUser;
+
+  Object.keys(RACES).forEach((raceName) => {
+    const opt = document.createElement("option");
+    opt.value = raceName;
+    opt.textContent = raceName;
+    raceSelect.appendChild(opt);
+  });
+
+  Object.keys(CLASSES).forEach((className) => {
+    const opt = document.createElement("option");
+    opt.value = className;
+    opt.textContent = className;
+    classSelect.appendChild(opt);
+  });
+
+  raceSelect.value = Object.keys(RACES).includes("Humano") ? "Humano" : raceSelect.value;
+  classSelect.value = Object.keys(CLASSES).includes("Guerreiro") ? "Guerreiro" : classSelect.value;
+
+  let selectedAvatar = currentAvatar;
+
+  function renderAvatars() {
+    avatarWrap.innerHTML = "";
+    START_AVATARS.forEach((avatar) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "setupAvatarBtn" + (selectedAvatar === avatar ? " active" : "");
+      btn.textContent = avatar;
+      btn.onclick = () => {
+        selectedAvatar = avatar;
+        renderAvatars();
+      };
+      avatarWrap.appendChild(btn);
+    });
+  }
+
+  renderAvatars();
+
+  startBtn.onclick = () => {
+    const chosenName = String(nameInput.value || "").trim() || "Jogador";
+    const chosenRace = raceSelect.value || "Humano";
+    const chosenClass = classSelect.value || "Guerreiro";
+
+    currentUser = chosenName;
+    currentAvatar = selectedAvatar || "🧙";
+    pendingCharacterSetup = {
+      race: chosenRace,
+      className: chosenClass,
+      avatar: currentAvatar,
+    };
+
+    localStorage.setItem(LAST_LOGIN_KEY, currentUser);
+    localStorage.setItem(LAST_AVATAR_KEY, currentAvatar);
+    document.getElementById("meName").textContent = currentUser;
+
+    ensureCurrentUserRecord({ race: chosenRace, className: chosenClass, avatar: currentAvatar });
+    updateArena();
+    updateChat();
+    overlay.classList.add("hidden");
+  };
+}
+
 
 /* ================= SCENE DEFAULT ================= */
 const DEFAULT_COLS = 20;
@@ -805,6 +871,7 @@ function ensurePlayerSchema(p) {
   }
 
   if (p.color === undefined) p.color = randomColor();
+  if (p.avatar === undefined) p.avatar = "🧙";
 
   const s = load().scenes[room];
   if (p.x === undefined) p.x = Math.floor(Math.random() * s.cols);
@@ -1687,40 +1754,47 @@ function recalcFromSheet(p) {
 }
 
 /* ================= CREATE USER ================= */
-data = load();
-if (!data.rooms[room][currentUser]) {
-  const s = data.scenes[room];
-  data.rooms[room][currentUser] = {
-    x: Math.floor(Math.random() * s.cols),
-    y: Math.floor(Math.random() * s.rows),
-    hp: 100,
-    hpMax: 100,
-    mana: 50,
-    manaMax: 50,
-    race: "Humano",
-    class: "Guerreiro",
-    background: "Nenhum",
-    level: 1,
-    owner: "",
-    attributeScores: defaultAttributeScores(),
-    attributeMods: defaultAttributeMods(),
-    skillProficiencies: [],
-    expertiseSkills: [],
-    skills: [],
-    gold: 60,
-    inventory: ["potion_healing"],
-    equipped: createEmptyEquipped(),
-    color: randomColor(),
-    onTable: true,
-  };
-  ensurePlayerSchema(data.rooms[room][currentUser]);
-  recalcFromSheet(data.rooms[room][currentUser]);
-  save(data);
-} else {
+function ensureCurrentUserRecord(setup = null) {
+  data = load();
+  if (!data.rooms[room][currentUser]) {
+    const s = data.scenes[room];
+    data.rooms[room][currentUser] = {
+      x: Math.floor(Math.random() * s.cols),
+      y: Math.floor(Math.random() * s.rows),
+      hp: 100,
+      hpMax: 100,
+      mana: 50,
+      manaMax: 50,
+      race: setup?.race || pendingCharacterSetup?.race || "Humano",
+      class: setup?.className || pendingCharacterSetup?.className || "Guerreiro",
+      background: "Nenhum",
+      level: 1,
+      owner: "",
+      attributeScores: defaultAttributeScores(),
+      attributeMods: defaultAttributeMods(),
+      skillProficiencies: [],
+      expertiseSkills: [],
+      skills: [],
+      gold: 60,
+      inventory: ["potion_healing"],
+      equipped: createEmptyEquipped(),
+      color: randomColor(),
+      avatar: setup?.avatar || pendingCharacterSetup?.avatar || currentAvatar || "🧙",
+      onTable: true,
+    };
+  } else if (setup) {
+    data.rooms[room][currentUser].race = setup.race || data.rooms[room][currentUser].race;
+    data.rooms[room][currentUser].class = setup.className || data.rooms[room][currentUser].class;
+    data.rooms[room][currentUser].avatar = setup.avatar || data.rooms[room][currentUser].avatar;
+  }
+
   ensurePlayerSchema(data.rooms[room][currentUser]);
   recalcFromSheet(data.rooms[room][currentUser]);
   save(data);
 }
+
+initCharacterSetup();
+ensureCurrentUserRecord();
 
 /* ================= GRID ================= */
 const arena = document.getElementById("arena");
@@ -1785,7 +1859,7 @@ function updateArena() {
     let token = document.createElement("div");
     token.className = "token";
     token.style.background = p.color;
-    token.innerText = name[0].toUpperCase();
+    token.innerText = p.avatar || name[0].toUpperCase();
 
     token.onclick = (e) => {
       e.stopPropagation();
