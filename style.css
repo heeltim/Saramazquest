@@ -436,11 +436,33 @@ body {
   gap: 5px;
 }
 .chatMessage {
-  padding: 7px 9px;
+  position: relative;
+  padding: 7px 34px 7px 9px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
   line-height: 1.35;
+}
+.chatMessageMenuBtn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.chatMessageMenuBtn:hover {
+  background: rgba(76, 92, 255, 0.28);
+  border-color: rgba(76, 92, 255, 0.7);
 }
 .chatSpeak {
   border-left: 3px solid var(--hp);
