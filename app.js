@@ -511,6 +511,56 @@ function formatRollAction(pools, sourceExpression) {
   return `rolou ${sourceExpression} → ${details} = ${total}`;
 }
 
+function escapeHtml(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function renderRollDetails(actionText) {
+  const m = actionText.match(/^rolou\s+(.+?)\s+→\s+(.+?)\s+=\s+(-?\d+)$/i);
+  if (!m) return null;
+
+  const expression = m[1];
+  const detailsRaw = m[2];
+  const total = m[3];
+
+  const pools = detailsRaw
+    .split("+")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => {
+      const poolMatch = part.match(/^(\d+d\d+)=\[([^\]]*)\]$/i);
+      if (!poolMatch) return null;
+      return {
+        dice: poolMatch[1],
+        rolls: poolMatch[2],
+      };
+    })
+    .filter(Boolean);
+
+  if (!pools.length) return null;
+
+  const chips = pools
+    .map(
+      (pool) =>
+        `<span class="rollPool"><span class="rollDice">${escapeHtml(pool.dice)}</span> <span class="rollValues">[${escapeHtml(pool.rolls)}]</span></span>`
+    )
+    .join("");
+
+  return `
+    <div class="rollSummary">
+      <span class="rollExpr">${escapeHtml(expression)}</span>
+      <span class="rollTotalLabel">Total</span>
+      <span class="rollTotal">${escapeHtml(total)}</span>
+    </div>
+    <div class="rollPools">${chips}</div>
+  `;
+}
+
 function handleRollCommand(text) {
   const cmd = text.match(/^\/(r|roll)\s*(.*)$/i);
   if (!cmd) return false;
@@ -551,16 +601,25 @@ function updateChat() {
   roomChat.forEach((msg) => {
     let div = document.createElement("div");
     div.className = "chatMessage";
+    const safeUser = escapeHtml(msg.user);
+    const safeText = escapeHtml(msg.text);
 
     if (msg.text.startsWith("*")) {
       div.classList.add("chatAction");
-      div.innerHTML = `<strong>${msg.user}</strong> ${msg.text}`;
+      const actionText = msg.text.replace(/^\*\s*/, "");
+      const rollHtml = renderRollDetails(actionText);
+      if (rollHtml) {
+        div.classList.add("chatRoll");
+        div.innerHTML = `<div class="chatActionHead"><strong>${safeUser}</strong> <span>rolou</span></div>${rollHtml}`;
+      } else {
+        div.innerHTML = `<strong>${safeUser}</strong> ${safeText}`;
+      }
     } else if (msg.text.startsWith("(")) {
       div.classList.add("chatOOC");
-      div.innerHTML = msg.text;
+      div.innerHTML = safeText;
     } else {
       div.classList.add("chatSpeak");
-      div.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
+      div.innerHTML = `<strong>${safeUser}:</strong> ${safeText}`;
     }
 
     chatBox.appendChild(div);
