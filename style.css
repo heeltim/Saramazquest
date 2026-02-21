@@ -878,6 +878,70 @@ select {
   align-items: center;
 }
 
+
+.statGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 10px;
+}
+.pointBuyGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.pointRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.pointLabel {
+  min-width: 34px;
+  font-size: 12px;
+  font-weight: 800;
+  opacity: 0.9;
+}
+.pointRow input {
+  padding: 6px 8px;
+}
+#pointBuyUsed.warn {
+  color: #ff8e8e;
+}
+.skillsList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  max-height: 260px;
+  overflow: auto;
+  padding-right: 4px;
+}
+.skillRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+.skillMain {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.skillMain small {
+  opacity: 0.7;
+}
+.skillMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.skillMeta input {
+  width: 14px;
+  height: 14px;
+}
 .sheetActions {
   margin-top: 14px;
   display: flex;
