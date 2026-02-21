@@ -13,7 +13,10 @@
       <div id="arenaWrap">
         <div id="arena"></div>
         <div id="diceTray">
-          <div class="diceHeader">🎲 Rolagem rápida</div>
+          <div class="diceTopRow">
+            <div class="diceHeader">🎲 Rolagem rápida</div>
+            <div id="diceResult">Use também no chat: <code>/roll 2d6 + 1d4</code> (ou <code>/r</code>).</div>
+          </div>
           <div class="diceControls">
             <div class="dieControl">
               <label for="diceCount4">d4</label>
@@ -51,7 +54,6 @@
               <button class="dieBtn" onclick="rollDiceFromTray(100)">Rolar</button>
             </div>
           </div>
-          <div id="diceResult">Use também no chat: <code>/roll 2d6 + 1d4</code> (ou <code>/r</code>).</div>
         </div>
       </div>
 
