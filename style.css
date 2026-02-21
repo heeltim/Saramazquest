@@ -1155,7 +1155,6 @@ kbd {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
-  /* manter rolagem interna para telas menores (evita estouro vertical do grimório) */
   overflow: auto;
   min-height: 0;
   padding-right: 4px;
