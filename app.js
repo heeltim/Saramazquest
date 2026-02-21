@@ -736,6 +736,7 @@ function ensurePlayerSchema(p) {
 
   if (!Array.isArray(p.skills)) p.skills = [];
   if (!Array.isArray(p.customSpells)) p.customSpells = [];
+  if (!Array.isArray(p.spellSlots)) p.spellSlots = Array(8).fill(null);
 
   if (!p.spellcasting || typeof p.spellcasting !== "object") p.spellcasting = {};
   if (!Array.isArray(p.spellcasting.slotsMax)) p.spellcasting.slotsMax = [];
@@ -821,6 +822,93 @@ function pushChat(user, text, meta = {}) {
 }
 function pushAction(user, text) {
   pushChat(user, "* " + text);
+}
+
+function spellToCardHtml(spell) {
+  if (!spell) return "";
+  const effects = (spell.effects || []).map((fx) => {
+    if (fx.type === "dano") return `• Dano ${fx.damageDice} (${fx.damageType})`;
+    if (fx.type === "cura") return `• Cura ${fx.healDice}`;
+    if (fx.type === "status") return `• Controle: ${fx.effect} (${fx.duration})`;
+    if (fx.type === "buff") return `• Bônus: +${fx.bonus} ${fx.stat}`;
+    if (fx.type === "debuff") return `• Debuff: -${fx.penalty} ${fx.stat}`;
+    return `• Invocação (${fx.duration})`;
+  }).join("<br>");
+
+  return `
+    <div class="spellCard">
+      <div class="spellHead">
+        <strong>${spell.icon || "✨"} ${spell.name}</strong>
+        <span>Nv ${spell.level} • ${spell.pointCost} pts</span>
+      </div>
+      <div style="opacity:.8; font-size:12px;">${spell.description || "Sem descrição."}</div>
+      <div style="margin:6px 0; font-size:12px;">${effects}</div>
+      <div class="spellFooter">
+        <span>Componentes: ${(spell.components || []).join(", ") || "—"}</span>
+      </div>
+    </div>
+  `;
+}
+
+function resolveSpellAutoRoll(spell) {
+  const pools = [];
+  const notes = [];
+  (spell.effects || []).forEach((fx) => {
+    if (fx.type === "dano" && fx.damageDice) {
+      const parsed = parseDiceExpression(fx.damageDice);
+      if (parsed?.length) pools.push(...parsed);
+      notes.push(`Dano ${fx.damageDice} (${fx.damageType || "arcano"})`);
+    } else if (fx.type === "cura" && fx.healDice) {
+      const parsed = parseDiceExpression(fx.healDice);
+      if (parsed?.length) pools.push(...parsed);
+      notes.push(`Cura ${fx.healDice}`);
+    } else if (fx.type === "buff") {
+      notes.push(`Bônus: +${fx.bonus} ${fx.stat} (${fx.duration || "1 turno"})`);
+    } else if (fx.type === "debuff") {
+      notes.push(`Debuff: -${fx.penalty} ${fx.stat} (${fx.duration || "1 turno"})`);
+    } else if (fx.type === "status") {
+      notes.push(`Controle: ${fx.effect} (${fx.duration || "1 turno"})`);
+    }
+  });
+
+  if (!pools.length) return { rollText: "", detailsText: notes.join(" • ") };
+
+  const expr = pools.map((p) => `${p.count}d${p.sides}`).join(" + ");
+  const rollText = formatRollAction(pools, expr);
+  return { rollText, detailsText: notes.join(" • ") };
+}
+
+function castSpellForPlayer(playerName, spellId) {
+  const data = load();
+  const p = data.rooms[room][playerName];
+  if (!p) return;
+
+  ensurePlayerSchema(p);
+  recalcFromSheet(p);
+
+  const spell = (p.customSpells || []).find((s) => s.id === spellId);
+  if (!spell) return;
+
+  const slotIndex = Math.max(0, (spell.level || 1) - 1);
+  const current = p.spellcasting.slotsCurrent[slotIndex] ?? 0;
+  if (current <= 0) {
+    alert(`Sem slots de nível ${spell.level} disponíveis.`);
+    return;
+  }
+
+  p.spellcasting.slotsCurrent[slotIndex] = current - 1;
+  save(data);
+
+  const { rollText, detailsText } = resolveSpellAutoRoll(spell);
+  const summary = `${playerName} conjurou ${spell.icon || "✨"} ${spell.name} usando 1 slot de nível ${spell.level}.`;
+  const detailsLine = [spell.description || "", detailsText].filter(Boolean).join(" • ");
+
+  pushAction(currentUser, summary);
+  if (detailsLine) pushAction(currentUser, `Detalhes da magia: ${detailsLine}`);
+  if (rollText) pushAction(currentUser, rollText);
+
+  if (grimoireTargetName === playerName) renderGrimoire(p);
+  updateArena();
 }
 
 function sendMessage() {
@@ -1665,6 +1753,7 @@ function updateArena() {
 
   save(data);
   updateSidebar(players);
+  renderCombatSpellSlots(players[currentUser]);
 
   // modais
   if (sheetTargetName) {
@@ -1685,6 +1774,32 @@ function updateArena() {
       renderInventoryModal(p);
     }
   }
+}
+
+function renderCombatSpellSlots(player) {
+  const wrap = document.getElementById("combatSpellSlots");
+  if (!wrap) return;
+
+  if (!player) {
+    wrap.innerHTML = "";
+    return;
+  }
+
+  ensurePlayerSchema(player);
+  const slots = Array.from({ length: 8 }, (_, idx) => player.spellSlots?.[idx] || null);
+  wrap.innerHTML = slots.map((spellId, idx) => {
+    const spell = (player.customSpells || []).find((s) => s.id === spellId);
+    if (!spell) {
+      return `<button class="combatSlot empty" type="button" title="Slot ${idx + 1} vazio">+</button>`;
+    }
+    return `
+      <button class="combatSlot" type="button" title="${escapeHtml(spell.name)}" onclick="castSpellForPlayer('${currentUser}','${spell.id}')">
+        <span class="slotIcon">${spell.icon || "✨"}</span>
+        <span class="slotIndex">${idx + 1}</span>
+        <div class="combatSlotTooltip">${spellToCardHtml(spell)}</div>
+      </button>
+    `;
+  }).join("");
 }
 
 /* ================= nearest floor ================= */
@@ -2519,57 +2634,49 @@ function renderCustomSpells(p) {
   }
 
   box.innerHTML = spells.map((spell) => {
-    const effects = (spell.effects || []).map((fx) => {
-      if (fx.type === "dano") return `• Dano ${fx.damageDice} (${fx.damageType})`;
-      if (fx.type === "cura") return `• Cura ${fx.healDice}`;
-      if (fx.type === "status") return `• Controle: ${fx.effect} (${fx.duration})`;
-      if (fx.type === "buff") return `• Bônus: +${fx.bonus} ${fx.stat}`;
-      if (fx.type === "debuff") return `• Debuff: -${fx.penalty} ${fx.stat}`;
-      return `• Invocação (${fx.duration})`;
-    }).join("<br>");
-
+    const equippedAt = (p.spellSlots || []).findIndex((id) => id === spell.id);
+    const equipLabel = equippedAt >= 0 ? `No slot ${equippedAt + 1}` : "Enviar para slot";
     return `
-      <div class="spellCard">
-        <div class="spellHead">
-          <strong>${spell.icon || "✨"} ${spell.name}</strong>
-          <span>Nv ${spell.level} • ${spell.pointCost} pts</span>
-        </div>
-        <div style="opacity:.8; font-size:12px;">${spell.description || "Sem descrição."}</div>
-        <div style="margin:6px 0; font-size:12px;">${effects}</div>
-        <div class="spellFooter">
-          <span>Componentes: ${(spell.components || []).join(", ") || "—"}</span>
-          <button class="smallBtn" onclick="castCustomSpell('${spell.id}')">Conjurar</button>
-        </div>
+      ${spellToCardHtml(spell)}
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:10px;">
+        <button class="smallBtn" onclick="bindSpellToSlot('${spell.id}')">${equipLabel}</button>
+        <button class="smallBtn" onclick="castCustomSpell('${spell.id}')">Conjurar</button>
       </div>
     `;
   }).join("");
 }
 
-function castCustomSpell(spellId) {
+function bindSpellToSlot(spellId) {
   if (!grimoireTargetName) return;
   const data = load();
   const p = data.rooms[room][grimoireTargetName];
   if (!p) return;
 
   ensurePlayerSchema(p);
-  recalcFromSheet(p);
 
-  const spell = (p.customSpells || []).find((s) => s.id === spellId);
-  if (!spell) return;
-
-  const slotIndex = Math.max(0, (spell.level || 1) - 1);
-  const current = p.spellcasting.slotsCurrent[slotIndex] ?? 0;
-  if (current <= 0) {
-    alert(`Sem slots de nível ${spell.level} disponíveis.`);
+  const currentIdx = (p.spellSlots || []).findIndex((id) => id === spellId);
+  if (currentIdx >= 0) {
+    p.spellSlots[currentIdx] = null;
+    save(data);
+    renderGrimoire(p);
+    updateArena();
     return;
   }
 
-  p.spellcasting.slotsCurrent[slotIndex] = current - 1;
+  const freeIdx = (p.spellSlots || []).findIndex((id) => !id);
+  if (freeIdx < 0) {
+    alert("Todos os slots rápidos estão ocupados.");
+    return;
+  }
+  p.spellSlots[freeIdx] = spellId;
   save(data);
-
-  pushAction(currentUser, `${grimoireTargetName} conjurou ✨ ${spell.name} usando 1 slot de nível ${spell.level}.`);
   renderGrimoire(p);
   updateArena();
+}
+
+function castCustomSpell(spellId) {
+  if (!grimoireTargetName) return;
+  castSpellForPlayer(grimoireTargetName, spellId);
 }
 
 function resetSpellSlots(name) {
