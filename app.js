@@ -241,6 +241,8 @@ function initCharacterSetup() {
   if (!overlay) return;
 
   const nameInput = document.getElementById("setupName");
+  const raceSelect = document.getElementById("setupRace");
+  const classSelect = document.getElementById("setupClass");
   const avatarWrap = document.getElementById("setupAvatarOptions");
   const useSpriteInput = document.getElementById("setupUseSprite");
   const startBtn = document.getElementById("setupStartBtn");
@@ -311,8 +313,8 @@ function initCharacterSetup() {
 
   const finishSetup = ({
     chosenName = String(nameInput.value || "").trim() || "Jogador",
-    chosenRace = Object.keys(RACES).includes("Humano") ? "Humano" : Object.keys(RACES)[0] || "Humano",
-    chosenClass = Object.keys(CLASSES).includes("Guerreiro") ? "Guerreiro" : Object.keys(CLASSES)[0] || "Guerreiro",
+    chosenRace = raceSelect?.value || (Object.keys(RACES).includes("Humano") ? "Humano" : Object.keys(RACES)[0] || "Humano"),
+    chosenClass = classSelect?.value || (Object.keys(CLASSES).includes("Guerreiro") ? "Guerreiro" : Object.keys(CLASSES)[0] || "Guerreiro"),
     chosenAvatar = selectedAvatar || "🧙",
   } = {}) => {
     currentUser = chosenName;
