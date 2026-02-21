@@ -1,0 +1,563 @@
+{
+  "shopId": "taberna",
+  "shopName": "Taberna & Suprimentos",
+  "items": [
+    {
+      "id": "algemas",
+      "name": "Algemas",
+      "priceGold": 15,
+      "type": "utility",
+      "description": "Imobiliza alvo médio; exige teste para escapar.",
+      "weight": "1kg",
+      "category": "tool"
+    },
+    {
+      "id": "corda_15m",
+      "name": "Corda (15m)",
+      "priceGold": 1,
+      "type": "utility",
+      "description": "Auxilia escaladas, amarras e improvisos.",
+      "weight": "5kg",
+      "category": "utility"
+    },
+    {
+      "id": "pe_de_cabra",
+      "name": "Pé de Cabra",
+      "priceGold": 2,
+      "type": "utility",
+      "description": "Bônus ao forçar portas e objetos.",
+      "weight": "2.5kg",
+      "category": "tool"
+    },
+    {
+      "id": "espelho_de_metal",
+      "name": "Espelho de Metal",
+      "priceGold": 10,
+      "type": "utility",
+      "description": "Permite observar cantos sem exposição.",
+      "weight": "0.2kg",
+      "category": "utility"
+    },
+    {
+      "id": "mochila",
+      "name": "Mochila",
+      "priceGold": 2,
+      "type": "utility",
+      "description": "Aumenta capacidade de carga organizada.",
+      "weight": "1kg",
+      "category": "equipment"
+    },
+    {
+      "id": "algibeira",
+      "name": "Algibeira",
+      "priceGold": 1,
+      "type": "utility",
+      "description": "Guarda moedas e itens pequenos.",
+      "weight": "0.2kg",
+      "category": "equipment"
+    },
+    {
+      "id": "vara_de_madeira_3m",
+      "name": "Vara de Madeira (3m)",
+      "priceGold": 2,
+      "type": "utility",
+      "description": "Testa armadilhas e ativa mecanismos à distância.",
+      "weight": "4kg",
+      "category": "utility"
+    },
+    {
+      "id": "saco_de_lona",
+      "name": "Saco de Lona",
+      "priceGold": 1,
+      "type": "utility",
+      "description": "Transporte simples de itens.",
+      "weight": "0.2kg",
+      "category": "utility"
+    },
+    {
+      "id": "pederneira",
+      "name": "Pederneira",
+      "priceGold": 1,
+      "type": "utility",
+      "description": "Acende fogo facilmente.",
+      "category": "utility"
+    },
+    {
+      "id": "lampiao",
+      "name": "Lampião",
+      "priceGold": 7,
+      "type": "utility",
+      "description": "Ilumina área média por horas.",
+      "weight": "1kg",
+      "category": "light"
+    },
+    {
+      "id": "tocha",
+      "name": "Tocha",
+      "priceGold": 1,
+      "type": "utility",
+      "description": "Ilumina área pequena; pode causar dano leve.",
+      "weight": "0.5kg",
+      "category": "light"
+    },
+    {
+      "id": "kit_de_artesao",
+      "name": "Kit de Artesão",
+      "priceGold": 30,
+      "type": "utility",
+      "description": "Necessário para fabricar e reparar itens.",
+      "weight": "4kg",
+      "category": "tool"
+    },
+    {
+      "id": "kit_de_ladrao",
+      "name": "Kit de Ladrão",
+      "priceGold": 30,
+      "type": "utility",
+      "description": "Permite abrir fechaduras e desarmar armadilhas.",
+      "weight": "0.5kg",
+      "category": "tool"
+    },
+    {
+      "id": "kit_de_disfarce",
+      "name": "Kit de Disfarce",
+      "priceGold": 50,
+      "type": "utility",
+      "description": "Bônus em disfarces e infiltração.",
+      "weight": "4kg",
+      "category": "tool"
+    },
+    {
+      "id": "kit_medico",
+      "name": "Kit Médico",
+      "priceGold": 50,
+      "type": "consumable",
+      "description": "Estabiliza e trata ferimentos.",
+      "weight": "0.5kg",
+      "category": "consumable"
+    },
+    {
+      "id": "kit_de_aventureiro",
+      "name": "Kit de Aventureiro",
+      "priceGold": 10,
+      "type": "utility",
+      "description": "Conjunto básico para exploração.",
+      "weight": "17kg",
+      "category": "pack"
+    },
+    {
+      "id": "balsamo_restaurador",
+      "name": "Bálsamo Restaurador",
+      "priceGold": 25,
+      "type": "consumable",
+      "description": "Recupera vida ao ser aplicado.",
+      "weight": "0.5kg",
+      "category": "consumable"
+    },
+    {
+      "id": "mina_de_pressao",
+      "name": "Mina de Pressão",
+      "priceGold": 800,
+      "type": "utility",
+      "description": "Explosão em área ao ser ativada.",
+      "category": "trap"
+    },
+    {
+      "id": "barril_explosivo",
+      "name": "Barril Explosivo",
+      "priceGold": 800,
+      "type": "utility",
+      "description": "Grande dano em área quando detonado.",
+      "weight": "10kg",
+      "category": "explosive"
+    },
+    {
+      "id": "pena",
+      "name": "Pena",
+      "priceGold": 1,
+      "type": "utility",
+      "description": "Escrita formal.",
+      "category": "utility"
+    },
+    {
+      "id": "pergaminho",
+      "name": "Pergaminho",
+      "priceGold": 2,
+      "type": "utility",
+      "description": "Registro de mapas e textos.",
+      "category": "utility"
+    },
+    {
+      "id": "tinta_frasco",
+      "name": "Tinta (frasco)",
+      "priceGold": 8,
+      "type": "utility",
+      "description": "Escrita permanente.",
+      "category": "utility"
+    },
+    {
+      "id": "racao_de_viagem_dia",
+      "name": "Ração de Viagem (dia)",
+      "priceGold": 5,
+      "type": "consumable",
+      "description": "Sustenta um dia em campo.",
+      "category": "consumable"
+    },
+    {
+      "id": "refeicao_simples",
+      "name": "Refeição Simples",
+      "priceGold": 3,
+      "type": "consumable",
+      "description": "Remove penalidade leve por fome.",
+      "category": "food"
+    },
+    {
+      "id": "refeicao_boa",
+      "name": "Refeição Boa",
+      "priceGold": 1,
+      "type": "consumable",
+      "description": "Melhora moral temporária.",
+      "category": "food"
+    },
+    {
+      "id": "refeicao_especial",
+      "name": "Refeição Especial",
+      "priceGold": 10,
+      "type": "consumable",
+      "description": "Pequeno bônus temporário.",
+      "category": "food"
+    },
+    {
+      "id": "banquete",
+      "name": "Banquete",
+      "priceGold": 50,
+      "type": "utility",
+      "description": "Recupera fadiga leve do grupo.",
+      "category": "event"
+    },
+    {
+      "id": "cerveja",
+      "name": "Cerveja",
+      "priceGold": 1,
+      "type": "consumable",
+      "description": "Relaxa; risco leve de embriaguez.",
+      "category": "drink"
+    },
+    {
+      "id": "hidromel",
+      "name": "Hidromel",
+      "priceGold": 1,
+      "type": "consumable",
+      "description": "Forte e tradicional.",
+      "category": "drink"
+    },
+    {
+      "id": "rum",
+      "name": "Rum",
+      "priceGold": 5,
+      "type": "consumable",
+      "description": "Embriaguez moderada.",
+      "category": "drink"
+    },
+    {
+      "id": "vinho",
+      "name": "Vinho",
+      "priceGold": 10,
+      "type": "consumable",
+      "description": "Uso social.",
+      "category": "drink"
+    },
+    {
+      "id": "vinho_elfico",
+      "name": "Vinho Élfico",
+      "priceGold": 60,
+      "type": "consumable",
+      "description": "Bônus social temporário.",
+      "category": "rare_drink"
+    },
+    {
+      "id": "cerveja_negra",
+      "name": "Cerveja Negra",
+      "priceGold": 30,
+      "type": "consumable",
+      "description": "Forte e encorpada.",
+      "category": "drink"
+    },
+    {
+      "id": "aguardente",
+      "name": "Aguardente",
+      "priceGold": 5,
+      "type": "consumable",
+      "description": "Embriaguez rápida.",
+      "category": "drink"
+    },
+    {
+      "id": "bumboo",
+      "name": "Bumboo",
+      "priceGold": 10,
+      "type": "consumable",
+      "description": "Exótica e forte.",
+      "category": "exotic_drink"
+    },
+    {
+      "id": "grog",
+      "name": "Grog",
+      "priceGold": 1,
+      "type": "consumable",
+      "description": "Comum em portos.",
+      "category": "drink"
+    },
+    {
+      "id": "rumfustiam",
+      "name": "Rumfustiam",
+      "priceGold": 15,
+      "type": "consumable",
+      "description": "Muito forte.",
+      "category": "drink"
+    },
+    {
+      "id": "quarto_simples",
+      "name": "Quarto Simples",
+      "priceGold": 5,
+      "type": "utility",
+      "description": "Descanso básico.",
+      "category": "service"
+    },
+    {
+      "id": "quarto_confortavel",
+      "name": "Quarto Confortável",
+      "priceGold": 5,
+      "type": "utility",
+      "description": "Recuperação normal.",
+      "category": "service"
+    },
+    {
+      "id": "quarto_superior",
+      "name": "Quarto Superior",
+      "priceGold": 10,
+      "type": "utility",
+      "description": "Remove fadiga leve.",
+      "category": "service"
+    },
+    {
+      "id": "suite_luxuosa",
+      "name": "Suíte Luxuosa",
+      "priceGold": 50,
+      "type": "utility",
+      "description": "Recuperação completa leve.",
+      "category": "service"
+    },
+    {
+      "id": "cao_de_guarda",
+      "name": "Cão de Guarda",
+      "priceGold": 50,
+      "type": "utility",
+      "description": "Auxilia vigília e rastreamento.",
+      "category": "animal"
+    },
+    {
+      "id": "cavalo",
+      "name": "Cavalo",
+      "priceGold": 75,
+      "type": "utility",
+      "description": "Aumenta deslocamento.",
+      "category": "mount"
+    },
+    {
+      "id": "cavalo_de_guerra",
+      "name": "Cavalo de Guerra",
+      "priceGold": 400,
+      "type": "utility",
+      "description": "Treinado para combate.",
+      "category": "mount"
+    },
+    {
+      "id": "ponei",
+      "name": "Pônei",
+      "priceGold": 5,
+      "type": "utility",
+      "description": "Montaria leve.",
+      "category": "mount"
+    },
+    {
+      "id": "ponei_de_guerra",
+      "name": "Pônei de Guerra",
+      "priceGold": 30,
+      "type": "utility",
+      "description": "Montaria compacta de combate.",
+      "category": "mount"
+    },
+    {
+      "id": "passaro_touro",
+      "name": "Pássaro-Touro",
+      "priceGold": 20,
+      "type": "utility",
+      "description": "Animal robusto e raro.",
+      "category": "exotic_animal"
+    },
+    {
+      "id": "sela",
+      "name": "Sela",
+      "priceGold": 20,
+      "type": "utility",
+      "description": "Necessária para combate montado.",
+      "category": "equipment"
+    },
+    {
+      "id": "estabulo_dia",
+      "name": "Estábulo (dia)",
+      "priceGold": 5,
+      "type": "utility",
+      "description": "Abrigo para montaria.",
+      "category": "service"
+    },
+    {
+      "id": "carroca",
+      "name": "Carroça",
+      "priceGold": 30,
+      "type": "utility",
+      "description": "Veículo terrestre simples.",
+      "category": "vehicle"
+    },
+    {
+      "id": "carruagem",
+      "name": "Carruagem",
+      "priceGold": 100,
+      "type": "utility",
+      "description": "Veículo terrestre confortável.",
+      "category": "vehicle"
+    },
+    {
+      "id": "canoa",
+      "name": "Canoa",
+      "priceGold": 50,
+      "type": "utility",
+      "description": "Veículo aquático leve.",
+      "category": "vehicle"
+    },
+    {
+      "id": "balao_goblin",
+      "name": "Balão Goblin",
+      "priceGold": 200,
+      "type": "utility",
+      "description": "Veículo aéreo improvisado.",
+      "category": "vehicle"
+    },
+    {
+      "id": "veleiro",
+      "name": "Veleiro",
+      "priceGold": 10000,
+      "type": "utility",
+      "description": "Embarcação marítima de médio porte.",
+      "category": "vehicle"
+    },
+    {
+      "id": "transporte_terrestre",
+      "name": "Transporte Terrestre",
+      "priceGold": 3,
+      "type": "utility",
+      "description": "Custo por km.",
+      "priceUnit": "per_km",
+      "category": "service"
+    },
+    {
+      "id": "transporte_maritimo",
+      "name": "Transporte Marítimo",
+      "priceGold": 1,
+      "type": "utility",
+      "description": "Custo por km.",
+      "priceUnit": "per_km",
+      "category": "service"
+    },
+    {
+      "id": "transporte_aereo",
+      "name": "Transporte Aéreo",
+      "priceGold": 1,
+      "type": "utility",
+      "description": "Custo por km.",
+      "priceUnit": "per_km",
+      "category": "service"
+    },
+    {
+      "id": "mensageiro",
+      "name": "Mensageiro",
+      "priceGold": 2,
+      "type": "utility",
+      "description": "Custo por km.",
+      "priceUnit": "per_km",
+      "category": "service"
+    },
+    {
+      "id": "conjuracao_nivel_1",
+      "name": "Conjuração Nível 1",
+      "priceGold": 10,
+      "type": "utility",
+      "description": "Serviço mágico de nível 1.",
+      "category": "magic_service"
+    },
+    {
+      "id": "conjuracao_nivel_2",
+      "name": "Conjuração Nível 2",
+      "priceGold": 60,
+      "type": "utility",
+      "description": "Serviço mágico de nível 2.",
+      "category": "magic_service"
+    },
+    {
+      "id": "conjuracao_nivel_3",
+      "name": "Conjuração Nível 3",
+      "priceGold": 150,
+      "type": "utility",
+      "description": "Serviço mágico de nível 3.",
+      "category": "magic_service"
+    },
+    {
+      "id": "conjuracao_nivel_4",
+      "name": "Conjuração Nível 4",
+      "priceGold": 280,
+      "type": "utility",
+      "description": "Serviço mágico de nível 4.",
+      "category": "magic_service"
+    },
+    {
+      "id": "conjuracao_nivel_5",
+      "name": "Conjuração Nível 5",
+      "priceGold": 450,
+      "type": "utility",
+      "description": "Serviço mágico de nível 5.",
+      "category": "magic_service"
+    },
+    {
+      "id": "conjuracao_nivel_6",
+      "name": "Conjuração Nível 6",
+      "priceGold": 660,
+      "type": "utility",
+      "description": "Serviço mágico de nível 6.",
+      "category": "magic_service"
+    },
+    {
+      "id": "conjuracao_nivel_7",
+      "name": "Conjuração Nível 7",
+      "priceGold": 910,
+      "type": "utility",
+      "description": "Serviço mágico de nível 7.",
+      "category": "magic_service"
+    },
+    {
+      "id": "conjuracao_nivel_8",
+      "name": "Conjuração Nível 8",
+      "priceGold": 1200,
+      "type": "utility",
+      "description": "Serviço mágico de nível 8.",
+      "category": "magic_service"
+    },
+    {
+      "id": "conjuracao_nivel_9",
+      "name": "Conjuração Nível 9",
+      "priceGold": 1530,
+      "type": "utility",
+      "description": "Serviço mágico de nível 9.",
+      "category": "magic_service"
+    }
+  ]
+}

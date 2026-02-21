@@ -349,25 +349,15 @@
 
           <div class="panel">
             <div class="invHeaderRow">
-              <div style="display: flex; gap: 8px; align-items: center">
-                <div style="font-weight: 900">Loja</div>
-                <span class="badge">resumo</span>
+              <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+                <div style="font-weight: 900">Lojas</div>
+                <div id="shopTabs" class="shopTabs"></div>
               </div>
-              <select
-                id="shopFilter"
-                class="smallBtn"
-                style="padding: 8px 10px"
-              >
-                <option value="all">Todos</option>
-                <option value="weapon">Armas</option>
-                <option value="armor">Armaduras</option>
-                <option value="shield">Escudos</option>
-                <option value="ring">Acessórios</option>
-                <option value="potion">Poções</option>
-              </select>
+              <div id="arsenalSubTabs" class="shopTabs"></div>
             </div>
 
             <div id="shopList" class="shopList"></div>
+            <div id="smithApplyBox" class="smithApplyBox" style="display:none"></div>
 
             <div style="opacity: 0.7; font-size: 12px; margin-top: 10px">
               Itens equipáveis vão pra ficha quando equipados.
