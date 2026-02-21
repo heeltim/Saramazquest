@@ -551,6 +551,119 @@ function sendMessage() {
   updateChat();
 }
 
+
+function formatTimestampBR(value) {
+  const d = new Date(Number(value) || Date.now());
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function buildSessionReportText(roomChat) {
+  const lines = [];
+  const generatedAt = formatTimestampBR(Date.now());
+  lines.push(`Relatório da Sessão - Sala: ${room}`);
+  lines.push(`Gerado em: ${generatedAt}`);
+  lines.push("");
+
+  roomChat.forEach((msg, index) => {
+    const stamp = formatTimestampBR(msg.createdAt);
+    const replyPrefix = msg.replyTo ? "↳ resposta | " : "";
+    const kind = msg.senderType === "character"
+      ? "Fala"
+      : msg.senderType === "profile"
+        ? "Intenção"
+        : msg.senderType === "system"
+          ? "Sistema"
+          : "Conversa";
+
+    lines.push(`${index + 1}. [${stamp}] ${replyPrefix}${kind} - ${msg.user}`);
+    lines.push(msg.text);
+
+    const reactions = Object.entries(msg.reactions || {})
+      .map(([emoji, users]) => `${emoji} x${Array.isArray(users) ? users.length : 0}`)
+      .filter((part) => !part.endsWith("x0"));
+    if (reactions.length) {
+      lines.push(`Reações: ${reactions.join(" | ")}`);
+    }
+
+    lines.push("");
+  });
+
+  if (roomChat.length === 0) {
+    lines.push("Nenhuma mensagem registrada nesta sessão.");
+  }
+
+  return lines.join("\n");
+}
+
+function buildSessionReportHtml(reportText) {
+  const safeText = escapeHtml(reportText).replaceAll("\n", "<br>");
+  return `
+    <html lang="pt-BR">
+      <head>
+        <meta charset="utf-8" />
+        <title>Relatório da Sessão</title>
+        <style>
+          @page { size: A4; margin: 16mm; }
+          body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #111;
+            line-height: 1.5;
+            font-size: 12px;
+            white-space: normal;
+          }
+          h1 {
+            margin: 0 0 10px;
+            font-size: 18px;
+          }
+          .content {
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Relatório da Sessão</h1>
+        <div class="content">${safeText}</div>
+      </body>
+    </html>
+  `;
+}
+
+function exportChatReportPDF() {
+  const data = load();
+  const roomChat = getRoomChat(data, room);
+  const reportText = buildSessionReportText(roomChat);
+  const reportHtml = buildSessionReportHtml(reportText);
+
+  const printWindow = window.open("", "_blank", "width=900,height=700");
+  if (!printWindow) {
+    alert("Não foi possível abrir a janela de impressão. Verifique se o bloqueador de pop-up está ativo.");
+    return;
+  }
+
+  printWindow.document.open();
+  printWindow.document.write(reportHtml);
+  printWindow.document.close();
+
+  const runPrint = () => {
+    printWindow.focus();
+    printWindow.print();
+  };
+
+  if (printWindow.document.readyState === "complete") {
+    runPrint();
+  } else {
+    printWindow.onload = runPrint;
+  }
+}
+
 function clampDiceCount(value) {
   const n = parseInt(value, 10);
   if (Number.isNaN(n)) return 1;
