@@ -38,6 +38,35 @@ function getLoggedAccount() {
 }
 
 const START_AVATARS = ["🧙", "⚔️", "🏹", "🛡️", "🧝", "🧛", "🐺", "🐉", "🔥", "✨"];
+const DEFAULT_SPRITE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif";
+
+function isSpriteAvatar(avatar) {
+  return !!avatar && typeof avatar === "object" && avatar.type === "sprite" && typeof avatar.url === "string";
+}
+
+function getAvatarEmoji(avatar) {
+  if (isSpriteAvatar(avatar)) return String(avatar.fallback || "🧙");
+  return String(avatar || "🧙").trim() || "🧙";
+}
+
+function normalizeAvatar(avatar) {
+  if (isSpriteAvatar(avatar)) {
+    return {
+      type: "sprite",
+      url: String(avatar.url || DEFAULT_SPRITE_URL).trim() || DEFAULT_SPRITE_URL,
+      fallback: getAvatarEmoji(avatar),
+    };
+  }
+  return getAvatarEmoji(avatar);
+}
+
+function createSpriteAvatar(fallbackEmoji = "🧙") {
+  return {
+    type: "sprite",
+    url: DEFAULT_SPRITE_URL,
+    fallback: getAvatarEmoji(fallbackEmoji),
+  };
+}
 
 const QUICK_REACTIONS = ["👍", "😂", "🔥", "❤️", "😮"];
 const PICKER_EMOJIS = ["😀", "😁", "😂", "🤣", "🙂", "😉", "😎", "🤔", "😮", "😢", "😡", "❤️", "🔥", "👏", "🎲", "⚔️", "🛡️", "✨"];
@@ -71,9 +100,9 @@ function initAuth() {
     const preferredName = String(account.playerName || "").trim() || String(account.displayName || "").trim() || "Jogador";
     currentAccountEmail = email;
     currentUser = preferredName;
-    currentAvatar = String(account.avatar || "🧙").trim() || "🧙";
+    currentAvatar = normalizeAvatar(account.avatar || "🧙");
     localStorage.setItem(LAST_LOGIN_KEY, currentUser);
-    localStorage.setItem(LAST_AVATAR_KEY, currentAvatar);
+    localStorage.setItem(LAST_AVATAR_KEY, JSON.stringify(currentAvatar));
     document.getElementById("meName").textContent = currentUser;
 
     const auth = loadAuthState();
@@ -117,7 +146,7 @@ function initAuth() {
         password,
         displayName: email.split("@")[0],
         playerName: "",
-        avatar: "🧙",
+        avatar: normalizeAvatar("🧙"),
         createdAt: Date.now(),
       };
       auth.lastSessionEmail = email;
@@ -158,6 +187,7 @@ function initCharacterSetup() {
   const raceSelect = document.getElementById("setupRace");
   const classSelect = document.getElementById("setupClass");
   const avatarWrap = document.getElementById("setupAvatarOptions");
+  const useSpriteInput = document.getElementById("setupUseSprite");
   const startBtn = document.getElementById("setupStartBtn");
 
   if (!currentAccountEmail) {
@@ -167,6 +197,7 @@ function initCharacterSetup() {
 
   nameInput.value = currentUser;
 
+  raceSelect.innerHTML = "";
   Object.keys(RACES).forEach((raceName) => {
     const opt = document.createElement("option");
     opt.value = raceName;
@@ -174,6 +205,7 @@ function initCharacterSetup() {
     raceSelect.appendChild(opt);
   });
 
+  classSelect.innerHTML = "";
   Object.keys(CLASSES).forEach((className) => {
     const opt = document.createElement("option");
     opt.value = className;
@@ -184,21 +216,31 @@ function initCharacterSetup() {
   raceSelect.value = Object.keys(RACES).includes("Humano") ? "Humano" : raceSelect.value;
   classSelect.value = Object.keys(CLASSES).includes("Guerreiro") ? "Guerreiro" : classSelect.value;
 
-  let selectedAvatar = currentAvatar;
+  let selectedAvatar = normalizeAvatar(currentAvatar);
+  let selectedUseSprite = isSpriteAvatar(selectedAvatar);
 
   function renderAvatars() {
     avatarWrap.innerHTML = "";
     START_AVATARS.forEach((avatar) => {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "setupAvatarBtn" + (selectedAvatar === avatar ? " active" : "");
+      btn.className = "setupAvatarBtn" + (getAvatarEmoji(selectedAvatar) === avatar ? " active" : "");
       btn.textContent = avatar;
       btn.onclick = () => {
-        selectedAvatar = avatar;
+        selectedAvatar = selectedUseSprite ? createSpriteAvatar(avatar) : avatar;
         renderAvatars();
       };
       avatarWrap.appendChild(btn);
     });
+  }
+
+  if (useSpriteInput) {
+    useSpriteInput.checked = selectedUseSprite;
+    useSpriteInput.onchange = () => {
+      selectedUseSprite = !!useSpriteInput.checked;
+      selectedAvatar = selectedUseSprite ? createSpriteAvatar(getAvatarEmoji(selectedAvatar)) : getAvatarEmoji(selectedAvatar);
+      renderAvatars();
+    };
   }
 
   renderAvatars();
@@ -207,7 +249,7 @@ function initCharacterSetup() {
   if (existingPlayer) {
     overlay.classList.add("hidden");
     ensurePlayerSchema(existingPlayer);
-    if (existingPlayer.avatar) currentAvatar = existingPlayer.avatar;
+    if (existingPlayer.avatar) currentAvatar = normalizeAvatar(existingPlayer.avatar);
     return;
   }
   overlay.classList.remove("hidden");
@@ -218,7 +260,7 @@ function initCharacterSetup() {
     const chosenClass = classSelect.value || "Guerreiro";
 
     currentUser = chosenName;
-    currentAvatar = selectedAvatar || "🧙";
+    currentAvatar = normalizeAvatar(selectedAvatar || "🧙");
     pendingCharacterSetup = {
       race: chosenRace,
       className: chosenClass,
@@ -226,7 +268,7 @@ function initCharacterSetup() {
     };
 
     localStorage.setItem(LAST_LOGIN_KEY, currentUser);
-    localStorage.setItem(LAST_AVATAR_KEY, currentAvatar);
+    localStorage.setItem(LAST_AVATAR_KEY, JSON.stringify(currentAvatar));
     document.getElementById("meName").textContent = currentUser;
 
     const auth = loadAuthState();
@@ -1030,6 +1072,7 @@ function ensurePlayerSchema(p) {
 
   if (p.color === undefined) p.color = randomColor();
   if (p.avatar === undefined) p.avatar = "🧙";
+  p.avatar = normalizeAvatar(p.avatar);
 
   const s = load().scenes[room];
   if (p.x === undefined) p.x = Math.floor(Math.random() * s.cols);
@@ -1937,13 +1980,13 @@ function ensureCurrentUserRecord(setup = null) {
       inventory: ["potion_healing"],
       equipped: createEmptyEquipped(),
       color: randomColor(),
-      avatar: setup?.avatar || pendingCharacterSetup?.avatar || currentAvatar || "🧙",
+      avatar: normalizeAvatar(setup?.avatar || pendingCharacterSetup?.avatar || currentAvatar || "🧙"),
       onTable: true,
     };
   } else if (setup) {
     data.rooms[room][currentUser].race = setup.race || data.rooms[room][currentUser].race;
     data.rooms[room][currentUser].class = setup.className || data.rooms[room][currentUser].class;
-    data.rooms[room][currentUser].avatar = setup.avatar || data.rooms[room][currentUser].avatar;
+    data.rooms[room][currentUser].avatar = normalizeAvatar(setup.avatar || data.rooms[room][currentUser].avatar);
   }
 
   ensurePlayerSchema(data.rooms[room][currentUser]);
@@ -2017,7 +2060,22 @@ function updateArena() {
     let token = document.createElement("div");
     token.className = "token";
     token.style.background = p.color;
-    token.innerText = p.avatar || name[0].toUpperCase();
+    const avatarEmoji = getAvatarEmoji(p.avatar || name[0].toUpperCase());
+    token.innerHTML = "";
+    if (isSpriteAvatar(p.avatar)) {
+      const sprite = document.createElement("img");
+      sprite.className = "tokenSprite";
+      sprite.src = p.avatar.url;
+      sprite.alt = `${name} sprite`;
+      sprite.loading = "lazy";
+      sprite.onerror = () => {
+        sprite.remove();
+        token.textContent = avatarEmoji;
+      };
+      token.appendChild(sprite);
+    } else {
+      token.textContent = avatarEmoji;
+    }
 
     token.onclick = (e) => {
       e.stopPropagation();

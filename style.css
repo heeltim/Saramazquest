@@ -114,6 +114,18 @@ body {
   background: rgba(255, 215, 94, 0.24);
 }
 
+.setupSpriteField {
+  margin-top: -2px;
+}
+
+.setupCheckboxLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
 #setupStartBtn {
   width: 100%;
   padding: 12px 14px;
@@ -491,6 +503,15 @@ body {
   cursor: pointer;
   user-select: none;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.tokenSprite {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  pointer-events: none;
 }
 .bar {
   position: absolute;
