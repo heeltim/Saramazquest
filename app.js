@@ -1071,6 +1071,26 @@ function rollDiceFromTray(sides) {
   pushAction(currentUser, formatRollAction(pools, `${count}d${sides}`));
 }
 
+function setDiceTrayOpen(open) {
+  const tray = document.getElementById("diceTray");
+  const toggle = document.getElementById("diceTrayToggle");
+  if (!tray || !toggle) return;
+
+  tray.classList.toggle("collapsed", !open);
+  tray.setAttribute("aria-hidden", String(!open));
+  toggle.setAttribute("aria-expanded", String(open));
+}
+
+function toggleDiceTray() {
+  const tray = document.getElementById("diceTray");
+  if (!tray) return;
+  setDiceTrayOpen(tray.classList.contains("collapsed"));
+}
+
+function closeDiceTray() {
+  setDiceTrayOpen(false);
+}
+
 document.getElementById("messageInput").addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
@@ -3183,6 +3203,7 @@ function clearPaintHighlights() {
 createGrid();
 applySceneCSS();
 updateArena();
+setDiceTrayOpen(false);
 initChatComposer();
 updateChat();
 loadShopCatalogs().then(() => {
