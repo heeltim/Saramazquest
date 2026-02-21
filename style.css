@@ -37,6 +37,105 @@ body {
   height: 100vh;
 }
 
+.characterSetupOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: radial-gradient(circle at top, rgba(76, 92, 255, 0.32), rgba(10, 12, 17, 0.95));
+}
+
+.characterSetupCard {
+  width: min(560px, 100%);
+  background: linear-gradient(170deg, rgba(28, 33, 48, 0.98), rgba(16, 19, 28, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 20px 54px rgba(0, 0, 0, 0.48);
+  padding: 20px;
+}
+
+.setupBrand {
+  display: inline-flex;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.characterSetupCard h1 {
+  margin: 12px 0 8px;
+  font-size: 30px;
+}
+
+.setupLead {
+  margin: 0 0 14px;
+  opacity: 0.85;
+}
+
+.setupGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.setupField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.setupAvatarOptions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+  gap: 8px;
+}
+
+.setupAvatarBtn {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 4px;
+  cursor: pointer;
+  font-size: 22px;
+}
+
+.setupAvatarBtn.active,
+.setupAvatarBtn:hover {
+  border-color: rgba(255, 215, 94, 0.95);
+  background: rgba(255, 215, 94, 0.24);
+}
+
+#setupStartBtn {
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #4c5cff, #6f63ff);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+#setupStartBtn:hover {
+  filter: brightness(1.08);
+}
+
+@media (max-width: 600px) {
+  .setupGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ================= ARENA ================= */
 #arenaWrap {
   flex: 1;
