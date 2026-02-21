@@ -447,6 +447,11 @@ const SPELL_CREATION_LEVEL_LIMITS = [
   { minLevel: 5, maxLevel: 20, points: 30 },
 ];
 
+const SPELL_ICON_LIBRARY = [
+  "🔥", "❄️", "⚡", "🌪️", "🌑", "☀️", "🧿", "✨", "💥", "🛡️", "❤️", "☠️",
+  "🌿", "🪄", "🕸️", "🦴", "🌀", "💫", "🐉", "🔮",
+];
+
 const SPELL_SLOTS_BY_LEVEL = {
   1: [2],
   2: [3],
@@ -471,6 +476,8 @@ const SPELL_SLOTS_BY_LEVEL = {
 };
 
 let grimoireTargetName = null;
+let activeGrimoireTab = "resources";
+let selectedSpellIcon = SPELL_ICON_LIBRARY[0];
 
 /* ================= STORAGE ================= */
 function load() {
@@ -2290,6 +2297,31 @@ function openGrimoire(name) {
 function closeGrimoire() {
   document.getElementById("grimoireOverlay").style.display = "none";
   grimoireTargetName = null;
+  activeGrimoireTab = "resources";
+}
+
+function openMyGrimoire() {
+  openGrimoire(currentUser);
+}
+
+function setGrimoireTab(tabId) {
+  activeGrimoireTab = tabId;
+  applyGrimoireTabState();
+}
+
+function applyGrimoireTabState() {
+  const tabs = document.querySelectorAll(".grimoireTab");
+  tabs.forEach((tab) => {
+    const isActive = tab.dataset.tab === activeGrimoireTab;
+    tab.classList.toggle("active", Boolean(isActive));
+    tab.setAttribute("aria-selected", String(Boolean(isActive)));
+  });
+
+  const panels = document.querySelectorAll(".grimoirePanel");
+  panels.forEach((panel) => {
+    const isActive = panel.dataset.tab === activeGrimoireTab;
+    panel.style.display = isActive ? "block" : "none";
+  });
 }
 
 function setupGrimoireFormDefaults() {
@@ -2299,6 +2331,9 @@ function setupGrimoireFormDefaults() {
     if (el) el.oninput = recalc;
     if (el && el.type === "checkbox") el.onchange = recalc;
   });
+
+  renderSpellIconLibrary();
+  applyGrimoireTabState();
 }
 
 function renderGrimoire(p) {
@@ -2351,6 +2386,21 @@ function renderSpellEffectsCatalog() {
       </div>
     </div>
   `).join("");
+}
+
+function renderSpellIconLibrary() {
+  const box = document.getElementById("spellIconLibrary");
+  if (!box) return;
+
+  box.innerHTML = SPELL_ICON_LIBRARY.map((icon) => {
+    const active = selectedSpellIcon === icon ? " active" : "";
+    return `<button type="button" class="iconChip${active}" onclick="selectSpellIcon('${icon}')">${icon}</button>`;
+  }).join("");
+}
+
+function selectSpellIcon(icon) {
+  selectedSpellIcon = icon;
+  renderSpellIconLibrary();
 }
 
 function getSelectedEffects() {
@@ -2436,6 +2486,7 @@ function createCustomSpell() {
 
   const spell = {
     id: `custom_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    icon: selectedSpellIcon,
     name,
     level,
     creatorLevel: p.level,
@@ -2480,7 +2531,7 @@ function renderCustomSpells(p) {
     return `
       <div class="spellCard">
         <div class="spellHead">
-          <strong>${spell.name}</strong>
+          <strong>${spell.icon || "✨"} ${spell.name}</strong>
           <span>Nv ${spell.level} • ${spell.pointCost} pts</span>
         </div>
         <div style="opacity:.8; font-size:12px;">${spell.description || "Sem descrição."}</div>
