@@ -610,6 +610,30 @@ body {
 .chatRoll {
   font-style: normal;
 }
+.chatSpellCast {
+  font-style: normal;
+  border-left-color: #b08bff;
+  background: linear-gradient(135deg, rgba(176, 139, 255, 0.12), rgba(126, 201, 255, 0.08));
+}
+.chatSpellLead {
+  margin-bottom: 8px;
+  color: #efe7ff;
+}
+.chatSpellCardWrap .spellCard {
+  margin: 6px 0;
+  background: rgba(7, 10, 24, 0.45);
+  border-color: rgba(176, 139, 255, 0.45);
+}
+.chatSpellDetails {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+.chatSpellRoll {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
 .rollSummary {
   display: flex;
   align-items: baseline;
