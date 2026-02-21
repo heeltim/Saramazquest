@@ -284,21 +284,44 @@ const SHOP = [
 
 /* ================= STORAGE ================= */
 function load() {
-  return (
-    JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-      rooms: {},
-      chat: {},
-      scenes: {},
-    }
-  );
+  const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  if (!raw.rooms || typeof raw.rooms !== "object") raw.rooms = {};
+  if (!raw.chat || typeof raw.chat !== "object") raw.chat = {};
+  if (!raw.scenes || typeof raw.scenes !== "object") raw.scenes = {};
+  return raw;
 }
 function save(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
+
+function normalizeChatMessage(message) {
+  if (typeof message === "string") return { user: "Sistema", text: message };
+  if (!message || typeof message !== "object") return null;
+
+  const user = String(message.user || message.name || "Sistema").trim();
+  const text = String(message.text || message.message || "").trim();
+  if (!text) return null;
+  return { user, text };
+}
+
+function getRoomChat(data, roomName) {
+  if (!Array.isArray(data.chat[roomName])) {
+    const legacy = data.rooms?.[roomName]?.chat;
+    data.chat[roomName] = Array.isArray(legacy) ? legacy : [];
+  }
+
+  data.chat[roomName] = data.chat[roomName]
+    .map(normalizeChatMessage)
+    .filter(Boolean);
+
+  return data.chat[roomName];
+}
+
 let data = load();
 if (!data.rooms[room]) data.rooms[room] = {};
-if (!data.chat[room]) data.chat[room] = [];
+getRoomChat(data, room);
 if (!data.scenes[room]) data.scenes[room] = structuredClone(DEFAULT_SCENE);
+save(data);
 
 /* ================= SCENE HELPERS ================= */
 function ensureScene() {
@@ -417,8 +440,8 @@ ensureAllPlayersSchema();
 /* ================= CHAT ================= */
 function pushChat(user, text) {
   let data = load();
-  if (!data.chat[room]) data.chat[room] = [];
-  data.chat[room].push({ user, text });
+  const roomChat = getRoomChat(data, room);
+  roomChat.push({ user, text });
   save(data);
   updateChat();
 }
@@ -488,6 +511,56 @@ function formatRollAction(pools, sourceExpression) {
   return `rolou ${sourceExpression} → ${details} = ${total}`;
 }
 
+function escapeHtml(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function renderRollDetails(actionText) {
+  const m = actionText.match(/^rolou\s+(.+?)\s+→\s+(.+?)\s+=\s+(-?\d+)$/i);
+  if (!m) return null;
+
+  const expression = m[1];
+  const detailsRaw = m[2];
+  const total = m[3];
+
+  const pools = detailsRaw
+    .split("+")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => {
+      const poolMatch = part.match(/^(\d+d\d+)=\[([^\]]*)\]$/i);
+      if (!poolMatch) return null;
+      return {
+        dice: poolMatch[1],
+        rolls: poolMatch[2],
+      };
+    })
+    .filter(Boolean);
+
+  if (!pools.length) return null;
+
+  const chips = pools
+    .map(
+      (pool) =>
+        `<span class="rollPool"><span class="rollDice">${escapeHtml(pool.dice)}</span> <span class="rollValues">[${escapeHtml(pool.rolls)}]</span></span>`
+    )
+    .join("");
+
+  return `
+    <div class="rollSummary">
+      <span class="rollExpr">${escapeHtml(expression)}</span>
+      <span class="rollTotalLabel">Total</span>
+      <span class="rollTotal">${escapeHtml(total)}</span>
+    </div>
+    <div class="rollPools">${chips}</div>
+  `;
+}
+
 function handleRollCommand(text) {
   const cmd = text.match(/^\/(r|roll)\s*(.*)$/i);
   if (!cmd) return false;
@@ -521,28 +594,39 @@ document.getElementById("messageInput").addEventListener("keydown", (e) => {
 });
 function updateChat() {
   let data = load();
+  const roomChat = getRoomChat(data, room);
   let chatBox = document.getElementById("chat");
   chatBox.innerHTML = "";
 
-  (data.chat[room] || []).forEach((msg) => {
+  roomChat.forEach((msg) => {
     let div = document.createElement("div");
     div.className = "chatMessage";
+    const safeUser = escapeHtml(msg.user);
+    const safeText = escapeHtml(msg.text);
 
     if (msg.text.startsWith("*")) {
       div.classList.add("chatAction");
-      div.innerHTML = `<strong>${msg.user}</strong> ${msg.text}`;
+      const actionText = msg.text.replace(/^\*\s*/, "");
+      const rollHtml = renderRollDetails(actionText);
+      if (rollHtml) {
+        div.classList.add("chatRoll");
+        div.innerHTML = `<div class="chatActionHead"><strong>${safeUser}</strong> <span>rolou</span></div>${rollHtml}`;
+      } else {
+        div.innerHTML = `<strong>${safeUser}</strong> ${safeText}`;
+      }
     } else if (msg.text.startsWith("(")) {
       div.classList.add("chatOOC");
-      div.innerHTML = msg.text;
+      div.innerHTML = safeText;
     } else {
       div.classList.add("chatSpeak");
-      div.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
+      div.innerHTML = `<strong>${safeUser}:</strong> ${safeText}`;
     }
 
     chatBox.appendChild(div);
   });
 
   chatBox.scrollTop = chatBox.scrollHeight;
+  save(data);
 }
 
 /* ================= ITENS ================= */
