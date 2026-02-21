@@ -489,13 +489,16 @@ function formatRollAction(pools, sourceExpression) {
 }
 
 function handleRollCommand(text) {
-  const cmd = text.match(/^\/(roll|r)\s*(.*)$/i);
+  const cmd = text.match(/^\/(?:roll|r)(?:\s+(.+))?$/i);
   if (!cmd) return false;
 
-  const expression = (cmd[2] || "").trim() || "1d20";
+  const expression = (cmd[1] || "").trim() || "1d20";
   const pools = parseDiceExpression(expression);
   if (!pools) {
-    pushChat("Sistema", "Uso: /roll 2d6 + 1d4 (dados: d4,d6,d8,d10,d12,d20,d100)");
+    pushChat(
+      "Sistema",
+      "Uso: /roll 2d6 + 1d4 (ou /r 1d20). Dados: d4,d6,d8,d10,d12,d20,d100",
+    );
     return true;
   }
 
