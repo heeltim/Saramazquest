@@ -552,6 +552,36 @@ function normalizeChatMessage(message) {
           )
         : {},
     createdAt: Number(message.createdAt) || Date.now(),
+    spellCast: normalizeSpellCastMeta(message.spellCast),
+  };
+}
+
+function normalizeSpellCastMeta(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const spell = raw.spell && typeof raw.spell === "object" ? raw.spell : null;
+  if (!spell) return null;
+
+  const spellName = String(spell.name || "").trim();
+  if (!spellName) return null;
+
+  return {
+    spell: {
+      id: String(spell.id || "").trim() || `spell_${Date.now()}`,
+      name: spellName,
+      level: Math.max(0, parseInt(spell.level || 0, 10) || 0),
+      icon: String(spell.icon || "✨").trim() || "✨",
+      pointCost: Math.max(0, parseInt(spell.pointCost || 0, 10) || 0),
+      description: String(spell.description || "").trim(),
+      components: Array.isArray(spell.components)
+        ? spell.components.map((c) => String(c || "").trim()).filter(Boolean)
+        : [],
+      effects: Array.isArray(spell.effects)
+        ? spell.effects.filter((fx) => fx && typeof fx === "object")
+        : [],
+    },
+    slotLevel: Math.max(1, parseInt(raw.slotLevel || spell.level || 1, 10) || 1),
+    rollText: String(raw.rollText || "").trim(),
+    detailsText: String(raw.detailsText || "").trim(),
   };
 }
 
@@ -780,7 +810,7 @@ function ensureAllPlayersSchema() {
 ensureAllPlayersSchema();
 
 /* ================= CHAT ================= */
-function createChatMessage({ user, text, senderType = "player", senderProfile = null }) {
+function createChatMessage({ user, text, senderType = "player", senderProfile = null, spellCast = null }) {
   return {
     id: `m_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
     user,
@@ -790,6 +820,7 @@ function createChatMessage({ user, text, senderType = "player", senderProfile = 
     replyTo: pendingReplyId,
     reactions: {},
     createdAt: Date.now(),
+    spellCast: normalizeSpellCastMeta(spellCast),
   };
 }
 
@@ -823,6 +854,19 @@ function pushChat(user, text, meta = {}) {
 function pushAction(user, text) {
   pushChat(user, "* " + text);
 }
+
+function pushSpellCastMessage(user, playerName, spell, slotLevel, rollText, detailsText) {
+  const castText = `${playerName} conjurou ${spell.icon || "✨"} ${spell.name} usando 1 slot de nível ${slotLevel}.`;
+  pushChat(user, `* ${castText}`, {
+    spellCast: {
+      spell,
+      slotLevel,
+      rollText,
+      detailsText,
+    },
+  });
+}
+
 
 function spellToCardHtml(spell) {
   if (!spell) return "";
@@ -900,12 +944,7 @@ function castSpellForPlayer(playerName, spellId) {
   save(data);
 
   const { rollText, detailsText } = resolveSpellAutoRoll(spell);
-  const summary = `${playerName} conjurou ${spell.icon || "✨"} ${spell.name} usando 1 slot de nível ${spell.level}.`;
-  const detailsLine = [spell.description || "", detailsText].filter(Boolean).join(" • ");
-
-  pushAction(currentUser, summary);
-  if (detailsLine) pushAction(currentUser, `Detalhes da magia: ${detailsLine}`);
-  if (rollText) pushAction(currentUser, rollText);
+  pushSpellCastMessage(currentUser, playerName, spell, spell.level, rollText, detailsText);
 
   if (grimoireTargetName === playerName) renderGrimoire(p);
   updateArena();
@@ -1407,7 +1446,22 @@ function updateChat() {
 
     const content = document.createElement("div");
 
-    if (msg.text.startsWith("*")) {
+    if (msg.text.startsWith("*") && msg.spellCast?.spell) {
+      div.classList.add("chatAction", "chatSpellCast");
+      const actionText = msg.text.replace(/^\*\s*/, "");
+      const spell = msg.spellCast.spell;
+      const detailsLine = [spell.description || "", msg.spellCast.detailsText || ""]
+        .filter(Boolean)
+        .join(" • ");
+      const rollHtml = msg.spellCast.rollText ? renderRollDetails(msg.spellCast.rollText) : null;
+      content.innerHTML = `
+        <div class="chatActionHead"><strong>${safeUser}</strong> <span>conjurou</span></div>
+        <div class="chatSpellLead">${escapeHtml(actionText)}</div>
+        <div class="chatSpellCardWrap">${spellToCardHtml(spell)}</div>
+        ${detailsLine ? `<div class="chatSpellDetails">${escapeHtml(detailsLine)}</div>` : ""}
+        ${rollHtml ? `<div class="chatSpellRoll">${rollHtml}</div>` : ""}
+      `;
+    } else if (msg.text.startsWith("*")) {
       div.classList.add("chatAction");
       const actionText = msg.text.replace(/^\*\s*/, "");
       const rollHtml = renderRollDetails(actionText);
