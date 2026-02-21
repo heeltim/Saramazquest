@@ -284,21 +284,44 @@ const SHOP = [
 
 /* ================= STORAGE ================= */
 function load() {
-  return (
-    JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-      rooms: {},
-      chat: {},
-      scenes: {},
-    }
-  );
+  const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  if (!raw.rooms || typeof raw.rooms !== "object") raw.rooms = {};
+  if (!raw.chat || typeof raw.chat !== "object") raw.chat = {};
+  if (!raw.scenes || typeof raw.scenes !== "object") raw.scenes = {};
+  return raw;
 }
 function save(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
+
+function normalizeChatMessage(message) {
+  if (typeof message === "string") return { user: "Sistema", text: message };
+  if (!message || typeof message !== "object") return null;
+
+  const user = String(message.user || message.name || "Sistema").trim();
+  const text = String(message.text || message.message || "").trim();
+  if (!text) return null;
+  return { user, text };
+}
+
+function getRoomChat(data, roomName) {
+  if (!Array.isArray(data.chat[roomName])) {
+    const legacy = data.rooms?.[roomName]?.chat;
+    data.chat[roomName] = Array.isArray(legacy) ? legacy : [];
+  }
+
+  data.chat[roomName] = data.chat[roomName]
+    .map(normalizeChatMessage)
+    .filter(Boolean);
+
+  return data.chat[roomName];
+}
+
 let data = load();
 if (!data.rooms[room]) data.rooms[room] = {};
-if (!data.chat[room]) data.chat[room] = [];
+getRoomChat(data, room);
 if (!data.scenes[room]) data.scenes[room] = structuredClone(DEFAULT_SCENE);
+save(data);
 
 /* ================= SCENE HELPERS ================= */
 function ensureScene() {
@@ -417,8 +440,8 @@ ensureAllPlayersSchema();
 /* ================= CHAT ================= */
 function pushChat(user, text) {
   let data = load();
-  if (!data.chat[room]) data.chat[room] = [];
-  data.chat[room].push({ user, text });
+  const roomChat = getRoomChat(data, room);
+  roomChat.push({ user, text });
   save(data);
   updateChat();
 }
@@ -521,10 +544,11 @@ document.getElementById("messageInput").addEventListener("keydown", (e) => {
 });
 function updateChat() {
   let data = load();
+  const roomChat = getRoomChat(data, room);
   let chatBox = document.getElementById("chat");
   chatBox.innerHTML = "";
 
-  (data.chat[room] || []).forEach((msg) => {
+  roomChat.forEach((msg) => {
     let div = document.createElement("div");
     div.className = "chatMessage";
 
@@ -543,6 +567,7 @@ function updateChat() {
   });
 
   chatBox.scrollTop = chatBox.scrollHeight;
+  save(data);
 }
 
 /* ================= ITENS ================= */
