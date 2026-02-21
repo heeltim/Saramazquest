@@ -44,7 +44,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px 12px 136px;
+  padding: 16px 12px;
   background: linear-gradient(180deg, #10131c 0%, #0f1117 100%);
 }
 #arena {
@@ -65,18 +65,50 @@ body {
   overflow: hidden;
 }
 
+#diceTrayToggle {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(15, 18, 27, 0.9);
+  color: #fff;
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+#diceTrayToggle:hover {
+  background: rgba(76, 92, 255, 0.3);
+  border-color: rgba(76, 92, 255, 0.75);
+}
+
 #diceTray {
   position: absolute;
-  left: 50%;
-  bottom: 10px;
-  transform: translateX(-50%);
-  width: min(94%, 1040px);
+  left: 14px;
+  top: 50%;
+  transform: translate(0, -50%);
+  width: min(390px, calc(100% - 28px));
+  max-height: min(560px, calc(100% - 28px));
+  overflow: auto;
   padding: 8px 10px;
   border-radius: 14px;
   background: linear-gradient(180deg, rgba(28, 33, 48, 0.95), rgba(18, 22, 33, 0.92));
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
-  z-index: 3;
+  z-index: 4;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+}
+#diceTray.collapsed {
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-14px, -50%);
+  pointer-events: none;
 }
 .diceTopRow {
   display: flex;
@@ -84,6 +116,20 @@ body {
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 6px;
+}
+.diceCloseBtn {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.diceCloseBtn:hover {
+  background: rgba(255, 80, 80, 0.28);
+  border-color: rgba(255, 120, 120, 0.7);
 }
 .diceHeader {
   font-size: 12px;
