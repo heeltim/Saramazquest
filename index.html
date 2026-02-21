@@ -10,6 +10,30 @@
   </head>
 
   <body>
+    <div id="authOverlay" class="characterSetupOverlay hidden">
+      <div class="characterSetupCard authCard">
+        <div class="setupBrand">🔐 Conta do player</div>
+        <h1>Entrar ou criar conta</h1>
+        <p class="setupLead">Use seu e-mail para salvar o personagem e continuar de onde parou.</p>
+
+        <div class="authTabs">
+          <button id="authLoginTab" type="button" class="authTab active">Login</button>
+          <button id="authRegisterTab" type="button" class="authTab">Criar conta</button>
+        </div>
+
+        <div class="setupField">
+          <label for="authEmail">E-mail</label>
+          <input id="authEmail" type="email" placeholder="voce@email.com" autocomplete="email" />
+        </div>
+        <div class="setupField">
+          <label for="authPassword">Senha</label>
+          <input id="authPassword" type="password" placeholder="Mínimo 6 caracteres" autocomplete="current-password" />
+        </div>
+        <button id="authSubmitBtn" type="button">Entrar</button>
+        <p id="authMessage" class="authMessage"></p>
+      </div>
+    </div>
+
     <div id="characterSetup" class="characterSetupOverlay">
       <div class="characterSetupCard">
         <div class="setupBrand">⚔️ Saramaz Quest</div>
@@ -132,6 +156,7 @@
             <div class="pill" title="Seu nome">
               👤 <strong id="meName">-</strong>
             </div>
+            <button id="logoutBtn" class="toggleBtn" type="button">🚪 Sair</button>
             <button
               id="masterToggle"
               class="toggleBtn"
