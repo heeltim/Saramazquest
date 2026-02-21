@@ -13,11 +13,24 @@
     <div id="game">
       <div id="arenaWrap">
         <div id="arena"></div>
-        <div id="diceTray">
+        <button
+          id="diceTrayToggle"
+          type="button"
+          title="Abrir dados"
+          aria-controls="diceTray"
+          aria-expanded="false"
+          onclick="toggleDiceTray()"
+        >
+          🎲 Dados
+        </button>
+        <div id="diceTray" class="collapsed" aria-hidden="true">
           <div class="diceTopRow">
             <div class="diceHeader">🎲 Rolagem rápida</div>
-            <div id="diceResult">Use também no chat: <code>/roll 2d6 + 1d4</code> (ou <code>/r</code>).</div>
+            <button class="diceCloseBtn" type="button" onclick="closeDiceTray()" title="Fechar janela de dados">
+              ✕
+            </button>
           </div>
+          <div id="diceResult">Use também no chat: <code>/roll 2d6 + 1d4</code> (ou <code>/r</code>).</div>
           <div class="diceControls">
             <div class="dieControl">
               <button class="dieBtn dieIconBtn" onclick="rollDiceFromTray(4)" title="Rolar d4">
