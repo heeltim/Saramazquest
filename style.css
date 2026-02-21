@@ -94,44 +94,56 @@ body {
 }
 .diceControls {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 8px;
 }
 .dieControl {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 6px;
-  border-radius: 9px;
+  gap: 8px;
+  padding: 5px 7px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.07);
 }
-.dieControl label {
-  font-weight: 800;
-  font-size: 11px;
-  min-width: 34px;
-  opacity: 0.92;
-}
 .dieControl input {
-  width: 44px;
-  padding: 4px 5px;
+  width: 54px;
+  padding: 5px 6px;
   border-radius: 7px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.07);
   color: #fff;
   font-size: 12px;
   text-align: center;
+  margin-left: auto;
 }
 .dieBtn {
-  margin-left: auto;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
-  border-radius: 8px;
-  padding: 5px 9px;
+  border-radius: 10px;
+  padding: 5px 8px;
   font-size: 12px;
   font-weight: 800;
   cursor: pointer;
+}
+.dieIconBtn {
+  min-width: 72px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  line-height: 1;
+}
+.dieGlyph {
+  font-size: 16px;
+  opacity: 0.95;
+}
+.dieType {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 .dieBtn:hover {
   background: rgba(76, 92, 255, 0.3);
