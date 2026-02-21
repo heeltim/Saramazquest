@@ -311,10 +311,13 @@ function initCharacterSetup() {
   }
   overlay.classList.remove("hidden");
 
+  const defaultRace = Object.keys(RACES).includes("Humano") ? "Humano" : Object.keys(RACES)[0] || "Humano";
+  const defaultClass = Object.keys(CLASSES).includes("Guerreiro") ? "Guerreiro" : Object.keys(CLASSES)[0] || "Guerreiro";
+
   const finishSetup = ({
     chosenName = String(nameInput.value || "").trim() || "Jogador",
-    chosenRace = raceSelect?.value || (Object.keys(RACES).includes("Humano") ? "Humano" : Object.keys(RACES)[0] || "Humano"),
-    chosenClass = classSelect?.value || (Object.keys(CLASSES).includes("Guerreiro") ? "Guerreiro" : Object.keys(CLASSES)[0] || "Guerreiro"),
+    chosenRace = raceSelect?.value ?? defaultRace,
+    chosenClass = classSelect?.value ?? defaultClass,
     chosenAvatar = selectedAvatar || "🧙",
   } = {}) => {
     currentUser = chosenName;
