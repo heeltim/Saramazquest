@@ -1760,10 +1760,12 @@ function updateArena() {
     cell.appendChild(token);
   });
 
-  save(data);
   updateSidebar(players);
-  const activePlayer = players[currentUser] || players[grimoireTargetName] || players[Object.keys(players)[0]];
-  renderCombatSpellSlots(activePlayer);
+  const activePlayerName = players[currentUser]
+    ? currentUser
+    : (players[grimoireTargetName] ? grimoireTargetName : Object.keys(players)[0]);
+  const activePlayer = activePlayerName ? players[activePlayerName] : null;
+  renderCombatSpellSlots(activePlayerName, activePlayer);
 
   // modais
   if (sheetTargetName) {
@@ -1786,7 +1788,7 @@ function updateArena() {
   }
 }
 
-function renderCombatSpellSlots(player) {
+function renderCombatSpellSlots(playerName, player) {
   const wrap = document.getElementById("combatSpellSlots");
   if (!wrap) return;
 
@@ -1803,7 +1805,7 @@ function renderCombatSpellSlots(player) {
       return `<button class="combatSlot empty" type="button" title="Slot ${idx + 1} vazio">+</button>`;
     }
     return `
-      <button class="combatSlot" type="button" title="${escapeHtml(spell.name)}" onclick="castSpellForPlayer('${currentUser}','${spell.id}')">
+      <button class="combatSlot" type="button" title="${escapeHtml(spell.name)}" onclick="castSpellForPlayer('${escapeHtml(playerName || '')}','${spell.id}')">
         <span class="slotIcon">${spell.icon || "✨"}</span>
         <span class="slotIndex">${idx + 1}</span>
         <div class="combatSlotTooltip">${spellToCardHtml(spell)}</div>
@@ -1888,7 +1890,6 @@ function updateSidebar(players) {
     party.appendChild(card);
   });
 
-  save(load());
 }
 
 /* ================= MOVIMENTO (setas + colisão) ================= */
@@ -2426,7 +2427,18 @@ function closeGrimoire() {
 }
 
 function openMyGrimoire() {
-  openGrimoire(currentUser);
+  const data = load();
+  const players = data.rooms?.[room] || {};
+  const targetName = players[currentUser]
+    ? currentUser
+    : (grimoireTargetName && players[grimoireTargetName] ? grimoireTargetName : Object.keys(players)[0]);
+
+  if (!targetName) {
+    alert("Nenhum personagem disponível para abrir o grimório.");
+    return;
+  }
+
+  openGrimoire(targetName);
 }
 
 function setGrimoireTab(tabId) {
