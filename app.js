@@ -2,11 +2,40 @@
 const STORAGE_KEY = "rpgquest_v2_scene";
 const LAST_LOGIN_KEY = "rpgquest_last_login";
 const LAST_AVATAR_KEY = "rpgquest_last_avatar";
+const AUTH_STORAGE_KEY = "rpgquest_auth_v1";
 let room = "arena";
-let currentUser = (localStorage.getItem(LAST_LOGIN_KEY) || "").trim() || "Jogador";
-let currentAvatar = (localStorage.getItem(LAST_AVATAR_KEY) || "").trim() || "🧙";
+let currentUser = "Jogador";
+let currentAvatar = "🧙";
+let currentAccountEmail = "";
 let pendingCharacterSetup = null;
-document.getElementById("meName").textContent = currentUser;
+
+function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function accountKeyByEmail(email) {
+  return `acc_${normalizeEmail(email)}`;
+}
+
+function loadAuthState() {
+  const raw = JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || "{}");
+  if (!raw.accounts || typeof raw.accounts !== "object") raw.accounts = {};
+  raw.lastSessionEmail = normalizeEmail(raw.lastSessionEmail);
+  return raw;
+}
+
+function saveAuthState(auth) {
+  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth));
+}
+
+function getLoggedAccount() {
+  const auth = loadAuthState();
+  const email = normalizeEmail(auth.lastSessionEmail);
+  if (!email) return null;
+  const acc = auth.accounts[accountKeyByEmail(email)];
+  if (!acc) return null;
+  return { email, account: acc };
+}
 
 const START_AVATARS = ["🧙", "⚔️", "🏹", "🛡️", "🧝", "🧛", "🐺", "🐉", "🔥", "✨"];
 
@@ -15,6 +44,111 @@ const PICKER_EMOJIS = ["😀", "😁", "😂", "🤣", "🙂", "😉", "😎", "
 let pendingReplyId = null;
 let chatSenderKey = "player";
 let chatContextCleanup = null;
+
+function initAuth() {
+  const overlay = document.getElementById("authOverlay");
+  if (!overlay) return;
+
+  const emailInput = document.getElementById("authEmail");
+  const passInput = document.getElementById("authPassword");
+  const submitBtn = document.getElementById("authSubmitBtn");
+  const msg = document.getElementById("authMessage");
+  const loginTab = document.getElementById("authLoginTab");
+  const registerTab = document.getElementById("authRegisterTab");
+
+  let mode = "login";
+
+  const setMode = (nextMode) => {
+    mode = nextMode;
+    loginTab.classList.toggle("active", mode === "login");
+    registerTab.classList.toggle("active", mode === "register");
+    submitBtn.textContent = mode === "login" ? "Entrar" : "Criar conta";
+    passInput.autocomplete = mode === "login" ? "current-password" : "new-password";
+    msg.textContent = "";
+  };
+
+  const login = (email, account) => {
+    const preferredName = String(account.playerName || "").trim() || String(account.displayName || "").trim() || "Jogador";
+    currentAccountEmail = email;
+    currentUser = preferredName;
+    currentAvatar = String(account.avatar || "🧙").trim() || "🧙";
+    localStorage.setItem(LAST_LOGIN_KEY, currentUser);
+    localStorage.setItem(LAST_AVATAR_KEY, currentAvatar);
+    document.getElementById("meName").textContent = currentUser;
+
+    const auth = loadAuthState();
+    auth.lastSessionEmail = email;
+    saveAuthState(auth);
+
+    overlay.classList.add("hidden");
+    initCharacterSetup();
+    ensureCurrentUserRecord();
+    updateArena();
+    updateChat();
+  };
+
+  loginTab.onclick = () => setMode("login");
+  registerTab.onclick = () => setMode("register");
+
+  submitBtn.onclick = () => {
+    const email = normalizeEmail(emailInput.value);
+    const password = String(passInput.value || "");
+
+    if (!email.includes("@") || !email.includes(".")) {
+      msg.textContent = "Informe um e-mail válido.";
+      return;
+    }
+    if (password.length < 6) {
+      msg.textContent = "A senha precisa ter pelo menos 6 caracteres.";
+      return;
+    }
+
+    const auth = loadAuthState();
+    const key = accountKeyByEmail(email);
+    const existing = auth.accounts[key];
+
+    if (mode === "register") {
+      if (existing) {
+        msg.textContent = "Esse e-mail já está cadastrado. Faça login.";
+        return;
+      }
+      auth.accounts[key] = {
+        email,
+        password,
+        displayName: email.split("@")[0],
+        playerName: "",
+        avatar: "🧙",
+        createdAt: Date.now(),
+      };
+      auth.lastSessionEmail = email;
+      saveAuthState(auth);
+      msg.textContent = "Conta criada com sucesso!";
+      login(email, auth.accounts[key]);
+      return;
+    }
+
+    if (!existing || existing.password !== password) {
+      msg.textContent = "E-mail ou senha inválidos.";
+      return;
+    }
+
+    login(email, existing);
+  };
+
+  const session = getLoggedAccount();
+  if (session) {
+    login(session.email, session.account);
+  } else {
+    overlay.classList.remove("hidden");
+    const remembered = normalizeEmail(localStorage.getItem("rpgquest_last_email") || "");
+    emailInput.value = remembered;
+    setMode("login");
+  }
+
+  emailInput.addEventListener("change", () => {
+    localStorage.setItem("rpgquest_last_email", normalizeEmail(emailInput.value));
+  });
+}
 
 function initCharacterSetup() {
   const overlay = document.getElementById("characterSetup");
@@ -25,6 +159,11 @@ function initCharacterSetup() {
   const classSelect = document.getElementById("setupClass");
   const avatarWrap = document.getElementById("setupAvatarOptions");
   const startBtn = document.getElementById("setupStartBtn");
+
+  if (!currentAccountEmail) {
+    overlay.classList.add("hidden");
+    return;
+  }
 
   nameInput.value = currentUser;
 
@@ -64,6 +203,15 @@ function initCharacterSetup() {
 
   renderAvatars();
 
+  const existingPlayer = load().rooms?.[room]?.[currentUser];
+  if (existingPlayer) {
+    overlay.classList.add("hidden");
+    ensurePlayerSchema(existingPlayer);
+    if (existingPlayer.avatar) currentAvatar = existingPlayer.avatar;
+    return;
+  }
+  overlay.classList.remove("hidden");
+
   startBtn.onclick = () => {
     const chosenName = String(nameInput.value || "").trim() || "Jogador";
     const chosenRace = raceSelect.value || "Humano";
@@ -80,6 +228,16 @@ function initCharacterSetup() {
     localStorage.setItem(LAST_LOGIN_KEY, currentUser);
     localStorage.setItem(LAST_AVATAR_KEY, currentAvatar);
     document.getElementById("meName").textContent = currentUser;
+
+    const auth = loadAuthState();
+    if (currentAccountEmail) {
+      const key = accountKeyByEmail(currentAccountEmail);
+      if (auth.accounts[key]) {
+        auth.accounts[key].playerName = currentUser;
+        auth.accounts[key].avatar = currentAvatar;
+        saveAuthState(auth);
+      }
+    }
 
     ensureCurrentUserRecord({ race: chosenRace, className: chosenClass, avatar: currentAvatar });
     updateArena();
@@ -1793,8 +1951,8 @@ function ensureCurrentUserRecord(setup = null) {
   save(data);
 }
 
-initCharacterSetup();
-ensureCurrentUserRecord();
+
+initAuth();
 
 /* ================= GRID ================= */
 const arena = document.getElementById("arena");
@@ -1966,6 +2124,7 @@ function updateSidebar(players) {
 
   Object.keys(players).forEach((name) => {
     let p = players[name];
+    const labelName = String(p?.name || name);
     ensurePlayerSchema(p);
     recalcFromSheet(p);
 
@@ -1987,7 +2146,7 @@ function updateSidebar(players) {
         ${name[0].toUpperCase()}
       </div>
       <div class="playerMain">
-        <div class="playerName">${name}${ownerTxt}</div>
+        <div class="playerName">${labelName}${ownerTxt}</div>
 
         <div class="statRow">
           <div class="statLabel">HP</div>
@@ -3495,6 +3654,16 @@ function clearPaintHighlights() {
   document.querySelectorAll(".cell").forEach((c) => {
     c.classList.remove("paint-floor", "paint-wall", "paint-void");
   });
+}
+
+const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+  logoutBtn.onclick = () => {
+    const auth = loadAuthState();
+    auth.lastSessionEmail = "";
+    saveAuthState(auth);
+    window.location.reload();
+  };
 }
 
 /* ================= INIT ================= */
