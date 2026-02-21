@@ -1668,9 +1668,22 @@ function showMenu(name, element) {
 
   document.body.appendChild(menu);
 
-  let rect = element.getBoundingClientRect();
-  menu.style.left = rect.left + rect.width / 2 - 104 + "px";
-  menu.style.top = rect.top - 62 + "px";
+  const rect = element.getBoundingClientRect();
+  const menuRect = menu.getBoundingClientRect();
+  const margin = 8;
+
+  let left = rect.left + rect.width / 2 - menuRect.width / 2;
+  let top = rect.top - menuRect.height - 10;
+
+  if (top < margin) {
+    top = rect.bottom + 10;
+  }
+
+  left = Math.max(margin, Math.min(left, window.innerWidth - menuRect.width - margin));
+  top = Math.max(margin, Math.min(top, window.innerHeight - menuRect.height - margin));
+
+  menu.style.left = `${left}px`;
+  menu.style.top = `${top}px`;
 
   setTimeout(() => {
     document.addEventListener("click", removeMenu);

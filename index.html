@@ -210,7 +210,10 @@
             <h3 id="sheetTitle" class="modalTitle">Ficha</h3>
             <div id="sheetSub" class="modalSub"></div>
           </div>
-          <button class="btn" onclick="closeSheet()">Fechar</button>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn" onclick="openGrimoire(sheetTargetName)">📖 Abrir Grimório</button>
+            <button class="btn" onclick="closeSheet()">Fechar</button>
+          </div>
         </div>
 
         <div class="sheetColumns">
