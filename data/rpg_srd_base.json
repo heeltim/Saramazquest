@@ -1346,5 +1346,282 @@
       "19": 68,
       "20": 73
     }
-  }
+  },
+  "professions": [
+    {
+      "id": "culinaria",
+      "nome": "Culinária",
+      "descricao": "Prepara refeições e banquetes.",
+      "ui": {
+        "cor_hex": "#d97706"
+      },
+      "actions": [
+        "coletar",
+        "craftar",
+        "vender"
+      ]
+    },
+    {
+      "id": "alquimia",
+      "nome": "Alquimia",
+      "descricao": "Coleta ervas e cria poções/elixires.",
+      "ui": {
+        "cor_hex": "#059669"
+      },
+      "actions": [
+        "coletar",
+        "craftar",
+        "vender"
+      ]
+    },
+    {
+      "id": "ferraria",
+      "nome": "Ferraria",
+      "descricao": "Forja armas e armaduras.",
+      "ui": {
+        "cor_hex": "#64748b"
+      },
+      "actions": [
+        "coletar",
+        "craftar",
+        "vender"
+      ]
+    },
+    {
+      "id": "mercador",
+      "nome": "Mercador",
+      "descricao": "Gerencia a loja do jogador.",
+      "ui": {
+        "cor_hex": "#2563eb"
+      },
+      "actions": [
+        "vender",
+        "gerenciar_loja"
+      ]
+    }
+  ],
+  "reagents": [
+    {
+      "id": "erva_comum",
+      "nome": "Erva Comum",
+      "categoria": "herbal",
+      "raridade": "comum",
+      "stack_max": 99,
+      "valor_venda_gp": 1
+    },
+    {
+      "id": "erva_rara",
+      "nome": "Erva Rara",
+      "categoria": "herbal",
+      "raridade": "raro",
+      "stack_max": 99,
+      "valor_venda_gp": 3
+    },
+    {
+      "id": "carne_selvagem",
+      "nome": "Carne Selvagem",
+      "categoria": "culinaria",
+      "raridade": "comum",
+      "stack_max": 99,
+      "valor_venda_gp": 2
+    },
+    {
+      "id": "grao_fino",
+      "nome": "Grão Fino",
+      "categoria": "culinaria",
+      "raridade": "incomum",
+      "stack_max": 99,
+      "valor_venda_gp": 2
+    },
+    {
+      "id": "minerio_ferro",
+      "nome": "Minério de Ferro",
+      "categoria": "metal",
+      "raridade": "comum",
+      "stack_max": 99,
+      "valor_venda_gp": 2
+    },
+    {
+      "id": "minerio_aco",
+      "nome": "Minério de Aço",
+      "categoria": "metal",
+      "raridade": "raro",
+      "stack_max": 99,
+      "valor_venda_gp": 4
+    }
+  ],
+  "recipes": [
+    {
+      "id": "cul_refeicao_simples",
+      "profissao_id": "culinaria",
+      "nome": "Refeição Simples",
+      "nivel_profissao_min": 1,
+      "tempo_dias": 1,
+      "reagentes": [
+        {
+          "id": "carne_selvagem",
+          "qtd": 1
+        }
+      ],
+      "output": {
+        "type": "item",
+        "item_id": "refeicao_simples",
+        "qtd": 1
+      },
+      "xp_gain": 20
+    },
+    {
+      "id": "cul_refeicao_boa",
+      "profissao_id": "culinaria",
+      "nome": "Refeição Boa",
+      "nivel_profissao_min": 1,
+      "tempo_dias": 1,
+      "reagentes": [
+        {
+          "id": "carne_selvagem",
+          "qtd": 1
+        },
+        {
+          "id": "grao_fino",
+          "qtd": 1
+        }
+      ],
+      "output": {
+        "type": "item",
+        "item_id": "refeicao_boa",
+        "qtd": 1
+      },
+      "xp_gain": 25
+    },
+    {
+      "id": "cul_banquete",
+      "profissao_id": "culinaria",
+      "nome": "Banquete",
+      "nivel_profissao_min": 2,
+      "tempo_dias": 1,
+      "reagentes": [
+        {
+          "id": "carne_selvagem",
+          "qtd": 2
+        },
+        {
+          "id": "grao_fino",
+          "qtd": 2
+        }
+      ],
+      "output": {
+        "type": "item",
+        "item_id": "banquete",
+        "qtd": 1
+      },
+      "xp_gain": 40
+    },
+    {
+      "id": "alq_balsamo",
+      "profissao_id": "alquimia",
+      "nome": "Bálsamo Restaurador",
+      "nivel_profissao_min": 1,
+      "tempo_dias": 1,
+      "reagentes": [
+        {
+          "id": "erva_comum",
+          "qtd": 2
+        }
+      ],
+      "output": {
+        "type": "item",
+        "item_id": "balsamo_restaurador",
+        "qtd": 1
+      },
+      "xp_gain": 25
+    },
+    {
+      "id": "alq_vinho_elfico",
+      "profissao_id": "alquimia",
+      "nome": "Elixir Élfico",
+      "nivel_profissao_min": 2,
+      "tempo_dias": 1,
+      "reagentes": [
+        {
+          "id": "erva_comum",
+          "qtd": 1
+        },
+        {
+          "id": "erva_rara",
+          "qtd": 1
+        }
+      ],
+      "output": {
+        "type": "item",
+        "item_id": "vinho_elfico",
+        "qtd": 1
+      },
+      "xp_gain": 35
+    },
+    {
+      "id": "fer_punhal",
+      "profissao_id": "ferraria",
+      "nome": "Punhal de Combate",
+      "nivel_profissao_min": 1,
+      "tempo_dias": 1,
+      "reagentes": [
+        {
+          "id": "minerio_ferro",
+          "qtd": 2
+        }
+      ],
+      "output": {
+        "type": "item",
+        "item_id": "punhal_de_combate",
+        "qtd": 1
+      },
+      "xp_gain": 25
+    },
+    {
+      "id": "fer_espada_longa",
+      "profissao_id": "ferraria",
+      "nome": "Espada Longa",
+      "nivel_profissao_min": 2,
+      "tempo_dias": 1,
+      "reagentes": [
+        {
+          "id": "minerio_ferro",
+          "qtd": 2
+        },
+        {
+          "id": "minerio_aco",
+          "qtd": 1
+        }
+      ],
+      "output": {
+        "type": "item",
+        "item_id": "espada_longa",
+        "qtd": 1
+      },
+      "xp_gain": 40
+    },
+    {
+      "id": "fer_cota",
+      "profissao_id": "ferraria",
+      "nome": "Cota Metálica",
+      "nivel_profissao_min": 2,
+      "tempo_dias": 1,
+      "reagentes": [
+        {
+          "id": "minerio_ferro",
+          "qtd": 2
+        },
+        {
+          "id": "minerio_aco",
+          "qtd": 1
+        }
+      ],
+      "output": {
+        "type": "item",
+        "item_id": "cota_metalica",
+        "qtd": 1
+      },
+      "xp_gain": 45
+    }
+  ]
 }
