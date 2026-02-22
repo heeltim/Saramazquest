@@ -310,7 +310,6 @@
             <div id="sheetSub" class="modalSub"></div>
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn" onclick="openSheetDna()">🧬 DNA</button>
             <button class="btn" onclick="openGrimoire(sheetTargetName)">📖 Abrir Grimório</button>
             <button class="btn" onclick="closeSheet()">Fechar</button>
           </div>
@@ -389,7 +388,10 @@
 
           <div class="panel">
             <div class="sheetDnaSummaryCard">
-              <div style="font-weight:900; margin-bottom:8px">Resumo DNA</div>
+              <div class="sheetDnaSummaryHead">
+                <div style="font-weight:900;">DNA</div>
+                <button class="smallBtn" onclick="openSheetDna()">🧬 DNA</button>
+              </div>
               <div id="sheetDnaSummary" class="sheetDnaSummary"></div>
             </div>
 
@@ -401,12 +403,15 @@
               </div>
             </details>
             <details style="margin-top:10px">
+              <summary class="sectionSummary">Habilidades raciais e de classe</summary>
+              <div id="sheetAbilities" class="abilities"></div>
+            </details>
+          </div>
+
+          <div class="panel">
+            <details open>
               <summary class="sectionSummary">Perícias</summary>
               <div id="sheetSkills" class="skillsList"></div>
-            </details>
-            <details style="margin-top:10px">
-              <summary class="sectionSummary">Habilidades (clicáveis)</summary>
-              <div id="sheetAbilities" class="abilities"></div>
             </details>
           </div>
         </div>
