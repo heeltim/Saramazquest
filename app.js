@@ -3005,26 +3005,51 @@ function renderSheetComputed(p) {
 function renderAbilities(p) {
   const list = document.getElementById("sheetAbilities");
   const skills = p.skills || [];
-  list.innerHTML = skills
-    .map(
-      (a, idx) => {
-        const isPassive = Boolean(a.passive);
-        return `
-    <div class="ability">
-      <div class="abilityIcon">${a.icon}</div>
-      <div style="flex:1;">
-        <div class="abilityName">${a.name}${isPassive ? ' <small style="opacity:.75;">(Passiva)</small>' : ""}</div>
-        <details class="abilityDetails"><summary class="abilitySummary">Detalhes</summary><div class="abilityDesc">${a.desc}</div></details>
-        <div class="abilityMeta">
-          <span>${a.manaCost ? `Custo: <strong>${a.manaCost} MP</strong>` : `Custo: <strong>0 MP</strong>`}</span>
-          <button class="smallBtn smallBtnPrimary" onclick="useAbility(${idx})" ${isPassive ? "disabled" : ""}>${isPassive ? "Passiva" : "Usar"}</button>
+
+  const racialSkills = skills
+    .map((skill, idx) => ({ skill, idx }))
+    .filter((entry) => entry.skill.sourceType === "race");
+  const classSkills = skills
+    .map((skill, idx) => ({ skill, idx }))
+    .filter((entry) => entry.skill.sourceType !== "race");
+
+  function renderAbilityGroup(title, entries) {
+    if (!entries.length) return "";
+    return `
+      <div class="abilityGroupCard">
+        <div class="abilityGroupTitle">${title}</div>
+        <div class="abilityGroupList">
+          ${entries
+            .map(({ skill, idx }) => {
+              const isPassive = Boolean(skill.passive);
+              const cost = parseInt(skill.manaCost || 0, 10) || 0;
+              const interactiveAttrs = isPassive
+                ? ""
+                : `onclick="useAbility(${idx})" role="button" tabindex="0" onkeydown="handleAbilityKeydown(event, ${idx})"`;
+              return `
+                <div class="abilityItem ${isPassive ? "isPassive" : "isAction"}" ${interactiveAttrs}>
+                  <div class="abilityName">${skill.name}${isPassive ? ' <small class="abilityTagPassive">Passiva</small>' : ""}</div>
+                  <div class="abilityDesc"><strong>Detalhe:</strong> ${skill.desc}</div>
+                  <div class="abilityMeta"><strong>Custo:</strong> ${cost} MP</div>
+                </div>
+              `;
+            })
+            .join("")}
         </div>
       </div>
-    </div>
-  `;
-      },
-    )
-    .join("");
+    `;
+  }
+
+  list.innerHTML = [
+    renderAbilityGroup("Habilidades Raciais e Potencial Icônico de DNA", racialSkills),
+    renderAbilityGroup("Habilidades de Classe", classSkills),
+  ].join("");
+}
+
+function handleAbilityKeydown(event, skillIndex) {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  event.preventDefault();
+  useAbility(skillIndex);
 }
 
 function useAbility(skillIndex) {
