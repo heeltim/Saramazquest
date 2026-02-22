@@ -140,6 +140,12 @@ export function toUiDatabases(data) {
           id: cls.id,
           hitDie: cls.hit_die,
           hpMode: cls.hp,
+          spellProgression: cls.spell_progression,
+          magicPoints: cls.magic_points || { enabled: false },
+          magicPointTable:
+            cls.magic_points?.table_id && data.magic_point_tables?.[cls.magic_points.table_id]
+              ? data.magic_point_tables[cls.magic_points.table_id]
+              : null,
           savingThrowProficiencies: cls.salvaguardas,
           primaryAbilities: cls.atributos_chave,
           abilities: features,
