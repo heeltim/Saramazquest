@@ -2522,7 +2522,7 @@ function updateArena() {
       showMenu(name, token);
     };
 
-    token.title = `HP ${p.hp} de ${p.hpMax} • MP ${p.mana} de ${p.manaMax}`;
+    token.title = `HP ${p.hp}/${p.hpMax} • MP ${p.mana}/${p.manaMax}`;
 
     let resources = document.createElement("div");
     resources.className = "tokenResources";
