@@ -254,6 +254,8 @@ function initCharacterSetup() {
   const nameInput = document.getElementById("setupName");
   const raceWrap = document.getElementById("setupRaceOptions");
   const classWrap = document.getElementById("setupClassOptions");
+  const legacyRaceSelect = document.getElementById("setupRace");
+  const legacyClassSelect = document.getElementById("setupClass");
   const avatarWrap = document.getElementById("setupAvatarOptions");
   const characterWrap = document.getElementById("setupCharacterOptions");
   const useSpriteInput = document.getElementById("setupUseSprite");
@@ -288,7 +290,22 @@ function initCharacterSetup() {
 
   selectedAvatar = resolveAvatarFromTemplate();
 
+  const syncLegacySelects = () => {
+    if (legacyRaceSelect) legacyRaceSelect.value = selectedRace;
+    if (legacyClassSelect) legacyClassSelect.value = selectedClass;
+  };
+
   function renderRaceButtons() {
+    if (!raceWrap) {
+      if (legacyRaceSelect) {
+        legacyRaceSelect.innerHTML = raceOptions
+          .map((raceName) => `<option value="${raceName}">${raceName}</option>`)
+          .join("");
+        legacyRaceSelect.value = selectedRace;
+      }
+      return;
+    }
+
     raceWrap.innerHTML = "";
     raceOptions.forEach((raceName) => {
       const btn = document.createElement("button");
@@ -298,6 +315,7 @@ function initCharacterSetup() {
       btn.onclick = () => {
         selectedRace = raceName;
         selectedTemplateId = "";
+        syncLegacySelects();
         renderRaceButtons();
         renderCharacterTemplates();
       };
@@ -306,6 +324,16 @@ function initCharacterSetup() {
   }
 
   function renderClassButtons() {
+    if (!classWrap) {
+      if (legacyClassSelect) {
+        legacyClassSelect.innerHTML = classOptions
+          .map((className) => `<option value="${className}">${className}</option>`)
+          .join("");
+        legacyClassSelect.value = selectedClass;
+      }
+      return;
+    }
+
     classWrap.innerHTML = "";
     classOptions.forEach((className) => {
       const btn = document.createElement("button");
@@ -315,6 +343,7 @@ function initCharacterSetup() {
       btn.onclick = () => {
         selectedClass = className;
         selectedTemplateId = "";
+        syncLegacySelects();
         renderClassButtons();
         renderCharacterTemplates();
       };
@@ -335,6 +364,7 @@ function initCharacterSetup() {
         selectedRace = template.race;
         selectedClass = template.className;
         selectedAvatar = resolveAvatarFromTemplate();
+        syncLegacySelects();
         renderCharacterTemplates();
         renderRaceButtons();
         renderClassButtons();
@@ -371,6 +401,7 @@ function initCharacterSetup() {
     };
   }
 
+  syncLegacySelects();
   renderRaceButtons();
   renderClassButtons();
   renderCharacterTemplates();
