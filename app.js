@@ -3273,6 +3273,7 @@ function renderSheetComputed(p) {
 
 function renderAbilities(p) {
   const list = document.getElementById("sheetAbilities");
+  const racialList = document.getElementById("sheetRacialAbilities");
   const skills = p.skills || [];
 
   const racialSkills = skills
@@ -3309,10 +3310,10 @@ function renderAbilities(p) {
     `;
   }
 
-  list.innerHTML = [
-    renderAbilityGroup("Habilidades Raciais", racialSkills),
-    renderAbilityGroup("Habilidades de Classe", classSkills),
-  ].join("");
+  list.innerHTML = renderAbilityGroup("Habilidades de Classe", classSkills);
+  if (racialList) {
+    racialList.innerHTML = renderAbilityGroup("Habilidades Raciais", racialSkills);
+  }
 }
 
 function handleAbilityKeydown(event, skillIndex) {
@@ -3395,7 +3396,7 @@ function slotRow(label, slot, value) {
     <div class="kv" style="align-items:center; gap:10px;">
       <span style="opacity:.85">${label}</span>
       <strong style="text-align:right; flex:1;">${value}</strong>
-      <button class="smallBtn" onclick="unequip('${sheetTargetName}','${slot}')">Remover</button>
+      <button class="smallBtn" title="Desequipar" aria-label="Desequipar ${label}" onclick="unequip('${sheetTargetName}','${slot}')">−</button>
     </div>
   `;
 }
