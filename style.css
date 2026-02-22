@@ -1145,21 +1145,26 @@ body {
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: radial-gradient(circle at top, rgba(76, 92, 255, 0.22), rgba(0, 0, 0, 0.75));
   display: none;
   align-items: center;
   justify-content: center;
   z-index: 200;
+  padding: clamp(12px, 2.5vw, 26px);
+  overflow: auto;
 }
 .modal {
-  width: 980px;
-  max-width: 94vw;
+  width: min(1240px, 100%);
   background: rgba(20, 24, 36, 0.98);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
-  border-radius: 18px;
-  padding: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.58);
+  border-radius: 20px;
+  padding: clamp(14px, 1.8vw, 24px);
   backdrop-filter: blur(12px);
+  max-height: calc(100dvh - clamp(24px, 5vw, 48px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 .modalHeader {
   display: flex;
@@ -1179,16 +1184,19 @@ body {
 
 /* ================= SHEET ================= */
 .panel {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(175deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.018));
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 12px;
-  border-radius: 14px;
+  border-radius: 16px;
 }
 .sheetColumns {
   margin-top: 12px;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(260px, 1fr));
   gap: 12px;
+  overflow: auto;
+  min-height: 0;
+  padding-right: 4px;
 }
 .field {
   display: flex;
@@ -1202,12 +1210,36 @@ label {
 }
 input,
 select {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(14, 18, 28, 0.84);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   color: white;
   padding: 10px 10px;
   border-radius: 12px;
   outline: none;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(120, 134, 255, 0.95);
+  box-shadow: 0 0 0 3px rgba(76, 92, 255, 0.22);
+}
+
+select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #bcc5ff 50%),
+    linear-gradient(135deg, #bcc5ff 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 2px),
+    calc(100% - 12px) calc(50% - 2px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 34px;
+}
+
+select option {
+  background: #171d2b;
+  color: #eef2ff;
 }
 .kv {
   display: flex;
@@ -1333,6 +1365,8 @@ select {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 .btn {
   background: rgba(255, 255, 255, 0.06);
@@ -1375,6 +1409,9 @@ select {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
   gap: 12px;
+  overflow: auto;
+  min-height: 0;
+  padding-right: 4px;
 }
 .invHeaderRow {
   display: flex;
@@ -1664,5 +1701,30 @@ kbd {
 @media (max-width: 1100px) {
   .grimoireColumns {
     grid-template-columns: 1fr;
+  }
+
+  .sheetColumns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .invColumns {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .modal {
+    max-height: calc(100dvh - 18px);
+    border-radius: 16px;
+  }
+
+  .modalHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sheetColumns {
+    grid-template-columns: 1fr;
+    padding-right: 0;
   }
 }
