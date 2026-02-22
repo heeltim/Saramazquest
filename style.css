@@ -1900,6 +1900,94 @@ kbd {
   }
 }
 
+/* ================= RESPONSIVO (TABLET / MOBILE) ================= */
+@media (max-width: 1024px) {
+  body {
+    overflow: auto;
+  }
+
+  #game {
+    flex-direction: column;
+    min-height: 100dvh;
+    height: auto;
+  }
+
+  #arenaWrap {
+    min-height: 52dvh;
+    padding: 56px 10px 78px;
+  }
+
+  #arena {
+    max-width: 100%;
+    max-height: 100%;
+    overflow: auto;
+  }
+
+  #sidebar {
+    width: 100%;
+    height: auto;
+    min-height: 48dvh;
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -10px 24px rgba(0, 0, 0, 0.36);
+    padding: 12px;
+  }
+
+  #party {
+    max-height: 30dvh;
+  }
+}
+
+@media (max-width: 760px) {
+  #arenaWrap {
+    min-height: 48dvh;
+    padding: 86px 8px 72px;
+  }
+
+  #diceTrayToggle,
+  #grimoireQuickToggle {
+    left: 8px;
+    padding: 7px 8px;
+    font-size: 12px;
+  }
+
+  #grimoireQuickToggle {
+    top: 48px;
+  }
+
+  #diceTray {
+    top: 88px;
+    left: 8px;
+    width: calc(100% - 16px);
+    max-height: calc(100% - 96px);
+  }
+
+  #combatSpellSlots {
+    width: calc(100% - 16px);
+    left: 8px;
+    transform: none;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding: 8px;
+  }
+
+  .topRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pills {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .pill,
+  .toggleBtn {
+    font-size: 11px;
+    padding: 7px 9px;
+  }
+}
+
 
 .sheetDnaSummaryCard {
   background: rgba(255, 255, 255, 0.04);
