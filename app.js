@@ -959,16 +959,18 @@ const ITEM_DB = {
     icon: "🥋",
     type: "armor",
     equipSlot: "armor",
-    desc: "+1 Defesa.",
+    desc: "Defesa base 11 (armadura leve).",
     mods: { defense: +1 },
+    stats: { category: "light", baseArmor: 11 },
   },
   chainmail: {
     name: "Cota de Malha",
     icon: "⛓️",
     type: "armor",
     equipSlot: "armor",
-    desc: "+2 Defesa.",
+    desc: "Defesa base 12 (armadura média, DES máx +2).",
     mods: { defense: +2 },
+    stats: { category: "medium", baseArmor: 12, dexCap: 2 },
   },
   shield: {
     name: "Escudo",
@@ -2259,6 +2261,51 @@ function computeItemMods(p) {
   });
   return mods;
 }
+
+function normalizeClassId(className) {
+  const raw = String(className || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return raw.trim();
+}
+
+function resolveArmorAcCandidate(armor, dexMod) {
+  if (!armor) return null;
+  const category = String(armor?.stats?.category || "").toLowerCase();
+  const defenseBonus = armor?.stats?.defenseBonus ?? armor?.mods?.defense ?? 0;
+  const baseArmor = armor?.stats?.baseArmor ?? (10 + defenseBonus);
+  const dexCap = armor?.stats?.dexCap ?? armor?.stats?.dex_cap ?? 2;
+
+  let ac = baseArmor;
+  if (category === "light") ac += dexMod;
+  if (category === "medium") ac += Math.min(dexMod, dexCap);
+  return ac;
+}
+
+function computeDefenseFromRules(p, mods, itemMods) {
+  const candidates = [10 + mods.dex];
+  const equipped = p.equipped || {};
+  const armor = equipped.armor ? ITEM_DB[equipped.armor] : null;
+  const shield = equipped.shield ? ITEM_DB[equipped.shield] : null;
+  const normalizedClass = normalizeClassId(p.class);
+
+  if (!armor) {
+    if (normalizedClass === "barbaro") candidates.push(10 + mods.dex + mods.con);
+    if (normalizedClass === "monge") candidates.push(10 + mods.dex + mods.wis);
+  }
+
+  const armorCandidate = resolveArmorAcCandidate(armor, mods.dex);
+  if (armorCandidate !== null) candidates.push(armorCandidate);
+
+  let defense = Math.max(...candidates);
+  if (shield) {
+    defense += shield?.stats?.defenseBonus ?? shield?.mods?.defense ?? 0;
+  }
+
+  const armorAndShieldBonus = (armor?.mods?.defense || 0) + (shield?.mods?.defense || 0);
+  const extraDefense = (itemMods.defense || 0) - armorAndShieldBonus;
+  if (extraDefense > 0) defense += extraDefense;
+
+  return defense;
+}
 function invCount(p) {
   return (p.inventory || []).length;
 }
@@ -2378,7 +2425,7 @@ function recalcFromSheet(p) {
   p.hp = Math.round(Math.max(0, Math.min(p.hpMax, p.hpMax * hpRatio)));
   p.mana = Math.round(Math.max(0, Math.min(p.manaMax, p.manaMax * manaRatio)));
 
-  p.defense = 10 + mods.dex + (itemMods.defense || 0);
+  p.defense = computeDefenseFromRules(p, mods, itemMods);
   p.proficiencyBonus = computeProficiencyBonus(level);
   autoApplyClassSkillProficiencies(p);
   p.skillProficiencies = Array.from(new Set([...(p.skillProficiencies || []), ...(bg.skillProficiencies || [])]));
