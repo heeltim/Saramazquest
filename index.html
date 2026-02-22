@@ -34,7 +34,7 @@
       </div>
     </div>
 
-    <div id="characterSetup" class="characterSetupOverlay">
+    <div id="characterSetup" class="characterSetupOverlay hidden">
       <div class="characterSetupCard">
         <div class="setupBrand">⚔️ Saramaz Quest</div>
         <h1>Crie seu personagem</h1>
@@ -47,13 +47,18 @@
 
         <div class="setupGrid">
           <div class="setupField">
-            <label for="setupRace">Raça</label>
-            <select id="setupRace"></select>
+            <label>Raça</label>
+            <div id="setupRaceOptions" class="setupChoiceGroup"></div>
           </div>
           <div class="setupField">
-            <label for="setupClass">Classe</label>
-            <select id="setupClass"></select>
+            <label>Classe</label>
+            <div id="setupClassOptions" class="setupChoiceGroup"></div>
           </div>
+        </div>
+
+        <div class="setupField">
+          <label>Personagem base</label>
+          <div id="setupCharacterOptions" class="setupCharacterOptions"></div>
         </div>
 
         <div class="setupField">
@@ -64,12 +69,11 @@
         <div class="setupField setupSpriteField">
           <label class="setupCheckboxLabel">
             <input id="setupUseSprite" type="checkbox" />
-            Usar sprite pixel animado (teste)
+            Ver tokens de personagem (usar arte no token)
           </label>
         </div>
 
         <button id="setupStartBtn" type="button">Iniciar jornada</button>
-        <button id="setupSkipBtn" type="button" class="setupSecondaryBtn">Entrar com padrão (temporário)</button>
       </div>
     </div>
 
@@ -94,6 +98,14 @@
           onclick="openMyGrimoire()"
         >
           📖 Grimório
+        </button>
+        <button
+          id="createCharacterQuickToggle"
+          type="button"
+          title="Criar seu personagem"
+          onclick="openCharacterCreator()"
+        >
+          ✨ Criar personagem
         </button>
         <div id="diceTray" class="collapsed" aria-hidden="true">
           <div class="diceTopRow">

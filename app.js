@@ -37,6 +37,30 @@ function getLoggedAccount() {
   return { email, account: acc };
 }
 
+function findOwnedCharacterEntry(email = currentAccountEmail) {
+  const normalizedOwner = normalizeEmail(email);
+  if (!normalizedOwner) return null;
+  const players = load().rooms?.[room] || {};
+  for (const [name, player] of Object.entries(players)) {
+    if (normalizeEmail(player?.owner || "") === normalizedOwner) {
+      return { name, player };
+    }
+  }
+  return null;
+}
+
+function updateCreateCharacterButtonState() {
+  const createBtn = document.getElementById("createCharacterQuickToggle");
+  if (!createBtn) return;
+  const ownedCharacter = findOwnedCharacterEntry();
+  const hasAccount = !!normalizeEmail(currentAccountEmail);
+  createBtn.disabled = !hasAccount || !!ownedCharacter;
+  createBtn.textContent = ownedCharacter ? "✅ Personagem criado" : "✨ Criar personagem";
+  createBtn.title = ownedCharacter
+    ? "Você já criou um personagem nesta sala"
+    : "Criar seu personagem";
+}
+
 const START_AVATARS = [
   { type: "emoji", value: "🧙" },
   { type: "emoji", value: "⚔️" },
@@ -44,29 +68,40 @@ const START_AVATARS = [
   { type: "emoji", value: "🛡️" },
   { type: "emoji", value: "🧝" },
   { type: "emoji", value: "🧛" },
+];
+
+const CHARACTER_TEMPLATES = [
   {
-    type: "icon",
-    label: "Guerreiro",
-    url: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9dd-200d-2642-fe0f.svg",
-    fallback: "🧙",
+    id: "barbaro-lobo",
+    label: "Bárbaro Lobo",
+    race: "Humano",
+    className: "Guerreiro",
+    emoji: "🐺",
+    tokenUrl: "assets/characters/barbaro-lobo.svg",
   },
   {
-    type: "icon",
-    label: "Arqueira",
-    url: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9dd-200d-2640-fe0f.svg",
-    fallback: "🏹",
+    id: "cavaleiro-drow",
+    label: "Cavaleiro Drow",
+    race: "Elfo",
+    className: "Guerreiro",
+    emoji: "🛡️",
+    tokenUrl: "assets/characters/cavaleiro-drow.svg",
   },
   {
-    type: "icon",
-    label: "Vampiro",
-    url: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9db.svg",
-    fallback: "🧛",
+    id: "arqueira-drow",
+    label: "Arqueira Drow",
+    race: "Elfo",
+    className: "Arqueiro",
+    emoji: "🏹",
+    tokenUrl: "assets/characters/arqueira-drow.svg",
   },
   {
-    type: "icon",
-    label: "Fada",
-    url: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9da.svg",
-    fallback: "✨",
+    id: "ladino-reptiliano",
+    label: "Ladino Reptiliano",
+    race: "Anao",
+    className: "Arqueiro",
+    emoji: "🦎",
+    tokenUrl: "assets/characters/ladino-reptiliano.svg",
   },
 ];
 const DEFAULT_SPRITE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif";
@@ -168,7 +203,7 @@ function initAuth() {
 
     overlay.classList.add("hidden");
     initCharacterSetup();
-    ensureCurrentUserRecord();
+    updateCreateCharacterButtonState();
     updateArena();
     updateChat();
   };
@@ -236,74 +271,133 @@ function initAuth() {
   });
 }
 
-function initCharacterSetup() {
+function initCharacterSetup(forceOpen = false) {
   const overlay = document.getElementById("characterSetup");
   if (!overlay) return;
 
   const nameInput = document.getElementById("setupName");
-  const raceSelect = document.getElementById("setupRace");
-  const classSelect = document.getElementById("setupClass");
+  const raceWrap = document.getElementById("setupRaceOptions");
+  const classWrap = document.getElementById("setupClassOptions");
   const avatarWrap = document.getElementById("setupAvatarOptions");
+  const characterWrap = document.getElementById("setupCharacterOptions");
   const useSpriteInput = document.getElementById("setupUseSprite");
   const startBtn = document.getElementById("setupStartBtn");
-  const skipBtn = document.getElementById("setupSkipBtn");
 
   if (!currentAccountEmail) {
     overlay.classList.add("hidden");
+    updateCreateCharacterButtonState();
+    return;
+  }
+
+  const raceOptions = Object.keys(RACES);
+  const classOptions = Object.keys(CLASSES);
+  const ownedEntry = findOwnedCharacterEntry(currentAccountEmail);
+
+  if (ownedEntry) {
+    currentUser = ownedEntry.name;
+    currentAvatar = normalizeAvatar(ownedEntry.player.avatar || currentAvatar);
+    document.getElementById("meName").textContent = currentUser;
+
+    if (!forceOpen) {
+      overlay.classList.add("hidden");
+      updateCreateCharacterButtonState();
+      return;
+    }
+
+    alert("Você já possui um personagem criado nesta sala.");
+    overlay.classList.add("hidden");
+    updateCreateCharacterButtonState();
     return;
   }
 
   nameInput.value = currentUser;
 
-  raceSelect.innerHTML = "";
-  Object.keys(RACES).forEach((raceName) => {
-    const opt = document.createElement("option");
-    opt.value = raceName;
-    opt.textContent = raceName;
-    raceSelect.appendChild(opt);
-  });
-
-  classSelect.innerHTML = "";
-  Object.keys(CLASSES).forEach((className) => {
-    const opt = document.createElement("option");
-    opt.value = className;
-    opt.textContent = className;
-    classSelect.appendChild(opt);
-  });
-
-  raceSelect.value = Object.keys(RACES).includes("Humano") ? "Humano" : raceSelect.value;
-  classSelect.value = Object.keys(CLASSES).includes("Guerreiro") ? "Guerreiro" : classSelect.value;
-
+  let selectedRace = raceOptions.includes("Humano") ? "Humano" : raceOptions[0] || "Humano";
+  let selectedClass = classOptions.includes("Guerreiro") ? "Guerreiro" : classOptions[0] || "Guerreiro";
+  let selectedTemplateId = CHARACTER_TEMPLATES[0]?.id || "";
   let selectedAvatar = normalizeAvatar(currentAvatar);
-  let selectedUseSprite = isSpriteAvatar(selectedAvatar);
+  let selectedUseSprite = isIconAvatar(selectedAvatar) || isSpriteAvatar(selectedAvatar);
+
+  const resolveTemplate = () => CHARACTER_TEMPLATES.find((template) => template.id === selectedTemplateId) || null;
+
+  const resolveAvatarFromTemplate = () => {
+    const selectedTemplate = resolveTemplate();
+    if (selectedTemplate && selectedUseSprite) {
+      return createIconAvatar(selectedTemplate.tokenUrl, selectedTemplate.emoji, selectedTemplate.label);
+    }
+    if (selectedTemplate) return selectedTemplate.emoji;
+    return selectedUseSprite ? createSpriteAvatar(getAvatarEmoji(selectedAvatar)) : getAvatarEmoji(selectedAvatar);
+  };
+
+  selectedAvatar = resolveAvatarFromTemplate();
+
+  function renderRaceButtons() {
+    raceWrap.innerHTML = "";
+    raceOptions.forEach((raceName) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "setupChoiceBtn" + (selectedRace === raceName ? " active" : "");
+      btn.textContent = raceName;
+      btn.onclick = () => {
+        selectedRace = raceName;
+        selectedTemplateId = "";
+        renderRaceButtons();
+        renderCharacterTemplates();
+      };
+      raceWrap.appendChild(btn);
+    });
+  }
+
+  function renderClassButtons() {
+    classWrap.innerHTML = "";
+    classOptions.forEach((className) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "setupChoiceBtn" + (selectedClass === className ? " active" : "");
+      btn.textContent = className;
+      btn.onclick = () => {
+        selectedClass = className;
+        selectedTemplateId = "";
+        renderClassButtons();
+        renderCharacterTemplates();
+      };
+      classWrap.appendChild(btn);
+    });
+  }
+
+  function renderCharacterTemplates() {
+    if (!characterWrap) return;
+    characterWrap.innerHTML = "";
+    CHARACTER_TEMPLATES.forEach((template) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "setupCharacterBtn" + (selectedTemplateId === template.id ? " active" : "");
+      btn.innerHTML = `<img src="${template.tokenUrl}" alt="${template.label}" loading="lazy" /><div class="setupCharacterName">${template.label}</div>`;
+      btn.onclick = () => {
+        selectedTemplateId = template.id;
+        selectedRace = template.race;
+        selectedClass = template.className;
+        selectedAvatar = resolveAvatarFromTemplate();
+        renderCharacterTemplates();
+        renderRaceButtons();
+        renderClassButtons();
+        renderAvatars();
+      };
+      characterWrap.appendChild(btn);
+    });
+  }
 
   function renderAvatars() {
     avatarWrap.innerHTML = "";
     START_AVATARS.forEach((avatarOption) => {
       const btn = document.createElement("button");
       btn.type = "button";
-      const targetAvatar = avatarOption.type === "icon"
-        ? createIconAvatar(avatarOption.url, avatarOption.fallback, avatarOption.label)
-        : avatarOption.value;
-      btn.className = "setupAvatarBtn" + (getAvatarSelectionKey(selectedAvatar) === getAvatarSelectionKey(targetAvatar) ? " active" : "");
-      if (avatarOption.type === "icon") {
-        const icon = document.createElement("img");
-        icon.src = avatarOption.url;
-        icon.alt = avatarOption.label;
-        icon.className = "setupAvatarIcon";
-        icon.loading = "lazy";
-        icon.onerror = () => {
-          icon.remove();
-          btn.textContent = avatarOption.fallback || "🧙";
-        };
-        btn.appendChild(icon);
-      } else {
-        btn.textContent = avatarOption.value;
-      }
+      btn.className = "setupAvatarBtn" + (getAvatarSelectionKey(selectedAvatar) === getAvatarSelectionKey(avatarOption.value) ? " active" : "");
+      btn.textContent = avatarOption.value;
       btn.onclick = () => {
-        selectedAvatar = selectedUseSprite
-          ? createSpriteAvatar(getAvatarEmoji(targetAvatar))
-          : normalizeAvatar(targetAvatar);
+        selectedTemplateId = "";
+        selectedAvatar = selectedUseSprite ? createSpriteAvatar(avatarOption.value) : avatarOption.value;
+        renderCharacterTemplates();
         renderAvatars();
       };
       avatarWrap.appendChild(btn);
@@ -314,34 +408,53 @@ function initCharacterSetup() {
     useSpriteInput.checked = selectedUseSprite;
     useSpriteInput.onchange = () => {
       selectedUseSprite = !!useSpriteInput.checked;
-      selectedAvatar = selectedUseSprite ? createSpriteAvatar(getAvatarEmoji(selectedAvatar)) : getAvatarEmoji(selectedAvatar);
+      selectedAvatar = resolveAvatarFromTemplate();
       renderAvatars();
+      renderCharacterTemplates();
     };
   }
 
+  renderRaceButtons();
+  renderClassButtons();
+  renderCharacterTemplates();
   renderAvatars();
 
-  const existingPlayer = load().rooms?.[room]?.[currentUser];
-  if (existingPlayer) {
+  if (!forceOpen) {
     overlay.classList.add("hidden");
-    ensurePlayerSchema(existingPlayer);
-    if (existingPlayer.avatar) currentAvatar = normalizeAvatar(existingPlayer.avatar);
+    updateCreateCharacterButtonState();
     return;
   }
   overlay.classList.remove("hidden");
 
   const finishSetup = ({
     chosenName = String(nameInput.value || "").trim() || "Jogador",
-    chosenRace = raceSelect.value || "Humano",
-    chosenClass = classSelect.value || "Guerreiro",
+    chosenRace = selectedRace,
+    chosenClass = selectedClass,
     chosenAvatar = selectedAvatar || "🧙",
   } = {}) => {
-    currentUser = chosenName;
+    const lockedOwner = findOwnedCharacterEntry(currentAccountEmail);
+    if (lockedOwner) {
+      alert("Você já possui um personagem criado nesta sala.");
+      overlay.classList.add("hidden");
+      updateCreateCharacterButtonState();
+      return;
+    }
+
+    const players = load().rooms?.[room] || {};
+    const normalizedName = chosenName.trim() || "Jogador";
+    const existingByName = players[normalizedName];
+    if (existingByName && normalizeEmail(existingByName.owner || "") !== normalizeEmail(currentAccountEmail)) {
+      alert("Esse nome já está em uso por outro jogador. Escolha outro nome.");
+      return;
+    }
+
+    currentUser = normalizedName;
     currentAvatar = normalizeAvatar(chosenAvatar);
     pendingCharacterSetup = {
       race: chosenRace,
       className: chosenClass,
       avatar: currentAvatar,
+      owner: normalizeEmail(currentAccountEmail),
     };
 
     localStorage.setItem(LAST_LOGIN_KEY, currentUser);
@@ -358,27 +471,24 @@ function initCharacterSetup() {
       }
     }
 
-    ensureCurrentUserRecord({ race: chosenRace, className: chosenClass, avatar: currentAvatar });
+    ensureCurrentUserRecord({
+      race: chosenRace,
+      className: chosenClass,
+      avatar: currentAvatar,
+      owner: normalizeEmail(currentAccountEmail),
+    });
     updateArena();
     updateChat();
     overlay.classList.add("hidden");
+    updateCreateCharacterButtonState();
   };
 
   startBtn.onclick = () => finishSetup();
-
-  if (skipBtn) {
-    skipBtn.onclick = () => {
-      const safeRace = Object.keys(RACES).includes("Humano") ? "Humano" : Object.keys(RACES)[0] || "Humano";
-      const safeClass = Object.keys(CLASSES).includes("Guerreiro") ? "Guerreiro" : Object.keys(CLASSES)[0] || "Guerreiro";
-      finishSetup({
-        chosenName: String(nameInput.value || "").trim() || currentUser || "Jogador",
-        chosenRace: safeRace,
-        chosenClass: safeClass,
-        chosenAvatar: "🧙",
-      });
-    };
-  }
 }
+
+window.openCharacterCreator = function openCharacterCreator() {
+  initCharacterSetup(true);
+};
 
 
 /* ================= SCENE DEFAULT ================= */
@@ -2062,7 +2172,7 @@ function ensureCurrentUserRecord(setup = null) {
       class: setup?.className || pendingCharacterSetup?.className || "Guerreiro",
       background: "Nenhum",
       level: 1,
-      owner: "",
+      owner: setup?.owner || normalizeEmail(currentAccountEmail) || "",
       attributeScores: defaultAttributeScores(),
       attributeMods: defaultAttributeMods(),
       skillProficiencies: [],
@@ -2079,6 +2189,7 @@ function ensureCurrentUserRecord(setup = null) {
     data.rooms[room][currentUser].race = setup.race || data.rooms[room][currentUser].race;
     data.rooms[room][currentUser].class = setup.className || data.rooms[room][currentUser].class;
     data.rooms[room][currentUser].avatar = normalizeAvatar(setup.avatar || data.rooms[room][currentUser].avatar);
+    data.rooms[room][currentUser].owner = setup.owner || data.rooms[room][currentUser].owner || normalizeEmail(currentAccountEmail) || "";
   }
 
   ensurePlayerSchema(data.rooms[room][currentUser]);
@@ -3823,6 +3934,7 @@ updateArena();
 setDiceTrayOpen(false);
 initChatComposer();
 updateChat();
+updateCreateCharacterButtonState();
 loadShopCatalogs().then(() => {
   if (!invTargetName) return;
   const p = load().rooms[room][invTargetName];
