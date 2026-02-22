@@ -2981,9 +2981,11 @@ function closeAllCharacterModals() {
   const sheet = document.getElementById("sheetOverlay");
   const inv = document.getElementById("invOverlay");
   const grim = document.getElementById("grimoireOverlay");
+  const dna = document.getElementById("sheetDnaOverlay");
   if (sheet) sheet.style.display = "none";
   if (inv) inv.style.display = "none";
   if (grim) grim.style.display = "none";
+  if (dna) dna.style.display = "none";
   sheetTargetName = null;
   invTargetName = null;
   grimoireTargetName = null;
@@ -2994,7 +2996,8 @@ function openSheet(name) {
   removeMenu();
   const invOpen = document.getElementById("invOverlay").style.display === "flex";
   const grimOpen = document.getElementById("grimoireOverlay").style.display === "flex";
-  if (invOpen || grimOpen) closeAllCharacterModals();
+  const dnaOpen = document.getElementById("sheetDnaOverlay")?.style.display === "flex";
+  if (invOpen || grimOpen || dnaOpen) closeAllCharacterModals();
 
   let data = load();
   let p = data.rooms[room][name];
@@ -3026,6 +3029,7 @@ function openSheet(name) {
   renderSkills(p);
   renderEquip(p);
   renderAbilities(p);
+  renderDnaSummary(p);
 
   raceSel.onchange = () => previewSheet();
   bgInput.oninput = () => previewSheet();
@@ -3123,6 +3127,7 @@ function previewSheet() {
   renderSkills(p);
   renderEquip(p);
   renderAbilities(p);
+  renderDnaSummary(p);
   updateArena();
 }
 
@@ -3365,6 +3370,7 @@ function useAbility(skillIndex) {
   renderSheetComputed(p);
   renderEquip(p);
   renderAbilities(p);
+  renderDnaSummary(p);
 }
 
 function renderEquip(p) {
@@ -3406,10 +3412,49 @@ function unequip(name, slot) {
   renderSheetComputed(p);
   renderEquip(p);
   renderAbilities(p);
+  renderDnaSummary(p);
   updateArena();
 }
 
-function saveSheet() {
+function renderDnaSummary(p) {
+  const wrap = document.getElementById("sheetDnaSummary");
+  if (!wrap) return;
+  const owner = (p.owner || "—").trim() || "—";
+  const classesText = (p.classes || []).map((entry) => `${entry.classId} ${entry.level}`).join(" / ") || "—";
+  const bg = (p.background || "Nenhum").trim() || "Nenhum";
+  const used = totalPointBuyCost(p.attributeScores || defaultAttributeScores());
+  wrap.innerHTML = `
+    <div class="kv"><span>Controlador</span><strong>${owner}</strong></div>
+    <div class="kv"><span>Raça</span><strong>${p.race || "—"}</strong></div>
+    <div class="kv"><span>Classe(s)</span><strong>${classesText}</strong></div>
+    <div class="kv"><span>Background</span><strong>${bg}</strong></div>
+    <div class="kv"><span>Point Buy</span><strong>${used}/${POINT_BUY_BUDGET}</strong></div>
+  `;
+}
+
+function openSheetDna() {
+  if (!sheetTargetName) return;
+  const overlay = document.getElementById("sheetDnaOverlay");
+  if (!overlay) return;
+  overlay.style.display = "flex";
+}
+
+function closeSheetDna() {
+  const overlay = document.getElementById("sheetDnaOverlay");
+  if (!overlay) return;
+  overlay.style.display = "none";
+}
+
+function saveSheetDna() {
+  saveSheet(false);
+  closeSheetDna();
+  if (sheetTargetName) {
+    const overlay = document.getElementById("sheetOverlay");
+    if (overlay) overlay.style.display = "flex";
+  }
+}
+
+function saveSheet(closeAfterSave = true) {
   if (!sheetTargetName) return;
   let data = load();
   let p = data.rooms[room][sheetTargetName];
@@ -3429,11 +3474,14 @@ function saveSheet() {
   recalcFromSheet(p);
   save(data);
 
-  closeSheet();
+  if (closeAfterSave) closeSheet();
+  renderDnaSummary(p);
   updateArena();
 }
 function closeSheet() {
   document.getElementById("sheetOverlay").style.display = "none";
+  const dna = document.getElementById("sheetDnaOverlay");
+  if (dna) dna.style.display = "none";
   sheetTargetName = null;
 }
 
