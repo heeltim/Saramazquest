@@ -49,18 +49,6 @@ function findOwnedCharacterEntry(email = currentAccountEmail) {
   return null;
 }
 
-function updateCreateCharacterButtonState() {
-  const createBtn = document.getElementById("createCharacterQuickToggle");
-  if (!createBtn) return;
-  const ownedCharacter = findOwnedCharacterEntry();
-  const hasAccount = !!normalizeEmail(currentAccountEmail);
-  createBtn.disabled = !hasAccount || !!ownedCharacter;
-  createBtn.textContent = ownedCharacter ? "✅ Personagem criado" : "✨ Criar personagem";
-  createBtn.title = ownedCharacter
-    ? "Você já criou um personagem nesta sala"
-    : "Criar seu personagem";
-}
-
 const START_AVATARS = [
   { type: "emoji", value: "🧙" },
   { type: "emoji", value: "⚔️" },
@@ -283,7 +271,6 @@ function initCharacterSetup(forceOpen = false) {
 
   if (!currentAccountEmail) {
     overlay.classList.add("hidden");
-    updateCreateCharacterButtonState();
     return;
   }
 
@@ -298,13 +285,11 @@ function initCharacterSetup(forceOpen = false) {
 
     if (!forceOpen) {
       overlay.classList.add("hidden");
-      updateCreateCharacterButtonState();
       return;
     }
 
     alert("Você já possui um personagem criado nesta sala.");
     overlay.classList.add("hidden");
-    updateCreateCharacterButtonState();
     return;
   }
 
@@ -379,7 +364,6 @@ function initCharacterSetup(forceOpen = false) {
 
   if (!forceOpen) {
     overlay.classList.add("hidden");
-    updateCreateCharacterButtonState();
     return;
   }
   overlay.classList.remove("hidden");
@@ -394,7 +378,6 @@ function initCharacterSetup(forceOpen = false) {
     if (lockedOwner) {
       alert("Você já possui um personagem criado nesta sala.");
       overlay.classList.add("hidden");
-      updateCreateCharacterButtonState();
       return;
     }
 
@@ -438,7 +421,6 @@ function initCharacterSetup(forceOpen = false) {
     updateArena();
     updateChat();
     overlay.classList.add("hidden");
-    updateCreateCharacterButtonState();
   };
 
   startBtn.onclick = () => finishSetup();
@@ -954,22 +936,6 @@ const ITEM_DB = {
     mods: { spr: +2 },
   },
 
-  icebolt: {
-    name: "Raio de Gelo",
-    icon: "❄️",
-    type: "weapon",
-    equipSlot: "weapon",
-    desc: "+2 ESP. Magia básica (sem custo).",
-    mods: { spr: +2 },
-  },
-  firebolt: {
-    name: "Faísca de Fogo",
-    icon: "🔥",
-    type: "weapon",
-    equipSlot: "weapon",
-    desc: "+2 ESP. Magia básica (sem custo).",
-    mods: { spr: +2 },
-  },
 
   leather_armor: {
     name: "Armadura de Couro",
@@ -1031,20 +997,6 @@ const ITEM_DB = {
     mods: { invExtra: +6 },
   },
 
-  potion_healing: {
-    name: "Poção de Cura",
-    icon: "🧪",
-    type: "potion",
-    desc: "+10 HP (consome).",
-    consume: { hp: +10 },
-  },
-  potion_mana: {
-    name: "Poção de Mana",
-    icon: "🔵",
-    type: "potion",
-    desc: "+8 MP (consome).",
-    consume: { mana: +8 },
-  },
 };
 const SHOP_TABS = [
   { id: "taberna", label: "Taberna" },
@@ -2388,15 +2340,6 @@ function getPrimaryClassEntry(p) {
   return { classId: fallbackClass, level: fallbackLevel };
 }
 
-function ensureMageFreeWeapon(p) {
-  const primaryClass = getPrimaryClassEntry(p);
-  if (primaryClass.classId !== "Mago") return;
-  if (!p.inventory) p.inventory = [];
-  if (!p.inventory.includes("icebolt")) p.inventory.push("icebolt");
-  if (!p.inventory.includes("firebolt")) p.inventory.push("firebolt");
-  if (!p.equipped) p.equipped = createEmptyEquipped();
-  if (!p.equipped.weapon) p.equipped.weapon = "icebolt";
-}
 
 function recalcFromSheet(p) {
   const defaultRaceName = Object.keys(RACES)[0];
@@ -2412,7 +2355,6 @@ function recalcFromSheet(p) {
   p.class = primaryClassEntry.classId;
   p.level = level;
 
-  ensureMageFreeWeapon(p);
 
   p.attributeScores = normalizeAttributeScores(p.attributeScores);
   const totalCost = totalPointBuyCost(p.attributeScores);
@@ -2491,7 +2433,7 @@ function ensureCurrentUserRecord(setup = null) {
       expertiseSkills: [],
       skills: [],
       gold: 60,
-      inventory: ["potion_healing"],
+      inventory: [],
       equipped: createEmptyEquipped(),
       color: randomColor(),
       avatar: normalizeAvatar(setup?.avatar || pendingCharacterSetup?.avatar || currentAvatar || "🧙"),
@@ -4456,7 +4398,6 @@ updateArena();
 setDiceTrayOpen(false);
 initChatComposer();
 updateChat();
-updateCreateCharacterButtonState();
 loadShopCatalogs().then(() => {
   if (!invTargetName) return;
   const p = load().rooms[room][invTargetName];
