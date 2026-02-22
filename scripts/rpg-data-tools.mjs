@@ -5,6 +5,145 @@ const VALID_SIZES = new Set(["pequeno", "medio"]);
 const VALID_SPELLS = new Set(["full", "half", "third", "pact", "none"]);
 const VALID_HIT_DICE = new Set(["d6", "d8", "d10", "d12"]);
 
+const RACE_DNA_BY_ID = {
+  humano: {
+    ui: { cor_hex: "#6C7075" },
+    ficha: {
+      tamanho: "medio",
+      deslocamento_ft: 30,
+      deslocamento_m: 9,
+      altura_cm: { min: 150, max: 190 },
+      peso_kg: { min: 50, max: 100 },
+      adulto_aos: 18,
+      expectativa_vida_ate: 100,
+      idiomas: { fixos: ["comum"], escolha: { quantidade: 1, opcoes: "qualquer" } },
+    },
+  },
+  elfo: {
+    ui: { cor_hex: "#3F6F62" },
+    ficha: {
+      tamanho: "medio",
+      deslocamento_ft: 30,
+      deslocamento_m: 9,
+      altura_cm: { min: 150, max: 190 },
+      peso_kg: { min: 45, max: 85 },
+      adulto_aos: 100,
+      expectativa_vida_ate: 750,
+      idiomas: { fixos: ["comum", "elfico"], escolha: { quantidade: 0, opcoes: [] } },
+    },
+  },
+  anao: {
+    ui: { cor_hex: "#6B5C4E" },
+    ficha: {
+      tamanho: "medio",
+      deslocamento_ft: 25,
+      deslocamento_m: 7.5,
+      altura_cm: { min: 120, max: 150 },
+      peso_kg: { min: 60, max: 120 },
+      adulto_aos: 50,
+      expectativa_vida_ate: 350,
+      idiomas: { fixos: ["comum", "anao"], escolha: { quantidade: 0, opcoes: [] } },
+    },
+  },
+  halfling: {
+    ui: { cor_hex: "#6B5F44" },
+    ficha: {
+      tamanho: "pequeno",
+      deslocamento_ft: 25,
+      deslocamento_m: 7.5,
+      altura_cm: { min: 90, max: 120 },
+      peso_kg: { min: 30, max: 45 },
+      adulto_aos: 20,
+      expectativa_vida_ate: 150,
+      idiomas: { fixos: ["comum", "halfling"], escolha: { quantidade: 0, opcoes: [] } },
+    },
+  },
+  gnomo: {
+    ui: { cor_hex: "#4E6F6A" },
+    ficha: {
+      tamanho: "pequeno",
+      deslocamento_ft: 25,
+      deslocamento_m: 7.5,
+      altura_cm: { min: 90, max: 120 },
+      peso_kg: { min: 25, max: 45 },
+      adulto_aos: 40,
+      expectativa_vida_ate: 400,
+      idiomas: { fixos: ["comum", "gnomico"], escolha: { quantidade: 0, opcoes: [] } },
+    },
+  },
+  meio_elfo: {
+    ui: { cor_hex: "#54707A" },
+    ficha: {
+      tamanho: "medio",
+      deslocamento_ft: 30,
+      deslocamento_m: 9,
+      altura_cm: { min: 150, max: 190 },
+      peso_kg: { min: 50, max: 95 },
+      adulto_aos: 20,
+      expectativa_vida_ate: 180,
+      idiomas: { fixos: ["comum", "elfico"], escolha: { quantidade: 1, opcoes: "qualquer" } },
+    },
+  },
+  meio_orc: {
+    ui: { cor_hex: "#586C4F" },
+    ficha: {
+      tamanho: "medio",
+      deslocamento_ft: 30,
+      deslocamento_m: 9,
+      altura_cm: { min: 160, max: 200 },
+      peso_kg: { min: 65, max: 120 },
+      adulto_aos: 14,
+      expectativa_vida_ate: 75,
+      idiomas: { fixos: ["comum", "orc"], escolha: { quantidade: 0, opcoes: [] } },
+    },
+  },
+  draconato: {
+    ui: { cor_hex: "#6B3E3E" },
+    ficha: {
+      tamanho: "medio",
+      deslocamento_ft: 30,
+      deslocamento_m: 9,
+      altura_cm: { min: 170, max: 210 },
+      peso_kg: { min: 80, max: 140 },
+      adulto_aos: 15,
+      expectativa_vida_ate: 80,
+      idiomas: { fixos: ["comum", "draconico"], escolha: { quantidade: 0, opcoes: [] } },
+    },
+  },
+  tiefling: {
+    ui: { cor_hex: "#6B3E57" },
+    ficha: {
+      tamanho: "medio",
+      deslocamento_ft: 30,
+      deslocamento_m: 9,
+      altura_cm: { min: 150, max: 190 },
+      peso_kg: { min: 50, max: 95 },
+      adulto_aos: 18,
+      expectativa_vida_ate: 120,
+      idiomas: { fixos: ["comum", "infernal"], escolha: { quantidade: 0, opcoes: [] } },
+    },
+  },
+};
+
+const RACE_DNA_PARENT_BY_ID = {
+  alto_elfo: "elfo",
+  elfo_floresta: "elfo",
+  drow: "elfo",
+  anao_montanha: "anao",
+  anao_colina: "anao",
+  halfling_pes_leves: "halfling",
+  halfling_robusto: "halfling",
+  gnomo_floresta: "gnomo",
+  gnomo_rochas: "gnomo",
+};
+
+function getRaceDnaById(id) {
+  const own = RACE_DNA_BY_ID[id];
+  if (own) return structuredClone(own);
+  const parent = RACE_DNA_PARENT_BY_ID[id];
+  return parent && RACE_DNA_BY_ID[parent] ? structuredClone(RACE_DNA_BY_ID[parent]) : null;
+}
+
 export function loadSrdData(path = "data/rpg_srd_base.json") {
   return JSON.parse(fs.readFileSync(path, "utf8"));
 }
@@ -107,6 +246,8 @@ export function toUiDatabases(data) {
         race.nome,
         {
           id: race.id,
+          parent: RACE_DNA_PARENT_BY_ID[race.id],
+          dna: getRaceDnaById(race.id),
           abilityBonuses,
           abilities,
         },
