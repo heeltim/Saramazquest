@@ -1,0 +1,511 @@
+{
+  "Bárbaro": {
+    "id": "barbaro",
+    "hitDie": "d12",
+    "hpMode": {
+      "mode": "full_roll",
+      "level1_rule": "roll",
+      "per_level_rule": "roll",
+      "adds_con_mod_each_level": true
+    },
+    "savingThrowProficiencies": [
+      "forca",
+      "constituicao"
+    ],
+    "primaryAbilities": [
+      "forca",
+      "constituicao"
+    ],
+    "abilities": [
+      {
+        "id": "c_furia",
+        "icon": "⚙️",
+        "name": "Fúria (Nv 1)",
+        "desc": "Modo de combate que melhora dano/defesa por tempo limitado.",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Bárbaro",
+        "level": 1,
+        "passive": true
+      },
+      {
+        "id": "c_defesa_sem_armadura",
+        "icon": "⚙️",
+        "name": "Defesa sem Armadura (Nv 1)",
+        "desc": "Cálculo alternativo de CA quando sem armadura.",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Bárbaro",
+        "level": 1,
+        "passive": true
+      },
+      {
+        "id": "c_instinto_perigo",
+        "icon": "⚙️",
+        "name": "Instinto de Perigo (Nv 7)",
+        "desc": "Melhor reação contra ameaças súbitas (salvaguardas específicas).",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Bárbaro",
+        "level": 7,
+        "passive": true
+      }
+    ]
+  },
+  "Guerreiro": {
+    "id": "guerreiro",
+    "hitDie": "d10",
+    "hpMode": {
+      "mode": "full_roll",
+      "level1_rule": "roll",
+      "per_level_rule": "roll",
+      "adds_con_mod_each_level": true
+    },
+    "savingThrowProficiencies": [
+      "forca",
+      "constituicao"
+    ],
+    "primaryAbilities": [
+      "forca",
+      "destreza",
+      "constituicao"
+    ],
+    "abilities": [
+      {
+        "id": "c_segundo_folego",
+        "icon": "⚙️",
+        "name": "Segundo Fôlego (Nv 1)",
+        "desc": "Recuperação curta de PV.",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Guerreiro",
+        "level": 1,
+        "passive": true
+      },
+      {
+        "id": "c_surto_acao",
+        "icon": "⚙️",
+        "name": "Surto de Ação (Nv 2)",
+        "desc": "Ganha uma ação extra em momento-chave.",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Guerreiro",
+        "level": 2,
+        "passive": true
+      },
+      {
+        "id": "c_ataque_extra",
+        "icon": "⚙️",
+        "name": "Ataque Extra (Nv 5)",
+        "desc": "Aumenta número de ataques na ação de Ataque.",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Guerreiro",
+        "level": 5,
+        "passive": true
+      }
+    ]
+  },
+  "Ladino": {
+    "id": "ladino",
+    "hitDie": "d8",
+    "hpMode": {
+      "mode": "full_roll",
+      "level1_rule": "roll",
+      "per_level_rule": "roll",
+      "adds_con_mod_each_level": true
+    },
+    "savingThrowProficiencies": [
+      "destreza",
+      "inteligencia"
+    ],
+    "primaryAbilities": [
+      "destreza"
+    ],
+    "abilities": [
+      {
+        "id": "c_ataque_oportunidade_furtivo",
+        "icon": "⚙️",
+        "name": "Ataque Preciso (Nv 1)",
+        "desc": "Dano extra 1x/turno quando cumpre condições (vantagem/aliado).",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Ladino",
+        "level": 1,
+        "passive": true
+      },
+      {
+        "id": "c_esquiva_instintiva",
+        "icon": "⚙️",
+        "name": "Esquiva Instintiva (Nv 5)",
+        "desc": "Reação para reduzir dano de um ataque.",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Ladino",
+        "level": 5,
+        "passive": true
+      },
+      {
+        "id": "c_evasao",
+        "icon": "⚙️",
+        "name": "Evasão (Nv 7)",
+        "desc": "Em efeitos de área, melhora resultados em salvaguardas (modelo típico de Destreza).",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Ladino",
+        "level": 7,
+        "passive": true
+      }
+    ]
+  },
+  "Mago": {
+    "id": "mago",
+    "hitDie": "d6",
+    "hpMode": {
+      "mode": "full_roll",
+      "level1_rule": "roll",
+      "per_level_rule": "roll",
+      "adds_con_mod_each_level": true
+    },
+    "savingThrowProficiencies": [
+      "inteligencia",
+      "sabedoria"
+    ],
+    "primaryAbilities": [
+      "inteligencia"
+    ],
+    "abilities": [
+      {
+        "id": "c_grimorio",
+        "icon": "⚙️",
+        "name": "Grimório (Nv 1)",
+        "desc": "Registro de fórmulas/efeitos; prepara e amplia repertório.",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Mago",
+        "level": 1,
+        "passive": true
+      },
+      {
+        "id": "c_recuperacao_arcana",
+        "icon": "⚙️",
+        "name": "Recuperação Arcana (Nv 2)",
+        "desc": "Recupera parte dos recursos mágicos em descanso curto.",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Mago",
+        "level": 2,
+        "passive": true
+      }
+    ]
+  },
+  "Feiticeiro": {
+    "id": "feiticeiro",
+    "hitDie": "d6",
+    "hpMode": {
+      "mode": "full_roll",
+      "level1_rule": "roll",
+      "per_level_rule": "roll",
+      "adds_con_mod_each_level": true
+    },
+    "savingThrowProficiencies": [
+      "constituicao",
+      "carisma"
+    ],
+    "primaryAbilities": [
+      "carisma"
+    ],
+    "abilities": [
+      {
+        "id": "c_origem",
+        "icon": "⚙️",
+        "name": "Origem (Nv 1)",
+        "desc": "Define variações e poderes centrais do conjurador inato.",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Feiticeiro",
+        "level": 1,
+        "passive": true
+      },
+      {
+        "id": "c_pontos_foco",
+        "icon": "⚙️",
+        "name": "Pontos de Foco (Nv 2)",
+        "desc": "Recurso para flexibilizar efeitos mágicos.",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Feiticeiro",
+        "level": 2,
+        "passive": true
+      },
+      {
+        "id": "c_modelagem_magica",
+        "icon": "⚙️",
+        "name": "Modelagem Mágica (Nv 3)",
+        "desc": "Ajusta forma/alcance/duração de efeitos (metamagia equivalente).",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Feiticeiro",
+        "level": 3,
+        "passive": true
+      }
+    ]
+  },
+  "Bruxo": {
+    "id": "bruxo",
+    "hitDie": "d8",
+    "hpMode": {
+      "mode": "full_roll",
+      "level1_rule": "roll",
+      "per_level_rule": "roll",
+      "adds_con_mod_each_level": true
+    },
+    "savingThrowProficiencies": [
+      "sabedoria",
+      "carisma"
+    ],
+    "primaryAbilities": [
+      "carisma"
+    ],
+    "abilities": [
+      {
+        "id": "c_magia_pacto",
+        "icon": "⚙️",
+        "name": "Magia de Pacto (Nv 1)",
+        "desc": "Slots poucos, no maior nível disponível; recupera em descanso curto.",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Bruxo",
+        "level": 1,
+        "passive": true
+      },
+      {
+        "id": "c_invocacoes",
+        "icon": "⚙️",
+        "name": "Aprimoramentos (Nv 2)",
+        "desc": "Melhorias modulares permanentes.",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Bruxo",
+        "level": 2,
+        "passive": true
+      },
+      {
+        "id": "c_pacto",
+        "icon": "⚙️",
+        "name": "Vínculo (Nv 3)",
+        "desc": "Escolha central que define progressão temática (patrono/pacto equivalente).",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Bruxo",
+        "level": 3,
+        "passive": true
+      }
+    ]
+  },
+  "Clérigo": {
+    "id": "clerigo",
+    "hitDie": "d8",
+    "hpMode": {
+      "mode": "full_roll",
+      "level1_rule": "roll",
+      "per_level_rule": "roll",
+      "adds_con_mod_each_level": true
+    },
+    "savingThrowProficiencies": [
+      "sabedoria",
+      "carisma"
+    ],
+    "primaryAbilities": [
+      "sabedoria"
+    ],
+    "abilities": [
+      {
+        "id": "c_canalizacao",
+        "icon": "⚙️",
+        "name": "Canalização (Nv 2)",
+        "desc": "Recurso de fé para efeitos marcantes (varia por domínio).",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Clérigo",
+        "level": 2,
+        "passive": true
+      }
+    ]
+  },
+  "Druida": {
+    "id": "druida",
+    "hitDie": "d8",
+    "hpMode": {
+      "mode": "full_roll",
+      "level1_rule": "roll",
+      "per_level_rule": "roll",
+      "adds_con_mod_each_level": true
+    },
+    "savingThrowProficiencies": [
+      "inteligencia",
+      "sabedoria"
+    ],
+    "primaryAbilities": [
+      "sabedoria"
+    ],
+    "abilities": [
+      {
+        "id": "c_forma_selvagem",
+        "icon": "⚙️",
+        "name": "Forma Selvagem (Nv 2)",
+        "desc": "Transformação em criatura; uso limitado por descanso.",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Druida",
+        "level": 2,
+        "passive": true
+      }
+    ]
+  },
+  "Monge": {
+    "id": "monge",
+    "hitDie": "d8",
+    "hpMode": {
+      "mode": "full_roll",
+      "level1_rule": "roll",
+      "per_level_rule": "roll",
+      "adds_con_mod_each_level": true
+    },
+    "savingThrowProficiencies": [
+      "forca",
+      "destreza"
+    ],
+    "primaryAbilities": [
+      "destreza",
+      "sabedoria"
+    ],
+    "abilities": [
+      {
+        "id": "c_defesa_sem_armadura",
+        "icon": "⚙️",
+        "name": "Defesa sem Armadura (Nv 1)",
+        "desc": "Cálculo alternativo de CA quando sem armadura.",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Monge",
+        "level": 1,
+        "passive": true
+      },
+      {
+        "id": "c_energia_interna",
+        "icon": "⚙️",
+        "name": "Energia Interna (Nv 2)",
+        "desc": "Recurso para técnicas (ki equivalente).",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Monge",
+        "level": 2,
+        "passive": true
+      }
+    ]
+  },
+  "Paladino": {
+    "id": "paladino",
+    "hitDie": "d10",
+    "hpMode": {
+      "mode": "full_roll",
+      "level1_rule": "roll",
+      "per_level_rule": "roll",
+      "adds_con_mod_each_level": true
+    },
+    "savingThrowProficiencies": [
+      "sabedoria",
+      "carisma"
+    ],
+    "primaryAbilities": [
+      "forca",
+      "carisma"
+    ],
+    "abilities": [
+      {
+        "id": "c_reserva_curativa",
+        "icon": "⚙️",
+        "name": "Reserva Curativa (Nv 1)",
+        "desc": "Pool de cura para distribuir.",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Paladino",
+        "level": 1,
+        "passive": true
+      },
+      {
+        "id": "c_aura",
+        "icon": "⚙️",
+        "name": "Aura (Nv 6)",
+        "desc": "Bônus defensivo para você e aliados próximos.",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Paladino",
+        "level": 6,
+        "passive": true
+      }
+    ]
+  },
+  "Bardo": {
+    "id": "bardo",
+    "hitDie": "d8",
+    "hpMode": {
+      "mode": "full_roll",
+      "level1_rule": "roll",
+      "per_level_rule": "roll",
+      "adds_con_mod_each_level": true
+    },
+    "savingThrowProficiencies": [
+      "destreza",
+      "carisma"
+    ],
+    "primaryAbilities": [
+      "carisma"
+    ],
+    "abilities": [
+      {
+        "id": "c_inspiracao",
+        "icon": "⚙️",
+        "name": "Inspiração (Nv 1)",
+        "desc": "Dado bônus para aliados em testes/ataques/defesas (conforme uso).",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Bardo",
+        "level": 1,
+        "passive": true
+      }
+    ]
+  },
+  "Patrulheiro": {
+    "id": "patrulheiro",
+    "hitDie": "d10",
+    "hpMode": {
+      "mode": "full_roll",
+      "level1_rule": "roll",
+      "per_level_rule": "roll",
+      "adds_con_mod_each_level": true
+    },
+    "savingThrowProficiencies": [
+      "forca",
+      "destreza"
+    ],
+    "primaryAbilities": [
+      "destreza",
+      "sabedoria"
+    ],
+    "abilities": [
+      {
+        "id": "c_especializacao_caca",
+        "icon": "⚙️",
+        "name": "Especialização de Caça (Nv 1)",
+        "desc": "Vantagens situacionais contra alvos/ambientes (adaptável depois).",
+        "manaCost": 0,
+        "sourceType": "class",
+        "sourceName": "Patrulheiro",
+        "level": 1,
+        "passive": true
+      }
+    ]
+  }
+}

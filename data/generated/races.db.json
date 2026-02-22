@@ -1,0 +1,826 @@
+{
+  "Anão da Montanha": {
+    "id": "anao_montanha",
+    "abilityBonuses": [
+      {
+        "ability": "forca",
+        "modDelta": 2
+      }
+    ],
+    "abilities": [
+      {
+        "id": "t_olhos_profundezas",
+        "icon": "🧬",
+        "name": "Olhos das Profundezas",
+        "desc": "Enxerga melhor em pouca luz/escuridão (alcance típico ~18m).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Anão da Montanha",
+        "passive": true
+      },
+      {
+        "id": "t_corpo_endurecido",
+        "icon": "🧬",
+        "name": "Corpo Endurecido",
+        "desc": "Vantagem contra venenos e resistência a dano de veneno.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Anão da Montanha",
+        "passive": true
+      },
+      {
+        "id": "t_treinamento_tradicional",
+        "icon": "🧬",
+        "name": "Treinamento Marcial Tradicional",
+        "desc": "Familiaridade/proficiência com armas tradicionais (lista configurável).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Anão da Montanha",
+        "passive": true
+      },
+      {
+        "id": "t_memoria_rocha",
+        "icon": "🧬",
+        "name": "Memória da Rocha",
+        "desc": "Facilidade para analisar pedra, estruturas e formações minerais.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Anão da Montanha",
+        "passive": true
+      }
+    ]
+  },
+  "Anão da Colina": {
+    "id": "anao_colina",
+    "abilityBonuses": [
+      {
+        "ability": "sabedoria",
+        "modDelta": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": "t_olhos_profundezas",
+        "icon": "🧬",
+        "name": "Olhos das Profundezas",
+        "desc": "Enxerga melhor em pouca luz/escuridão (alcance típico ~18m).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Anão da Colina",
+        "passive": true
+      },
+      {
+        "id": "t_corpo_endurecido",
+        "icon": "🧬",
+        "name": "Corpo Endurecido",
+        "desc": "Vantagem contra venenos e resistência a dano de veneno.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Anão da Colina",
+        "passive": true
+      },
+      {
+        "id": "t_treinamento_tradicional",
+        "icon": "🧬",
+        "name": "Treinamento Marcial Tradicional",
+        "desc": "Familiaridade/proficiência com armas tradicionais (lista configurável).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Anão da Colina",
+        "passive": true
+      },
+      {
+        "id": "t_memoria_rocha",
+        "icon": "🧬",
+        "name": "Memória da Rocha",
+        "desc": "Facilidade para analisar pedra, estruturas e formações minerais.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Anão da Colina",
+        "passive": true
+      },
+      {
+        "id": "t_tenacidade_colina",
+        "icon": "🧬",
+        "name": "Tenacidade da Colina",
+        "desc": "Ganha robustez extra ao progredir (ex.: PV extra por nível, se ativado).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Anão da Colina",
+        "passive": true
+      }
+    ]
+  },
+  "Elfo": {
+    "id": "elfo",
+    "abilityBonuses": [
+      {
+        "ability": "destreza",
+        "modDelta": 2
+      }
+    ],
+    "abilities": [
+      {
+        "id": "t_visao_crepuscular",
+        "icon": "🧬",
+        "name": "Visão Crepuscular",
+        "desc": "Adaptação superior a baixa luminosidade (alcance típico ~18m).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Elfo",
+        "passive": true
+      },
+      {
+        "id": "t_percepcao_aguçada",
+        "icon": "🧬",
+        "name": "Percepção Aguçada",
+        "desc": "Proficiência em Percepção.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Elfo",
+        "passive": true
+      },
+      {
+        "id": "t_sangue_antigo",
+        "icon": "🧬",
+        "name": "Sangue Antigo",
+        "desc": "Vantagem contra ser enfeitiçado; efeitos de sono mágico não funcionam.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Elfo",
+        "passive": true
+      },
+      {
+        "id": "t_vigilia_interior",
+        "icon": "🧬",
+        "name": "Vigília Interior",
+        "desc": "Descansa por meditação em vez de sono comum.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Elfo",
+        "passive": true
+      }
+    ]
+  },
+  "Alto Elfo": {
+    "id": "alto_elfo",
+    "abilityBonuses": [
+      {
+        "ability": "inteligencia",
+        "modDelta": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": "t_visao_crepuscular",
+        "icon": "🧬",
+        "name": "Visão Crepuscular",
+        "desc": "Adaptação superior a baixa luminosidade (alcance típico ~18m).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Alto Elfo",
+        "passive": true
+      },
+      {
+        "id": "t_percepcao_aguçada",
+        "icon": "🧬",
+        "name": "Percepção Aguçada",
+        "desc": "Proficiência em Percepção.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Alto Elfo",
+        "passive": true
+      },
+      {
+        "id": "t_sangue_antigo",
+        "icon": "🧬",
+        "name": "Sangue Antigo",
+        "desc": "Vantagem contra ser enfeitiçado; efeitos de sono mágico não funcionam.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Alto Elfo",
+        "passive": true
+      },
+      {
+        "id": "t_vigilia_interior",
+        "icon": "🧬",
+        "name": "Vigília Interior",
+        "desc": "Descansa por meditação em vez de sono comum.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Alto Elfo",
+        "passive": true
+      },
+      {
+        "id": "t_aprendizado_arcano",
+        "icon": "🧬",
+        "name": "Aprendizado Arcano",
+        "desc": "Conhece um truque simples (se o sistema usar magia).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Alto Elfo",
+        "passive": true
+      }
+    ]
+  },
+  "Elfo da Floresta": {
+    "id": "elfo_floresta",
+    "abilityBonuses": [
+      {
+        "ability": "sabedoria",
+        "modDelta": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": "t_visao_crepuscular",
+        "icon": "🧬",
+        "name": "Visão Crepuscular",
+        "desc": "Adaptação superior a baixa luminosidade (alcance típico ~18m).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Elfo da Floresta",
+        "passive": true
+      },
+      {
+        "id": "t_percepcao_aguçada",
+        "icon": "🧬",
+        "name": "Percepção Aguçada",
+        "desc": "Proficiência em Percepção.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Elfo da Floresta",
+        "passive": true
+      },
+      {
+        "id": "t_sangue_antigo",
+        "icon": "🧬",
+        "name": "Sangue Antigo",
+        "desc": "Vantagem contra ser enfeitiçado; efeitos de sono mágico não funcionam.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Elfo da Floresta",
+        "passive": true
+      },
+      {
+        "id": "t_vigilia_interior",
+        "icon": "🧬",
+        "name": "Vigília Interior",
+        "desc": "Descansa por meditação em vez de sono comum.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Elfo da Floresta",
+        "passive": true
+      },
+      {
+        "id": "t_discricao_natural",
+        "icon": "🧬",
+        "name": "Discrição Natural",
+        "desc": "Mais apto a se ocultar/mover sem ser notado em terreno natural (adaptável).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Elfo da Floresta",
+        "passive": true
+      }
+    ]
+  },
+  "Drow": {
+    "id": "drow",
+    "abilityBonuses": [
+      {
+        "ability": "carisma",
+        "modDelta": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": "t_olhar_abismo",
+        "icon": "🧬",
+        "name": "Olhar do Abismo",
+        "desc": "Visão melhorada em escuridão total (alcance pode ser maior).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Drow",
+        "passive": true
+      },
+      {
+        "id": "t_percepcao_aguçada",
+        "icon": "🧬",
+        "name": "Percepção Aguçada",
+        "desc": "Proficiência em Percepção.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Drow",
+        "passive": true
+      },
+      {
+        "id": "t_sangue_antigo",
+        "icon": "🧬",
+        "name": "Sangue Antigo",
+        "desc": "Vantagem contra ser enfeitiçado; efeitos de sono mágico não funcionam.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Drow",
+        "passive": true
+      },
+      {
+        "id": "t_vigilia_interior",
+        "icon": "🧬",
+        "name": "Vigília Interior",
+        "desc": "Descansa por meditação em vez de sono comum.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Drow",
+        "passive": true
+      },
+      {
+        "id": "t_marca_linhagem_sombria",
+        "icon": "🧬",
+        "name": "Marca da Linhagem Sombria",
+        "desc": "Acesso a manifestações arcanas limitadas (se usar magia).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Drow",
+        "passive": true
+      }
+    ]
+  },
+  "Halfling": {
+    "id": "halfling",
+    "abilityBonuses": [
+      {
+        "ability": "destreza",
+        "modDelta": 2
+      }
+    ],
+    "abilities": [
+      {
+        "id": "t_destino_favoravel",
+        "icon": "🧬",
+        "name": "Destino Favorável",
+        "desc": "Ao tirar 1 em d20 (ataque/teste/salvaguarda), pode rolar novamente.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Halfling",
+        "passive": true
+      },
+      {
+        "id": "t_animo_firme",
+        "icon": "🧬",
+        "name": "Ânimo Firme",
+        "desc": "Vantagem contra medo.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Halfling",
+        "passive": true
+      },
+      {
+        "id": "t_movimento_agil",
+        "icon": "🧬",
+        "name": "Movimento Ágil",
+        "desc": "Pode atravessar o espaço de criaturas maiores.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Halfling",
+        "passive": true
+      }
+    ]
+  },
+  "Halfling Pés-Leves": {
+    "id": "halfling_pes_leves",
+    "abilityBonuses": [
+      {
+        "ability": "carisma",
+        "modDelta": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": "t_destino_favoravel",
+        "icon": "🧬",
+        "name": "Destino Favorável",
+        "desc": "Ao tirar 1 em d20 (ataque/teste/salvaguarda), pode rolar novamente.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Halfling Pés-Leves",
+        "passive": true
+      },
+      {
+        "id": "t_animo_firme",
+        "icon": "🧬",
+        "name": "Ânimo Firme",
+        "desc": "Vantagem contra medo.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Halfling Pés-Leves",
+        "passive": true
+      },
+      {
+        "id": "t_movimento_agil",
+        "icon": "🧬",
+        "name": "Movimento Ágil",
+        "desc": "Pode atravessar o espaço de criaturas maiores.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Halfling Pés-Leves",
+        "passive": true
+      },
+      {
+        "id": "t_furtividade_natural",
+        "icon": "🧬",
+        "name": "Furtividade Natural",
+        "desc": "Consegue se esconder com mais facilidade usando criaturas maiores como cobertura.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Halfling Pés-Leves",
+        "passive": true
+      }
+    ]
+  },
+  "Halfling Robusto": {
+    "id": "halfling_robusto",
+    "abilityBonuses": [
+      {
+        "ability": "constituicao",
+        "modDelta": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": "t_destino_favoravel",
+        "icon": "🧬",
+        "name": "Destino Favorável",
+        "desc": "Ao tirar 1 em d20 (ataque/teste/salvaguarda), pode rolar novamente.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Halfling Robusto",
+        "passive": true
+      },
+      {
+        "id": "t_animo_firme",
+        "icon": "🧬",
+        "name": "Ânimo Firme",
+        "desc": "Vantagem contra medo.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Halfling Robusto",
+        "passive": true
+      },
+      {
+        "id": "t_movimento_agil",
+        "icon": "🧬",
+        "name": "Movimento Ágil",
+        "desc": "Pode atravessar o espaço de criaturas maiores.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Halfling Robusto",
+        "passive": true
+      },
+      {
+        "id": "t_corpo_endurecido",
+        "icon": "🧬",
+        "name": "Corpo Endurecido",
+        "desc": "Vantagem contra venenos e resistência a dano de veneno.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Halfling Robusto",
+        "passive": true
+      }
+    ]
+  },
+  "Draconato": {
+    "id": "draconato",
+    "abilityBonuses": [
+      {
+        "ability": "forca",
+        "modDelta": 2
+      },
+      {
+        "ability": "carisma",
+        "modDelta": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": "t_heranca_primordial",
+        "icon": "🧬",
+        "name": "Herança Primordial",
+        "desc": "Escolhe uma afinidade elemental (define sopro e resistência).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Draconato",
+        "passive": true
+      },
+      {
+        "id": "t_exalacao_elemental",
+        "icon": "🧬",
+        "name": "Exalação Elemental",
+        "desc": "Libera energia em área conforme afinidade (forma/alcance configuráveis).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Draconato",
+        "passive": true
+      },
+      {
+        "id": "t_pele_resistente",
+        "icon": "🧬",
+        "name": "Pele Resistente",
+        "desc": "Resistência ao dano do elemento escolhido.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Draconato",
+        "passive": true
+      }
+    ]
+  },
+  "Gnomo": {
+    "id": "gnomo",
+    "abilityBonuses": [
+      {
+        "ability": "inteligencia",
+        "modDelta": 2
+      }
+    ],
+    "abilities": [
+      {
+        "id": "t_olhos_profundezas",
+        "icon": "🧬",
+        "name": "Olhos das Profundezas",
+        "desc": "Enxerga melhor em pouca luz/escuridão (alcance típico ~18m).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Gnomo",
+        "passive": true
+      },
+      {
+        "id": "t_mente_resguardada",
+        "icon": "🧬",
+        "name": "Mente Resguardada",
+        "desc": "Vantagem em salvaguardas mentais contra magia (Int/Sab/Car).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Gnomo",
+        "passive": true
+      }
+    ]
+  },
+  "Gnomo da Floresta": {
+    "id": "gnomo_floresta",
+    "abilityBonuses": [
+      {
+        "ability": "destreza",
+        "modDelta": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": "t_olhos_profundezas",
+        "icon": "🧬",
+        "name": "Olhos das Profundezas",
+        "desc": "Enxerga melhor em pouca luz/escuridão (alcance típico ~18m).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Gnomo da Floresta",
+        "passive": true
+      },
+      {
+        "id": "t_mente_resguardada",
+        "icon": "🧬",
+        "name": "Mente Resguardada",
+        "desc": "Vantagem em salvaguardas mentais contra magia (Int/Sab/Car).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Gnomo da Floresta",
+        "passive": true
+      },
+      {
+        "id": "t_truque_ilusorio",
+        "icon": "🧬",
+        "name": "Truque Ilusório",
+        "desc": "Acesso a um efeito menor de ilusão (se o sistema usar magia).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Gnomo da Floresta",
+        "passive": true
+      }
+    ]
+  },
+  "Gnomo das Rochas": {
+    "id": "gnomo_rochas",
+    "abilityBonuses": [
+      {
+        "ability": "constituicao",
+        "modDelta": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": "t_olhos_profundezas",
+        "icon": "🧬",
+        "name": "Olhos das Profundezas",
+        "desc": "Enxerga melhor em pouca luz/escuridão (alcance típico ~18m).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Gnomo das Rochas",
+        "passive": true
+      },
+      {
+        "id": "t_mente_resguardada",
+        "icon": "🧬",
+        "name": "Mente Resguardada",
+        "desc": "Vantagem em salvaguardas mentais contra magia (Int/Sab/Car).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Gnomo das Rochas",
+        "passive": true
+      },
+      {
+        "id": "t_engenhocas",
+        "icon": "🧬",
+        "name": "Engenhocas",
+        "desc": "Cria pequenos dispositivos/bugigangas (regra exata adaptável).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Gnomo das Rochas",
+        "passive": true
+      }
+    ]
+  },
+  "Meio-Elfo": {
+    "id": "meio_elfo",
+    "abilityBonuses": [
+      {
+        "ability": "carisma",
+        "modDelta": 2
+      }
+    ],
+    "abilities": [
+      {
+        "id": "t_visao_crepuscular",
+        "icon": "🧬",
+        "name": "Visão Crepuscular",
+        "desc": "Adaptação superior a baixa luminosidade (alcance típico ~18m).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Meio-Elfo",
+        "passive": true
+      },
+      {
+        "id": "t_sangue_antigo",
+        "icon": "🧬",
+        "name": "Sangue Antigo",
+        "desc": "Vantagem contra ser enfeitiçado; efeitos de sono mágico não funcionam.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Meio-Elfo",
+        "passive": true
+      },
+      {
+        "id": "t_talento_versatil",
+        "icon": "🧬",
+        "name": "Talento Versátil",
+        "desc": "Ganha proficiência em 2 perícias à escolha.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Meio-Elfo",
+        "passive": true
+      }
+    ]
+  },
+  "Meio-Orc": {
+    "id": "meio_orc",
+    "abilityBonuses": [
+      {
+        "ability": "forca",
+        "modDelta": 2
+      },
+      {
+        "ability": "constituicao",
+        "modDelta": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": "t_olhos_profundezas",
+        "icon": "🧬",
+        "name": "Olhos das Profundezas",
+        "desc": "Enxerga melhor em pouca luz/escuridão (alcance típico ~18m).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Meio-Orc",
+        "passive": true
+      },
+      {
+        "id": "t_presenca_intimidante",
+        "icon": "🧬",
+        "name": "Presença Intimidante",
+        "desc": "Proficiência em Intimidação.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Meio-Orc",
+        "passive": true
+      },
+      {
+        "id": "t_instinto_sobrevivencia",
+        "icon": "🧬",
+        "name": "Instinto de Sobrevivência",
+        "desc": "1 vez por descanso longo, ao cair a 0 PV, fica com 1 PV em vez disso.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Meio-Orc",
+        "passive": true
+      },
+      {
+        "id": "t_impacto_devastador",
+        "icon": "🧬",
+        "name": "Impacto Devastador",
+        "desc": "Em acerto crítico corpo a corpo, rola 1 dado extra de dano da arma.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Meio-Orc",
+        "passive": true
+      }
+    ]
+  },
+  "Tiefling": {
+    "id": "tiefling",
+    "abilityBonuses": [
+      {
+        "ability": "inteligencia",
+        "modDelta": 1
+      },
+      {
+        "ability": "carisma",
+        "modDelta": 2
+      }
+    ],
+    "abilities": [
+      {
+        "id": "t_visao_crepuscular",
+        "icon": "🧬",
+        "name": "Visão Crepuscular",
+        "desc": "Adaptação superior a baixa luminosidade (alcance típico ~18m).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Tiefling",
+        "passive": true
+      },
+      {
+        "id": "t_resiliencia_ignea",
+        "icon": "🧬",
+        "name": "Resiliência Ígnea",
+        "desc": "Resistência a dano de fogo.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Tiefling",
+        "passive": true
+      },
+      {
+        "id": "t_legado_sobrenatural",
+        "icon": "🧬",
+        "name": "Legado Sobrenatural",
+        "desc": "Acesso a efeitos mágicos temáticos em níveis específicos (se usar magia).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Tiefling",
+        "passive": true
+      }
+    ]
+  },
+  "Humano": {
+    "id": "humano",
+    "abilityBonuses": [],
+    "abilities": [
+      {
+        "id": "t_idioma_extra",
+        "icon": "🧬",
+        "name": "Idioma Extra",
+        "desc": "Aprende 1 idioma adicional à escolha.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Humano",
+        "passive": true
+      },
+      {
+        "id": "t_pericia_extra",
+        "icon": "🧬",
+        "name": "Perícia Extra",
+        "desc": "Ganha proficiência em 1 perícia à escolha.",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Humano",
+        "passive": true
+      },
+      {
+        "id": "t_talento_inicial",
+        "icon": "🧬",
+        "name": "Talento Inicial",
+        "desc": "Ganha 1 talento à escolha (opcional, se seu sistema usar talentos).",
+        "manaCost": 0,
+        "sourceType": "race",
+        "sourceName": "Humano",
+        "passive": true
+      }
+    ]
+  }
+}
