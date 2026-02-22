@@ -6,7 +6,7 @@
     <title>RPG Quest</title>
 
     <link rel="stylesheet" href="style.css?v=20260221d" />
-    <link rel="stylesheet" href="grimoire.css?v=20260221c" />
+    <link rel="stylesheet" href="grimoire.css?v=20260222a" />
   </head>
 
   <body>
@@ -430,9 +430,9 @@
 
         <div class="grimoireColumns">
           <div class="grimoireTabs" role="tablist" aria-label="Navegação do grimório">
-            <button class="grimoireTab active" data-tab="resources" type="button" role="tab" aria-selected="true" onclick="setGrimoireTab('resources')">📚 Recursos</button>
+            <button class="grimoireTab active" data-tab="spells" type="button" role="tab" aria-selected="true" onclick="setGrimoireTab('spells')">✨ Minhas magias</button>
             <button class="grimoireTab" data-tab="create" type="button" role="tab" aria-selected="false" onclick="setGrimoireTab('create')">✍️ Criar magia</button>
-            <button class="grimoireTab" data-tab="spells" type="button" role="tab" aria-selected="false" onclick="setGrimoireTab('spells')">✨ Minhas magias</button>
+            <button class="grimoireTab" data-tab="resources" type="button" role="tab" aria-selected="false" onclick="setGrimoireTab('resources')">📚 Recursos</button>
           </div>
 
           <div class="panel grimoirePanel" data-tab="resources">
@@ -447,29 +447,35 @@
 
           <div class="panel grimoirePanel" data-tab="create">
             <div style="font-weight:900; margin-bottom:8px;">Criar magia customizada</div>
-            <div class="field"><label>Nome</label><input id="spellName" placeholder="Ex: Explosão Flamejante" /></div>
-            <div class="field"><label>Nível da magia</label><input id="spellLevel" type="number" min="1" max="9" value="1" /></div>
-            <div class="field">
-              <label>Ícone da magia</label>
-              <div id="spellIconLibrary" class="iconLibrary"></div>
-            </div>
-            <div class="field"><label>Tempo de conjuração</label><input id="spellCastingTime" placeholder="Ex: 1 ação" value="1 ação" /></div>
-            <div class="field"><label>Alcance</label><input id="spellRange" placeholder="Ex: 18m" value="18m" /></div>
-            <div class="field"><label>Descrição</label><textarea id="spellDescription" rows="3" placeholder="Resumo da magia"></textarea></div>
+            <div class="grimoireCreateColumns">
+              <div class="grimoireCreateMain">
+                <div class="field"><label>Nome</label><input id="spellName" placeholder="Ex: Explosão Flamejante" /></div>
+                <div class="field"><label>Nível da magia</label><input id="spellLevel" type="number" min="1" max="9" value="1" /></div>
+                <div class="field">
+                  <label>Ícone da magia</label>
+                  <div id="spellIconLibrary" class="iconLibrary"></div>
+                </div>
+                <div class="field"><label>Tempo de conjuração</label><input id="spellCastingTime" placeholder="Ex: 1 ação" value="1 ação" /></div>
+                <div class="field"><label>Alcance</label><input id="spellRange" placeholder="Ex: 18m" value="18m" /></div>
+                <div class="field"><label>Descrição</label><textarea id="spellDescription" rows="3" placeholder="Resumo da magia"></textarea></div>
 
-            <div class="field">
-              <label>Componentes</label>
-              <div class="chipRow">
-                <label><input type="checkbox" id="compV" checked /> V</label>
-                <label><input type="checkbox" id="compS" checked /> S</label>
-                <label><input type="checkbox" id="compM" /> M</label>
+                <div class="field">
+                  <label>Componentes</label>
+                  <div class="chipRow">
+                    <label><input type="checkbox" id="compV" checked /> V</label>
+                    <label><input type="checkbox" id="compS" checked /> S</label>
+                    <label><input type="checkbox" id="compM" /> M</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grimoireCreateEffects">
+                <div style="font-weight:900; margin:0 0 8px;">Efeitos do grimório</div>
+                <div id="spellEffectsCatalog" class="effectsCatalog"></div>
+                <div id="spellCostSummary" class="spellCostSummary"></div>
+                <button class="btn btnPrimary" onclick="createCustomSpell()">Salvar magia</button>
               </div>
             </div>
-
-            <div style="font-weight:900; margin:12px 0 8px;">Efeitos (cards)</div>
-            <div id="spellEffectsCatalog" class="effectsCatalog"></div>
-            <div id="spellCostSummary" class="spellCostSummary"></div>
-            <button class="btn btnPrimary" onclick="createCustomSpell()">Salvar magia</button>
           </div>
 
           <div class="panel grimoirePanel" data-tab="spells">
