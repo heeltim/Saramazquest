@@ -202,7 +202,8 @@ function initAuth() {
     saveAuthState(auth);
 
     overlay.classList.add("hidden");
-    initCharacterSetup(true);
+    const shouldOpenCreator = !findOwnedCharacterEntry(email);
+    initCharacterSetup(shouldOpenCreator);
     updateArena();
     updateChat();
   };
