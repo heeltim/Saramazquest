@@ -3177,6 +3177,28 @@ function renderAbilities(p) {
   const list = document.getElementById("sheetAbilities");
   const skills = p.skills || [];
 
+  function hexToRgba(hex, alpha) {
+    const clean = String(hex || "").trim().replace("#", "");
+    if (!clean) return "";
+    const full = clean.length === 3 ? clean.split("").map((ch) => ch + ch).join("") : clean;
+    if (!/^[0-9a-fA-F]{6}$/.test(full)) return "";
+    const r = Number.parseInt(full.slice(0, 2), 16);
+    const g = Number.parseInt(full.slice(2, 4), 16);
+    const b = Number.parseInt(full.slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  function getRaceAccentFromSkill(skill) {
+    const sourceRaceName = String(skill?.sourceName || p?.race || "").trim();
+    const raceData = RACES[sourceRaceName] || RACES[p?.race] || null;
+    const hex = raceData?.dna?.ui?.cor_hex || "";
+    return {
+      border: hexToRgba(hex, 0.68),
+      glow: hexToRgba(hex, 0.24),
+      bg: hexToRgba(hex, 0.09),
+    };
+  }
+
   const racialSkills = skills
     .map((skill, idx) => ({ skill, idx }))
     .filter((entry) => entry.skill.sourceType === "race");
@@ -3184,7 +3206,7 @@ function renderAbilities(p) {
     .map((skill, idx) => ({ skill, idx }))
     .filter((entry) => entry.skill.sourceType !== "race");
 
-  function renderAbilityGroup(title, entries) {
+  function renderAbilityGroup(title, entries, groupType) {
     if (!entries.length) return "";
     return `
       <div class="abilityGroupTitle">${title}</div>
@@ -3193,11 +3215,15 @@ function renderAbilities(p) {
           .map(({ skill, idx }) => {
             const isPassive = Boolean(skill.passive);
             const cost = parseInt(skill.manaCost || 0, 10) || 0;
+            const raceAccent = groupType === "race" ? getRaceAccentFromSkill(skill) : null;
             const interactiveAttrs = isPassive
               ? ""
               : `onclick="useAbility(${idx})" role="button" tabindex="0" onkeydown="handleAbilityKeydown(event, ${idx})"`;
+            const raceStyle = raceAccent?.border
+              ? `style="--race-accent-border:${raceAccent.border};--race-accent-glow:${raceAccent.glow};--race-accent-bg:${raceAccent.bg};"`
+              : "";
             return `
-              <div class="abilityItem ${isPassive ? "isPassive" : "isAction"}" ${interactiveAttrs}>
+              <div class="abilityItem ${isPassive ? "isPassive" : "isAction"} ${groupType === "race" ? "isRace" : ""}" ${raceStyle} ${interactiveAttrs}>
                 <div class="abilityName">${skill.name}${isPassive ? ' <small class="abilityTagPassive">Passiva</small>' : ""}</div>
                 <div class="abilityDesc"><strong>Detalhe:</strong> ${skill.desc}</div>
                 <div class="abilityMeta"><strong>Custo:</strong> ${cost} MP</div>
@@ -3210,8 +3236,8 @@ function renderAbilities(p) {
   }
 
   list.innerHTML = `
-    ${renderAbilityGroup("Classe", classSkills)}
-    ${renderAbilityGroup("Raciais", racialSkills)}
+    ${renderAbilityGroup("Classe", classSkills, "class")}
+    ${renderAbilityGroup("Raciais", racialSkills, "race")}
   `;
 }
 
