@@ -317,25 +317,22 @@
 
         <div class="sheetColumns">
           <div class="panel panelStack">
-            <div class="sheetBlock">
-              <div class="sheetBlockTitle">Status do personagem</div>
-              <div class="sheetHeroCard">
-                <div id="sheetAvatarBadge" class="sheetAvatarBadge">🧙</div>
-                <div class="sheetHeroInfo">
-                  <strong id="sheetHeroName">Personagem</strong>
-                  <small id="sheetHeroClass">Classe</small>
-                </div>
+            <div class="sheetHeroCard">
+              <div id="sheetAvatarBadge" class="sheetAvatarBadge">🧙</div>
+              <div class="sheetHeroInfo">
+                <strong id="sheetHeroName">Personagem</strong>
+                <small id="sheetHeroClass">Classe</small>
               </div>
             </div>
 
             <div class="sheetBlock">
               <div class="sheetBlockTitle">Vida e magia</div>
               <div class="resourceComboBlock">
-                <div class="resourceBlock compact">
+                <div class="resourceStat compact">
                   <div class="resourceHead"><span>Vida</span><strong id="statHPNow">-</strong><small>/ <span id="statHPMax">-</span></small></div>
                   <div class="resourceBar"><div id="sheetHpFill" class="resourceFill hp"></div></div>
                 </div>
-                <div class="resourceBlock compact">
+                <div class="resourceStat compact">
                   <div class="resourceHead"><span>Magia</span><strong id="statMPNow">-</strong><small>/ <span id="statMPMax">-</span></small></div>
                   <div class="resourceBar"><div id="sheetManaFill" class="resourceFill mana"></div></div>
                 </div>
@@ -351,8 +348,14 @@
                 <div class="kv"><span>INT</span><strong id="statINT">-</strong></div>
                 <div class="kv"><span>SAB</span><strong id="statWIS">-</strong></div>
                 <div class="kv"><span>CAR</span><strong id="statCHA">-</strong></div>
-                <div class="kv"><span>Prof.</span><strong id="statProf">-</strong></div>
-                <div class="kv"><span>Defesa</span><strong id="statDEF">-</strong></div>
+              </div>
+            </div>
+
+            <div class="sheetBlock">
+              <div class="sheetBlockTitle">Combate</div>
+              <div class="statGrid compact combatStatGrid">
+                <div class="kv"><span>Proficiência</span><strong id="statProf" class="combatStatValue">-</strong></div>
+                <div class="kv"><span>Defesa</span><strong id="statDEF" class="combatStatValue">-</strong></div>
               </div>
             </div>
 
@@ -403,11 +406,10 @@
                 Para comprar/trocar/usar itens: abra o 🎒 Inventário.
               </div>
             </details>
-            <details style="margin-top:10px">
-              <summary class="sectionSummary">Habilidades de classe</summary>
+            <details class="sheetCompactDetails" style="margin-top:10px" open>
+              <summary class="sectionSummary">Habilidades</summary>
               <div id="sheetAbilities" class="abilities"></div>
             </details>
-            <div id="sheetRacialAbilities" class="abilities abilitiesOutsideCard"></div>
           </div>
 
           <div class="panel">
