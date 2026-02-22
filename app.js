@@ -279,8 +279,6 @@ function initCharacterSetup(forceOpen = false) {
   const raceWrap = document.getElementById("setupRaceOptions");
   const classWrap = document.getElementById("setupClassOptions");
   const avatarWrap = document.getElementById("setupAvatarOptions");
-  const characterWrap = document.getElementById("setupCharacterOptions");
-  const useSpriteInput = document.getElementById("setupUseSprite");
   const startBtn = document.getElementById("setupStartBtn");
 
   if (!currentAccountEmail) {
@@ -316,17 +314,13 @@ function initCharacterSetup(forceOpen = false) {
   let selectedClass = classOptions[0] || "Guerreiro";
   let selectedTemplateId = CHARACTER_TEMPLATES[0]?.id || "";
   let selectedAvatar = normalizeAvatar(currentAvatar);
-  let selectedUseSprite = isIconAvatar(selectedAvatar) || isSpriteAvatar(selectedAvatar);
 
   const resolveTemplate = () => CHARACTER_TEMPLATES.find((template) => template.id === selectedTemplateId) || null;
 
   const resolveAvatarFromTemplate = () => {
     const selectedTemplate = resolveTemplate();
-    if (selectedTemplate && selectedUseSprite) {
-      return createIconAvatar(selectedTemplate.tokenUrl, selectedTemplate.emoji, selectedTemplate.label);
-    }
-    if (selectedTemplate) return selectedTemplate.emoji;
-    return selectedUseSprite ? createSpriteAvatar(getAvatarEmoji(selectedAvatar)) : getAvatarEmoji(selectedAvatar);
+    if (selectedTemplate) return createIconAvatar(selectedTemplate.tokenUrl, selectedTemplate.emoji, selectedTemplate.label);
+    return getAvatarEmoji(selectedAvatar);
   };
 
   selectedAvatar = resolveAvatarFromTemplate();
@@ -342,7 +336,6 @@ function initCharacterSetup(forceOpen = false) {
         selectedRace = raceName;
         selectedTemplateId = "";
         renderRaceButtons();
-        renderCharacterTemplates();
       };
       raceWrap.appendChild(btn);
     });
@@ -359,31 +352,8 @@ function initCharacterSetup(forceOpen = false) {
         selectedClass = className;
         selectedTemplateId = "";
         renderClassButtons();
-        renderCharacterTemplates();
       };
       classWrap.appendChild(btn);
-    });
-  }
-
-  function renderCharacterTemplates() {
-    if (!characterWrap) return;
-    characterWrap.innerHTML = "";
-    CHARACTER_TEMPLATES.forEach((template) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "setupCharacterBtn" + (selectedTemplateId === template.id ? " active" : "");
-      btn.innerHTML = `<img src="${template.tokenUrl}" alt="${template.label}" loading="lazy" /><div class="setupCharacterName">${template.label}</div>`;
-      btn.onclick = () => {
-        selectedTemplateId = template.id;
-        selectedRace = template.race;
-        selectedClass = template.className;
-        selectedAvatar = resolveAvatarFromTemplate();
-        renderCharacterTemplates();
-        renderRaceButtons();
-        renderClassButtons();
-        renderAvatars();
-      };
-      characterWrap.appendChild(btn);
     });
   }
 
@@ -396,27 +366,15 @@ function initCharacterSetup(forceOpen = false) {
       btn.textContent = avatarOption.value;
       btn.onclick = () => {
         selectedTemplateId = "";
-        selectedAvatar = selectedUseSprite ? createSpriteAvatar(avatarOption.value) : avatarOption.value;
-        renderCharacterTemplates();
+        selectedAvatar = avatarOption.value;
         renderAvatars();
       };
       avatarWrap.appendChild(btn);
     });
   }
 
-  if (useSpriteInput) {
-    useSpriteInput.checked = selectedUseSprite;
-    useSpriteInput.onchange = () => {
-      selectedUseSprite = !!useSpriteInput.checked;
-      selectedAvatar = resolveAvatarFromTemplate();
-      renderAvatars();
-      renderCharacterTemplates();
-    };
-  }
-
   renderRaceButtons();
   renderClassButtons();
-  renderCharacterTemplates();
   renderAvatars();
 
   if (!forceOpen) {

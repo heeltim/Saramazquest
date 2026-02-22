@@ -51,12 +51,12 @@ body {
 }
 
 .characterSetupCard {
-  width: min(560px, 100%);
+  width: min(500px, 100%);
   background: linear-gradient(170deg, rgba(28, 33, 48, 0.98), rgba(16, 19, 28, 0.98));
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 18px;
+  border-radius: 16px;
   box-shadow: 0 20px 54px rgba(0, 0, 0, 0.48);
-  padding: 20px;
+  padding: 14px;
 }
 
 .setupBrand {
@@ -72,33 +72,33 @@ body {
 }
 
 .characterSetupCard h1 {
-  margin: 12px 0 8px;
-  font-size: 30px;
+  margin: 8px 0 4px;
+  font-size: 24px;
 }
 
 .setupLead {
-  margin: 0 0 14px;
+  margin: 0 0 10px;
   opacity: 0.85;
 }
 
 .setupGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 6px;
 }
 
 .setupField {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 12px;
+  gap: 4px;
+  margin-bottom: 8px;
 }
 
 
 .setupChoiceGroup {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 
 .setupChoiceBtn {
@@ -106,8 +106,8 @@ body {
   background: rgba(255, 255, 255, 0.06);
   color: #fff;
   border-radius: 999px;
-  padding: 8px 12px;
-  font-size: 13px;
+  padding: 6px 10px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -118,56 +118,21 @@ body {
   background: rgba(111, 99, 255, 0.25);
 }
 
-.setupCharacterOptions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 10px;
-}
-
-.setupCharacterBtn {
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  color: #fff;
-  padding: 10px 8px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.setupCharacterBtn img {
-  width: 72px;
-  height: 72px;
-  object-fit: contain;
-}
-
-.setupCharacterBtn.active,
-.setupCharacterBtn:hover {
-  border-color: rgba(255, 215, 94, 0.95);
-  background: rgba(255, 215, 94, 0.18);
-}
-
-.setupCharacterName {
-  font-size: 12px;
-  font-weight: 700;
-}
 
 .setupAvatarOptions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+  gap: 6px;
 }
 
 .setupAvatarBtn {
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.06);
   color: #fff;
-  border-radius: 10px;
-  padding: 8px 4px;
+  border-radius: 8px;
+  padding: 6px 2px;
   cursor: pointer;
-  font-size: 22px;
+  font-size: 18px;
 }
 
 .setupAvatarBtn.active,
@@ -185,21 +150,10 @@ body {
   pointer-events: none;
 }
 
-.setupSpriteField {
-  margin-top: -2px;
-}
-
-.setupCheckboxLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  opacity: 0.9;
-}
 
 #setupStartBtn {
   width: 100%;
-  padding: 12px 14px;
+  padding: 10px 12px;
   border: none;
   border-radius: 12px;
   background: linear-gradient(90deg, #4c5cff, #6f63ff);
@@ -237,7 +191,7 @@ body {
 .authTabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 12px;
 }
 
@@ -260,7 +214,7 @@ body {
   min-height: 18px;
   margin: 10px 0 0;
   opacity: 0.85;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 @media (max-width: 600px) {
@@ -291,7 +245,7 @@ body {
   grid-template-columns: repeat(var(--cols), 40px);
   grid-template-rows: repeat(var(--rows), 40px);
   padding: 10px;
-  border-radius: 18px;
+  border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.05);
   overflow: hidden;
@@ -303,7 +257,7 @@ body {
   bottom: 14px;
   transform: translateX(-50%);
   display: flex;
-  gap: 8px;
+  gap: 6px;
   z-index: 6;
   padding: 8px 10px;
   border-radius: 14px;
@@ -421,7 +375,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 6px;
   margin-bottom: 6px;
 }
 .diceCloseBtn {
@@ -448,12 +402,12 @@ body {
 .diceControls {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
-  gap: 8px;
+  gap: 6px;
 }
 .dieControl {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   padding: 5px 7px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.04);
@@ -655,7 +609,7 @@ body {
 }
 .topRow {
   display: flex;
-  gap: 10px;
+  gap: 6px;
   align-items: center;
   justify-content: space-between;
 }
@@ -666,7 +620,7 @@ body {
 }
 .pills {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 .pill {
@@ -676,7 +630,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   font-size: 12px;
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 .toggleBtn {
@@ -702,7 +656,7 @@ body {
 .playerCard {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   background: rgba(255, 255, 255, 0.04);
   padding: 10px 10px;
   border-radius: 14px;
@@ -725,7 +679,7 @@ body {
   align-items: center;
   justify-content: center;
   font-weight: 900;
-  font-size: 13px;
+  font-size: 12px;
   color: white;
   flex-shrink: 0;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
@@ -741,7 +695,7 @@ body {
   font-weight: 800;
   font-size: 14px;
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: baseline;
 }
 .playerName span {
@@ -756,7 +710,7 @@ body {
 .statRow {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 .statLabel {
   width: 22px;
@@ -859,7 +813,7 @@ body {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  font-size: 13px;
+  font-size: 12px;
   margin-bottom: 4px;
 }
 .chatActionHead strong {
@@ -955,7 +909,7 @@ body {
 }
 .replyPreviewText {
   margin-top: 4px;
-  font-size: 13px;
+  font-size: 12px;
   opacity: 0.95;
 }
 #replyPreview button {
@@ -1000,7 +954,7 @@ body {
   position: fixed;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   min-width: 220px;
   padding: 10px;
   border-radius: 12px;
@@ -1031,7 +985,7 @@ body {
 
 #chatInput {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   position: relative;
 }
 #chatInput input {
@@ -1086,14 +1040,14 @@ body {
 #chatIdentityRow {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
 }
 
 #chatProfileCreateRow {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(116px, 34%);
-  gap: 8px;
+  gap: 6px;
   width: 100%;
 }
 
@@ -1214,7 +1168,7 @@ body {
 .panelStack {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 .sheetBlock {
   background: rgba(255, 255, 255, 0.035);
@@ -1297,7 +1251,7 @@ select option {
 .abilities {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 .abilityGroupCard {
   background: rgba(255, 255, 255, 0.04);
@@ -1316,7 +1270,7 @@ select option {
 .abilityGroupList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 .abilityItem {
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1341,7 +1295,7 @@ select option {
 }
 .abilityName {
   font-weight: 800;
-  font-size: 13px;
+  font-size: 12px;
 }
 .abilityDesc {
   font-size: 12px;
@@ -1392,7 +1346,7 @@ select option {
 }
 .resourceBlocks {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 12px;
 }
 .resourceComboBlock {
@@ -1470,7 +1424,7 @@ select option {
 }
 .sheetControlButtons {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 .sheetCompactDetails {
@@ -1497,11 +1451,11 @@ select option {
 .pointBuyGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
 }
 .pointRow {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 .pointLabel {
@@ -1528,7 +1482,7 @@ select option {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: 10px;
@@ -1546,7 +1500,7 @@ select option {
 .skillMeta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 .skillMeta input {
   width: 14px;
@@ -1556,7 +1510,7 @@ select option {
   margin-top: 14px;
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 6px;
   padding-top: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -1609,24 +1563,24 @@ select option {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   margin-bottom: 10px;
 }
 .goldPill {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 999px;
-  padding: 8px 12px;
+  padding: 6px 10px;
   font-size: 12px;
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 .invList,
 .shopList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   max-height: 62vh;
   overflow: auto;
   padding-right: 4px;
@@ -1634,7 +1588,7 @@ select option {
 .invItem,
 .shopItem {
   display: flex;
-  gap: 10px;
+  gap: 6px;
   align-items: flex-start;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -1656,7 +1610,7 @@ select option {
 }
 .invName {
   font-weight: 800;
-  font-size: 13px;
+  font-size: 12px;
 }
 .invDesc {
   font-size: 12px;
@@ -1686,7 +1640,7 @@ select option {
   font-size: 12px;
   opacity: 0.92;
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 .badge {
@@ -1718,7 +1672,7 @@ select option {
   border-radius: 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   z-index: 300;
   min-width: 180px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
@@ -1768,14 +1722,14 @@ select option {
 .sceneGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 6px;
 }
 .sceneGrid .full {
   grid-column: 1 / -1;
 }
 .sceneRow {
   display: flex;
-  gap: 10px;
+  gap: 6px;
   align-items: center;
 }
 .sceneRow input[type="range"] {
@@ -1788,7 +1742,7 @@ select option {
 }
 .toolRow {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 .toolBtn {
@@ -1839,12 +1793,12 @@ kbd {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .effectsCatalog {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 8px;
 }
 
@@ -1860,7 +1814,7 @@ kbd {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
 }
 
 .effectRow input {
@@ -1887,7 +1841,7 @@ kbd {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 @media (max-width: 1100px) {
@@ -1944,7 +1898,7 @@ kbd {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 8px;
 }
 .sheetClampText {
@@ -1970,7 +1924,7 @@ kbd {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 6px;
 }
 .classRows {
@@ -1980,7 +1934,7 @@ kbd {
 .sheetClassRow {
   display: grid;
   grid-template-columns: 1fr 82px auto;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 .sheetClassRow select,
@@ -1992,7 +1946,7 @@ kbd {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
   font-size: 12px;
   opacity: 0.9;
 }
