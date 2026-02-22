@@ -567,7 +567,7 @@ const SKILLS = [
 ];
 
 /* ================= BANCO: RAÇAS / CLASSES ================= */
-const RACES = {
+let RACES = {
   Humano: {
     abilityBonuses: [
       { ability: "str", modDelta: 1 },
@@ -634,7 +634,7 @@ const RACES = {
   },
 };
 
-const CLASSES = {
+let CLASSES = {
   Guerreiro: {
     primaryAbilities: ["str", "con"],
     savingThrowProficiencies: ["str", "con"],
@@ -708,6 +708,86 @@ const CLASSES = {
     ],
   },
 };
+
+
+let SRD_MAGIC_RULES = {
+  cost_by_circle: { "0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 7, "7": 8, "8": 10, "9": 12 },
+};
+
+let SRD_MAGIC_TABLES = {
+  universal_base: {
+    "1": 2, "2": 3, "3": 8, "4": 9, "5": 15, "6": 18, "7": 21, "8": 24, "9": 31, "10": 35,
+    "11": 40, "12": 40, "13": 46, "14": 46, "15": 52, "16": 52, "17": 59, "18": 63, "19": 68, "20": 73,
+  },
+};
+
+
+function calculateHitPointsFromClass(level, conMod, cls) {
+  const lv = Math.max(1, Math.min(20, parseInt(level || 1, 10) || 1));
+  const die = String(cls?.hitDie || cls?.hit_die || "d10");
+  const dieValue = parseInt(die.replace("d", ""), 10) || 10;
+  return Math.max(1, lv * dieValue + lv * conMod);
+}
+
+function calculateMagicPoints(level, classIdOrName, classesDb = CLASSES, tables = SRD_MAGIC_TABLES) {
+  const lv = Math.max(1, Math.min(20, parseInt(level || 1, 10) || 1));
+  const cls = classesDb[classIdOrName]
+    || Object.values(classesDb).find((entry) => entry?.id === classIdOrName)
+    || null;
+
+  if (!cls || !cls.magic_points || !cls.magic_points.enabled) return 0;
+
+  const startsAt = parseInt(cls.magic_points.starts_at_level || 1, 10) || 1;
+  if (lv < startsAt) return 0;
+
+  const tableId = cls.magic_points.table_id || "universal_base";
+  const table = tables?.[tableId] || {};
+  const base = parseInt(table[String(lv)] || 0, 10) || 0;
+  const multiplier = Number(cls.magic_points.multiplier ?? 1);
+
+  return Math.max(0, Math.floor(base * multiplier));
+}
+
+function getMagicPointCostByCircle(circle) {
+  const c = Math.max(0, Math.min(9, parseInt(circle || 0, 10) || 0));
+  return parseInt(SRD_MAGIC_RULES?.cost_by_circle?.[String(c)] ?? c, 10) || 0;
+}
+
+async function loadSrdDatabasesIntoUi() {
+  try {
+    const [racesResp, classesResp, srdResp] = await Promise.all([
+      fetch("data/generated/races.db.json"),
+      fetch("data/generated/classes.db.json"),
+      fetch("data/rpg_srd_base.json"),
+    ]);
+
+    if (!racesResp.ok || !classesResp.ok || !srdResp.ok) return;
+
+    const racesFromSeed = await racesResp.json();
+    const classesFromSeed = await classesResp.json();
+    const srdData = await srdResp.json();
+
+    const classesByName = Object.fromEntries(
+      (srdData.classes || []).map((cls) => [cls.nome, cls])
+    );
+
+    Object.entries(classesFromSeed).forEach(([className, cls]) => {
+      const full = classesByName[className];
+      classesFromSeed[className] = {
+        ...cls,
+        magic_points: full?.magic_points || { enabled: false },
+      };
+    });
+
+    RACES = racesFromSeed;
+    CLASSES = classesFromSeed;
+
+    if (srdData.magic_point_rules) SRD_MAGIC_RULES = srdData.magic_point_rules;
+    if (srdData.magic_point_tables) SRD_MAGIC_TABLES = srdData.magic_point_tables;
+  } catch (err) {
+    console.warn("Falha ao carregar bancos SRD gerados; usando fallback local.", err);
+  }
+}
 
 
 const BACKGROUNDS = {
@@ -1339,14 +1419,15 @@ function pushAction(user, text) {
   pushChat(user, "* " + text);
 }
 
-function pushSpellCastMessage(user, playerName, spell, slotLevel, rollText, detailsText) {
-  const castText = `${playerName} conjurou ${spell.icon || "✨"} ${spell.name} usando 1 slot de nível ${slotLevel}.`;
+function pushSpellCastMessage(user, playerName, spell, slotLevel, rollText, detailsText, spentPoints = 0) {
+  const castText = `${playerName} conjurou ${spell.icon || "✨"} ${spell.name} (círculo ${slotLevel}, custo ${spentPoints} PM).`;
   pushChat(user, `* ${castText}`, {
     spellCast: {
       spell,
       slotLevel,
       rollText,
       detailsText,
+      spentPoints,
     },
   });
 }
@@ -1417,18 +1498,18 @@ function castSpellForPlayer(playerName, spellId) {
   const spell = (p.customSpells || []).find((s) => s.id === spellId);
   if (!spell) return;
 
-  const slotIndex = Math.max(0, (spell.level || 1) - 1);
-  const current = p.spellcasting.slotsCurrent[slotIndex] ?? 0;
-  if (current <= 0) {
-    alert(`Sem slots de nível ${spell.level} disponíveis.`);
+  const spellCircle = Math.max(0, Math.min(9, parseInt(spell.level || 0, 10) || 0));
+  const pointCost = getMagicPointCostByCircle(spellCircle);
+  if ((p.mana || 0) < pointCost) {
+    alert(`PM insuficiente. Custo: ${pointCost}, atual: ${p.mana || 0}.`);
     return;
   }
 
-  p.spellcasting.slotsCurrent[slotIndex] = current - 1;
+  p.mana = Math.max(0, (p.mana || 0) - pointCost);
   save(data);
 
   const { rollText, detailsText } = resolveSpellAutoRoll(spell);
-  pushSpellCastMessage(currentUser, playerName, spell, spell.level, rollText, detailsText);
+  pushSpellCastMessage(currentUser, playerName, spell, spellCircle, rollText, detailsText, pointCost);
 
   if (grimoireTargetName === playerName) renderGrimoire(p);
   updateArena();
@@ -2130,8 +2211,8 @@ function recalcFromSheet(p) {
 
   p.attributeMods = mods;
 
-  let hpMax = 10 + (mods.con + 2) * 3 + cls.hpMod + (level - 1) * 2;
-  let manaMax = 5 + (mods.int + mods.wis + 2) * 2 + cls.manaMod + (level - 1) * 2;
+  let hpMax = calculateHitPointsFromClass(level, mods.con, cls);
+  let manaMax = calculateMagicPoints(level, p.class);
 
   if (p.race === "Anao") hpMax += level * 2;
 
@@ -2963,7 +3044,7 @@ function openGrimoire(name) {
 
   grimoireTargetName = name;
   document.getElementById("grimoireTitle").textContent = `Grimório — ${name}`;
-  document.getElementById("grimoireSub").textContent = "Crie magias homebrew por pontos e use slots por nível.";
+  document.getElementById("grimoireSub").textContent = "Crie magias homebrew por pontos e conjure usando PM por círculo.";
   document.getElementById("grimoireOverlay").style.display = "flex";
 
   setupGrimoireFormDefaults();
@@ -3042,12 +3123,12 @@ function renderSpellMeta(p) {
 
 function renderSpellSlots(p) {
   const wrap = document.getElementById("grimoireSlots");
-  const rows = (p.spellcasting?.slotsMax || []).map((max, idx) => {
-    const current = p.spellcasting?.slotsCurrent?.[idx] ?? max;
-    const lvl = idx + 1;
-    return `<div class="kv"><span>Slot nível ${lvl}</span><strong>${current}/${max}</strong></div>`;
-  });
-  wrap.innerHTML = rows.join("") || '<div style="opacity:.7">Sem slots.</div>';
+  const rows = [];
+  rows.push(`<div class="kv"><span>PM atual</span><strong>${p.mana || 0}/${p.manaMax || 0}</strong></div>`);
+  for (let circle = 0; circle <= 9; circle += 1) {
+    rows.push(`<div class="kv"><span>Custo círculo ${circle}</span><strong>${getMagicPointCostByCircle(circle)} PM</strong></div>`);
+  }
+  wrap.innerHTML = rows.join("");
 }
 
 function renderSpellEffectsCatalog() {
@@ -3927,19 +4008,24 @@ if (logoutBtn) {
 }
 
 /* ================= INIT ================= */
-createGrid();
-applySceneCSS();
-updateArena();
-setDiceTrayOpen(false);
-initChatComposer();
-updateChat();
-updateCreateCharacterButtonState();
-loadShopCatalogs().then(() => {
-  if (!invTargetName) return;
-  const p = load().rooms[room][invTargetName];
-  if (!p) return;
-  renderShop(p);
-});
+async function initApp() {
+  await loadSrdDatabasesIntoUi();
+  createGrid();
+  applySceneCSS();
+  updateArena();
+  setDiceTrayOpen(false);
+  initChatComposer();
+  updateChat();
+  updateCreateCharacterButtonState();
+  loadShopCatalogs().then(() => {
+    if (!invTargetName) return;
+    const p = load().rooms[room][invTargetName];
+    if (!p) return;
+    renderShop(p);
+  });
+}
+
+initApp();
 
 /* realtime local */
 window.addEventListener("storage", () => {
