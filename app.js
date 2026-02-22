@@ -37,6 +37,30 @@ function getLoggedAccount() {
   return { email, account: acc };
 }
 
+function findOwnedCharacterEntry(email = currentAccountEmail) {
+  const normalizedOwner = normalizeEmail(email);
+  if (!normalizedOwner) return null;
+  const players = load().rooms?.[room] || {};
+  for (const [name, player] of Object.entries(players)) {
+    if (normalizeEmail(player?.owner || "") === normalizedOwner) {
+      return { name, player };
+    }
+  }
+  return null;
+}
+
+function updateCreateCharacterButtonState() {
+  const createBtn = document.getElementById("createCharacterQuickToggle");
+  if (!createBtn) return;
+  const ownedCharacter = findOwnedCharacterEntry();
+  const hasAccount = !!normalizeEmail(currentAccountEmail);
+  createBtn.disabled = !hasAccount || !!ownedCharacter;
+  createBtn.textContent = ownedCharacter ? "✅ Personagem criado" : "✨ Criar personagem";
+  createBtn.title = ownedCharacter
+    ? "Você já criou um personagem nesta sala"
+    : "Criar seu personagem";
+}
+
 const START_AVATARS = [
   { type: "emoji", value: "🧙" },
   { type: "emoji", value: "⚔️" },
@@ -179,7 +203,7 @@ function initAuth() {
 
     overlay.classList.add("hidden");
     initCharacterSetup();
-    ensureCurrentUserRecord();
+    updateCreateCharacterButtonState();
     updateArena();
     updateChat();
   };
@@ -247,15 +271,13 @@ function initAuth() {
   });
 }
 
-function initCharacterSetup() {
+function initCharacterSetup(forceOpen = false) {
   const overlay = document.getElementById("characterSetup");
   if (!overlay) return;
 
   const nameInput = document.getElementById("setupName");
   const raceWrap = document.getElementById("setupRaceOptions");
   const classWrap = document.getElementById("setupClassOptions");
-  const legacyRaceSelect = document.getElementById("setupRace");
-  const legacyClassSelect = document.getElementById("setupClass");
   const avatarWrap = document.getElementById("setupAvatarOptions");
   const characterWrap = document.getElementById("setupCharacterOptions");
   const useSpriteInput = document.getElementById("setupUseSprite");
@@ -282,11 +304,30 @@ function initCharacterSetup() {
 
   if (!currentAccountEmail) {
     overlay.classList.add("hidden");
+    updateCreateCharacterButtonState();
     return;
   }
 
   const raceOptions = Object.keys(RACES);
   const classOptions = Object.keys(CLASSES);
+  const ownedEntry = findOwnedCharacterEntry(currentAccountEmail);
+
+  if (ownedEntry) {
+    currentUser = ownedEntry.name;
+    currentAvatar = normalizeAvatar(ownedEntry.player.avatar || currentAvatar);
+    document.getElementById("meName").textContent = currentUser;
+
+    if (!forceOpen) {
+      overlay.classList.add("hidden");
+      updateCreateCharacterButtonState();
+      return;
+    }
+
+    alert("Você já possui um personagem criado nesta sala.");
+    overlay.classList.add("hidden");
+    updateCreateCharacterButtonState();
+    return;
+  }
 
   nameInput.value = currentUser;
 
@@ -309,22 +350,7 @@ function initCharacterSetup() {
 
   selectedAvatar = resolveAvatarFromTemplate();
 
-  const syncLegacySelects = () => {
-    if (legacyRaceSelect) legacyRaceSelect.value = selectedRace;
-    if (legacyClassSelect) legacyClassSelect.value = selectedClass;
-  };
-
   function renderRaceButtons() {
-    if (!raceWrap) {
-      if (legacyRaceSelect) {
-        legacyRaceSelect.innerHTML = raceOptions
-          .map((raceName) => `<option value="${raceName}">${raceName}</option>`)
-          .join("");
-        legacyRaceSelect.value = selectedRace;
-      }
-      return;
-    }
-
     raceWrap.innerHTML = "";
     raceOptions.forEach((raceName) => {
       const btn = document.createElement("button");
@@ -334,7 +360,6 @@ function initCharacterSetup() {
       btn.onclick = () => {
         selectedRace = raceName;
         selectedTemplateId = "";
-        syncLegacySelects();
         renderRaceButtons();
         renderCharacterTemplates();
       };
@@ -343,16 +368,6 @@ function initCharacterSetup() {
   }
 
   function renderClassButtons() {
-    if (!classWrap) {
-      if (legacyClassSelect) {
-        legacyClassSelect.innerHTML = classOptions
-          .map((className) => `<option value="${className}">${className}</option>`)
-          .join("");
-        legacyClassSelect.value = selectedClass;
-      }
-      return;
-    }
-
     classWrap.innerHTML = "";
     classOptions.forEach((className) => {
       const btn = document.createElement("button");
@@ -362,7 +377,6 @@ function initCharacterSetup() {
       btn.onclick = () => {
         selectedClass = className;
         selectedTemplateId = "";
-        syncLegacySelects();
         renderClassButtons();
         renderCharacterTemplates();
       };
@@ -383,7 +397,6 @@ function initCharacterSetup() {
         selectedRace = template.race;
         selectedClass = template.className;
         selectedAvatar = resolveAvatarFromTemplate();
-        syncLegacySelects();
         renderCharacterTemplates();
         renderRaceButtons();
         renderClassButtons();
@@ -420,17 +433,14 @@ function initCharacterSetup() {
     };
   }
 
-  syncLegacySelects();
   renderRaceButtons();
   renderClassButtons();
   renderCharacterTemplates();
   renderAvatars();
 
-  const existingPlayer = load().rooms?.[room]?.[currentUser];
-  if (existingPlayer) {
+  if (!forceOpen) {
     overlay.classList.add("hidden");
-    ensurePlayerSchema(existingPlayer);
-    if (existingPlayer.avatar) currentAvatar = normalizeAvatar(existingPlayer.avatar);
+    updateCreateCharacterButtonState();
     return;
   }
   overlay.classList.remove("hidden");
@@ -441,12 +451,29 @@ function initCharacterSetup() {
     chosenClass = selectedClass,
     chosenAvatar = selectedAvatar || "🧙",
   } = {}) => {
-    currentUser = chosenName;
+    const lockedOwner = findOwnedCharacterEntry(currentAccountEmail);
+    if (lockedOwner) {
+      alert("Você já possui um personagem criado nesta sala.");
+      overlay.classList.add("hidden");
+      updateCreateCharacterButtonState();
+      return;
+    }
+
+    const players = load().rooms?.[room] || {};
+    const normalizedName = chosenName.trim() || "Jogador";
+    const existingByName = players[normalizedName];
+    if (existingByName && normalizeEmail(existingByName.owner || "") !== normalizeEmail(currentAccountEmail)) {
+      alert("Esse nome já está em uso por outro jogador. Escolha outro nome.");
+      return;
+    }
+
+    currentUser = normalizedName;
     currentAvatar = normalizeAvatar(chosenAvatar);
     pendingCharacterSetup = {
       race: chosenRace,
       className: chosenClass,
       avatar: currentAvatar,
+      owner: normalizeEmail(currentAccountEmail),
     };
 
     localStorage.setItem(LAST_LOGIN_KEY, currentUser);
@@ -463,14 +490,24 @@ function initCharacterSetup() {
       }
     }
 
-    ensureCurrentUserRecord({ race: chosenRace, className: chosenClass, avatar: currentAvatar });
+    ensureCurrentUserRecord({
+      race: chosenRace,
+      className: chosenClass,
+      avatar: currentAvatar,
+      owner: normalizeEmail(currentAccountEmail),
+    });
     updateArena();
     updateChat();
     overlay.classList.add("hidden");
+    updateCreateCharacterButtonState();
   };
 
   startBtn.onclick = () => finishSetup();
 }
+
+window.openCharacterCreator = function openCharacterCreator() {
+  initCharacterSetup(true);
+};
 
 
 /* ================= SCENE DEFAULT ================= */
@@ -2154,7 +2191,7 @@ function ensureCurrentUserRecord(setup = null) {
       class: setup?.className || pendingCharacterSetup?.className || "Guerreiro",
       background: "Nenhum",
       level: 1,
-      owner: "",
+      owner: setup?.owner || normalizeEmail(currentAccountEmail) || "",
       attributeScores: defaultAttributeScores(),
       attributeMods: defaultAttributeMods(),
       skillProficiencies: [],
@@ -2171,6 +2208,7 @@ function ensureCurrentUserRecord(setup = null) {
     data.rooms[room][currentUser].race = setup.race || data.rooms[room][currentUser].race;
     data.rooms[room][currentUser].class = setup.className || data.rooms[room][currentUser].class;
     data.rooms[room][currentUser].avatar = normalizeAvatar(setup.avatar || data.rooms[room][currentUser].avatar);
+    data.rooms[room][currentUser].owner = setup.owner || data.rooms[room][currentUser].owner || normalizeEmail(currentAccountEmail) || "";
   }
 
   ensurePlayerSchema(data.rooms[room][currentUser]);
@@ -3915,6 +3953,7 @@ updateArena();
 setDiceTrayOpen(false);
 initChatComposer();
 updateChat();
+updateCreateCharacterButtonState();
 loadShopCatalogs().then(() => {
   if (!invTargetName) return;
   const p = load().rooms[room][invTargetName];
