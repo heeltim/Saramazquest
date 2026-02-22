@@ -1855,8 +1855,39 @@ kbd {
     grid-template-columns: 1fr;
     padding-right: 0;
   }
+
+  .sheetDnaGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sheetDnaGrid .classField,
+  .sheetDnaGrid .field:last-child {
+    grid-column: span 1;
+  }
 }
 
+
+.sheetDnaSummaryCard {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 10px;
+}
+.sheetDnaSummary .kv strong {
+  text-align: right;
+}
+.modalDna {
+  max-width: 820px;
+}
+.sheetDnaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.sheetDnaGrid .classField,
+.sheetDnaGrid .field:last-child {
+  grid-column: span 2;
+}
 .classFieldHeader {
   display: flex;
   align-items: center;

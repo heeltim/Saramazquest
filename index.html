@@ -310,6 +310,7 @@
             <div id="sheetSub" class="modalSub"></div>
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn" onclick="openSheetDna()">🧬 DNA</button>
             <button class="btn" onclick="openGrimoire(sheetTargetName)">📖 Abrir Grimório</button>
             <button class="btn" onclick="closeSheet()">Fechar</button>
           </div>
@@ -317,40 +318,9 @@
 
         <div class="sheetColumns">
           <div class="panel">
-            <div class="field">
-              <label>Controlador (jogador)</label>
-              <input id="sheetOwner" placeholder="Ex: Helton" />
+            <div style="font-weight: 900; margin-bottom: 8px">
+              Status do personagem
             </div>
-            <div class="field">
-              <label>Raça</label>
-              <select id="sheetRace"></select>
-            </div>
-            <div class="field classField">
-              <div class="classFieldHeader">
-                <label>Classe</label>
-                <button type="button" id="addSheetClassBtn" class="smallBtn">＋</button>
-              </div>
-              <div id="sheetClassRows" class="classRows"></div>
-              <div class="classTotalLevelRow">
-                <span>Nível total</span>
-                <input id="sheetLevel" type="number" min="1" max="20" step="1" readonly />
-              </div>
-            </div>
-            <div class="field">
-              <label>Background</label>
-              <textarea id="sheetBackground" rows="2" placeholder="Resumo breve da história do personagem"></textarea>
-            </div>
-
-            <div style="font-weight: 900; margin: 10px 0 8px">
-              Equipados (vem do Inventário)
-            </div>
-            <div id="equipSlots"></div>
-            <div style="opacity: 0.7; font-size: 12px; margin-top: 8px">
-              Para comprar/trocar/usar itens: abra o 🎒 Inventário.
-            </div>
-          </div>
-
-          <div class="panel">
             <div class="sheetHeroCard">
               <div id="sheetAvatarBadge" class="sheetAvatarBadge">🧙</div>
               <div class="sheetHeroInfo">
@@ -381,9 +351,6 @@
               <div class="kv"><span>Prof.</span><strong id="statProf">-</strong></div>
               <div class="kv"><span>Defesa</span><strong id="statDEF">-</strong></div>
             </div>
-
-            <div style="font-weight: 900; margin: 10px 0 8px">Point Buy <span id="pointBuyUsed">0/27</span></div>
-            <div id="sheetPointBuy" class="pointBuyGrid"></div>
 
             <div
               style="
@@ -421,7 +388,19 @@
           </div>
 
           <div class="panel">
-            <details open>
+            <div class="sheetDnaSummaryCard">
+              <div style="font-weight:900; margin-bottom:8px">Resumo DNA</div>
+              <div id="sheetDnaSummary" class="sheetDnaSummary"></div>
+            </div>
+
+            <details style="margin-top:10px">
+              <summary class="sectionSummary">Equipados</summary>
+              <div id="equipSlots"></div>
+              <div style="opacity: 0.7; font-size: 12px; margin-top: 8px">
+                Para comprar/trocar/usar itens: abra o 🎒 Inventário.
+              </div>
+            </details>
+            <details style="margin-top:10px">
               <summary class="sectionSummary">Perícias</summary>
               <div id="sheetSkills" class="skillsList"></div>
             </details>
@@ -435,6 +414,53 @@
         <div class="sheetActions">
           <button class="btn" onclick="closeSheet()">Cancelar</button>
           <button class="btn btnPrimary" onclick="saveSheet()">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal DNA -->
+    <div id="sheetDnaOverlay" class="modalOverlay">
+      <div class="modal modalDna">
+        <div class="modalHeader">
+          <div>
+            <h3 class="modalTitle">DNA do Personagem</h3>
+            <div class="modalSub">Ajustes editáveis de origem e progressão.</div>
+          </div>
+          <button class="btn" onclick="closeSheetDna()">Fechar</button>
+        </div>
+
+        <div class="sheetDnaGrid">
+          <div class="field">
+            <label>Controlador (jogador)</label>
+            <input id="sheetOwner" placeholder="Ex: Helton" />
+          </div>
+          <div class="field">
+            <label>Raça</label>
+            <select id="sheetRace"></select>
+          </div>
+          <div class="field classField">
+            <div class="classFieldHeader">
+              <label>Classe</label>
+              <button type="button" id="addSheetClassBtn" class="smallBtn">＋</button>
+            </div>
+            <div id="sheetClassRows" class="classRows"></div>
+            <div class="classTotalLevelRow">
+              <span>Nível total</span>
+              <input id="sheetLevel" type="number" min="1" max="20" step="1" readonly />
+            </div>
+          </div>
+          <div class="field">
+            <label>Background</label>
+            <textarea id="sheetBackground" rows="2" placeholder="Resumo breve da história do personagem"></textarea>
+          </div>
+        </div>
+
+        <div style="font-weight: 900; margin: 10px 0 8px">Point Buy <span id="pointBuyUsed">0/27</span></div>
+        <div id="sheetPointBuy" class="pointBuyGrid"></div>
+
+        <div class="sheetActions">
+          <button class="btn" onclick="closeSheetDna()">Cancelar</button>
+          <button class="btn btnPrimary" onclick="saveSheetDna()">Salvar DNA</button>
         </div>
       </div>
     </div>
