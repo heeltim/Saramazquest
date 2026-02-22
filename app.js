@@ -286,6 +286,8 @@ function initCharacterSetup() {
     return selectedUseSprite ? createSpriteAvatar(getAvatarEmoji(selectedAvatar)) : getAvatarEmoji(selectedAvatar);
   };
 
+  selectedAvatar = resolveAvatarFromTemplate();
+
   function renderRaceButtons() {
     raceWrap.innerHTML = "";
     raceOptions.forEach((raceName) => {
@@ -295,7 +297,9 @@ function initCharacterSetup() {
       btn.textContent = raceName;
       btn.onclick = () => {
         selectedRace = raceName;
+        selectedTemplateId = "";
         renderRaceButtons();
+        renderCharacterTemplates();
       };
       raceWrap.appendChild(btn);
     });
@@ -310,7 +314,9 @@ function initCharacterSetup() {
       btn.textContent = className;
       btn.onclick = () => {
         selectedClass = className;
+        selectedTemplateId = "";
         renderClassButtons();
+        renderCharacterTemplates();
       };
       classWrap.appendChild(btn);
     });
