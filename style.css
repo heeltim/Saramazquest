@@ -1278,6 +1278,17 @@ select option {
   border-radius: 12px;
   padding: 8px 10px;
 }
+.abilityItem.isRace {
+  border-color: var(--race-accent-border, rgba(255, 255, 255, 0.25));
+  background: linear-gradient(180deg, var(--race-accent-bg, rgba(255, 255, 255, 0.04)), rgba(255, 255, 255, 0.02));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--race-accent-border, rgba(255, 255, 255, 0.25)) 30%, transparent);
+}
+.abilityItem.isRace.isAction:hover,
+.abilityItem.isRace.isAction:focus-visible {
+  border-color: var(--race-accent-border, rgba(255, 255, 255, 0.65));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--race-accent-bg, rgba(255, 255, 255, 0.08)) 80%, transparent), rgba(255, 255, 255, 0.04));
+  box-shadow: 0 0 0 1px var(--race-accent-glow, rgba(255, 255, 255, 0.18));
+}
 .abilityItem.isAction {
   cursor: pointer;
   transition: border-color 0.12s ease, background 0.12s ease;
