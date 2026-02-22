@@ -312,8 +312,8 @@ function initCharacterSetup(forceOpen = false) {
 
   nameInput.value = currentUser;
 
-  let selectedRace = raceOptions.includes("Humano") ? "Humano" : raceOptions[0] || "Humano";
-  let selectedClass = classOptions.includes("Guerreiro") ? "Guerreiro" : classOptions[0] || "Guerreiro";
+  let selectedRace = raceOptions[0] || "Humano";
+  let selectedClass = classOptions[0] || "Guerreiro";
   let selectedTemplateId = CHARACTER_TEMPLATES[0]?.id || "";
   let selectedAvatar = normalizeAvatar(currentAvatar);
   let selectedUseSprite = isIconAvatar(selectedAvatar) || isSpriteAvatar(selectedAvatar);
@@ -567,7 +567,7 @@ const SKILLS = [
 ];
 
 /* ================= BANCO: RAÇAS / CLASSES ================= */
-const RACES = {
+const LEGACY_RACES = {
   Humano: {
     abilityBonuses: [
       { ability: "str", modDelta: 1 },
@@ -634,7 +634,7 @@ const RACES = {
   },
 };
 
-const CLASSES = {
+const LEGACY_CLASSES = {
   Guerreiro: {
     primaryAbilities: ["str", "con"],
     savingThrowProficiencies: ["str", "con"],
@@ -708,6 +708,119 @@ const CLASSES = {
     ],
   },
 };
+
+let RACES = structuredClone(LEGACY_RACES);
+let CLASSES = structuredClone(LEGACY_CLASSES);
+
+const ABILITY_ID_MAP = {
+  forca: "str",
+  força: "str",
+  str: "str",
+  destreza: "dex",
+  dex: "dex",
+  constituicao: "con",
+  constituição: "con",
+  con: "con",
+  inteligencia: "int",
+  inteligência: "int",
+  int: "int",
+  sabedoria: "wis",
+  wis: "wis",
+  carisma: "cha",
+  cha: "cha",
+};
+
+function normalizeAbilityId(value) {
+  const key = String(value || "")
+    .trim()
+    .toLowerCase();
+  return ABILITY_ID_MAP[key] || key;
+}
+
+function normalizeAbilityEntry(entry, idx, sourceType, sourceName) {
+  const icon = String(entry?.icon || (sourceType === "race" ? "🧬" : "⚙️")).trim() || "✨";
+  const name = String(entry?.name || `Habilidade ${idx + 1}`).trim();
+  return {
+    id: String(entry?.id || `${sourceType}_${sourceName}_${idx}`),
+    icon,
+    name,
+    desc: String(entry?.desc || "Sem descrição.").trim(),
+    manaCost: parseInt(entry?.manaCost || 0, 10) || 0,
+    passive: Boolean(entry?.passive),
+    sourceType,
+    sourceName,
+    level: parseInt(entry?.level, 10) || 1,
+  };
+}
+
+function normalizeRaceDatabase(raw = {}) {
+  const normalized = {};
+  Object.entries(raw || {}).forEach(([raceName, raceData]) => {
+    const safeRaceName = String(raceName || "").trim();
+    if (!safeRaceName) return;
+
+    normalized[safeRaceName] = {
+      id: String(raceData?.id || safeRaceName.toLowerCase()),
+      abilityBonuses: Array.isArray(raceData?.abilityBonuses)
+        ? raceData.abilityBonuses
+            .map((bonus) => ({
+              ability: normalizeAbilityId(bonus?.ability),
+              modDelta: parseInt(bonus?.modDelta || 0, 10) || 0,
+            }))
+            .filter((bonus) => ATTRIBUTES.some((attr) => attr.id === bonus.ability))
+        : [],
+      abilities: Array.isArray(raceData?.abilities)
+        ? raceData.abilities.map((ability, idx) => normalizeAbilityEntry(ability, idx, "race", safeRaceName))
+        : [],
+    };
+  });
+  return normalized;
+}
+
+function normalizeClassDatabase(raw = {}) {
+  const normalized = {};
+  Object.entries(raw || {}).forEach(([className, classData]) => {
+    const safeClassName = String(className || "").trim();
+    if (!safeClassName) return;
+
+    normalized[safeClassName] = {
+      id: String(classData?.id || safeClassName.toLowerCase()),
+      primaryAbilities: Array.isArray(classData?.primaryAbilities)
+        ? classData.primaryAbilities.map(normalizeAbilityId).filter((ability) => ATTRIBUTES.some((attr) => attr.id === ability))
+        : [],
+      savingThrowProficiencies: Array.isArray(classData?.savingThrowProficiencies)
+        ? classData.savingThrowProficiencies
+            .map(normalizeAbilityId)
+            .filter((ability) => ATTRIBUTES.some((attr) => attr.id === ability))
+        : [],
+      skillChoices: classData?.skillChoices || null,
+      hpMod: parseInt(classData?.hpMod || 0, 10) || 0,
+      manaMod: parseInt(classData?.manaMod || 0, 10) || 0,
+      abilities: Array.isArray(classData?.abilities)
+        ? classData.abilities.map((ability, idx) => normalizeAbilityEntry(ability, idx, "class", safeClassName))
+        : [],
+    };
+  });
+  return normalized;
+}
+
+async function loadRpgDatabases() {
+  try {
+    const [racesResp, classesResp] = await Promise.all([
+      fetch("data/generated/races.db.json", { cache: "no-store" }),
+      fetch("data/generated/classes.db.json", { cache: "no-store" }),
+    ]);
+    if (!racesResp.ok || !classesResp.ok) return;
+
+    const [racesRaw, classesRaw] = await Promise.all([racesResp.json(), classesResp.json()]);
+    const racesFromDb = normalizeRaceDatabase(racesRaw);
+    const classesFromDb = normalizeClassDatabase(classesRaw);
+    if (Object.keys(racesFromDb).length) RACES = racesFromDb;
+    if (Object.keys(classesFromDb).length) CLASSES = classesFromDb;
+  } catch (_) {
+    // fallback para banco legado local
+  }
+}
 
 
 const BACKGROUNDS = {
@@ -1232,8 +1345,8 @@ function ensurePlayerSchema(p) {
   if (p.mana === undefined) p.mana = 50;
   if (p.manaMax === undefined) p.manaMax = 50;
 
-  if (p.race === undefined) p.race = "Humano";
-  if (p.class === undefined) p.class = "Guerreiro";
+  if (p.race === undefined) p.race = Object.keys(RACES)[0] || "Humano";
+  if (p.class === undefined) p.class = Object.keys(CLASSES)[0] || "Guerreiro";
   if (p.background === undefined) p.background = "Nenhum";
   if (p.level === undefined) p.level = 1;
   if (p.owner === undefined) p.owner = "";
@@ -2097,8 +2210,10 @@ function ensureMageFreeWeapon(p) {
 }
 
 function recalcFromSheet(p) {
-  const race = RACES[p.race] || RACES.Humano;
-  const cls = CLASSES[p.class] || CLASSES.Guerreiro;
+  const defaultRaceName = Object.keys(RACES)[0];
+  const defaultClassName = Object.keys(CLASSES)[0];
+  const race = RACES[p.race] || RACES[defaultRaceName] || LEGACY_RACES.Humano;
+  const cls = CLASSES[p.class] || CLASSES[defaultClassName] || LEGACY_CLASSES.Guerreiro;
   const bg = BACKGROUNDS[p.background] || BACKGROUNDS.Nenhum;
 
   let level = parseInt(p.level, 10);
@@ -2133,7 +2248,7 @@ function recalcFromSheet(p) {
   let hpMax = 10 + (mods.con + 2) * 3 + cls.hpMod + (level - 1) * 2;
   let manaMax = 5 + (mods.int + mods.wis + 2) * 2 + cls.manaMod + (level - 1) * 2;
 
-  if (p.race === "Anao") hpMax += level * 2;
+  if (String(p.race || "").toLowerCase().includes("anão da colina") || p.race === "Anao") hpMax += level * 2;
 
   hpMax += itemMods.hpMax;
   manaMax += itemMods.manaMax;
@@ -2170,8 +2285,8 @@ function ensureCurrentUserRecord(setup = null) {
       hpMax: 100,
       mana: 50,
       manaMax: 50,
-      race: setup?.race || pendingCharacterSetup?.race || "Humano",
-      class: setup?.className || pendingCharacterSetup?.className || "Guerreiro",
+      race: setup?.race || pendingCharacterSetup?.race || Object.keys(RACES)[0] || "Humano",
+      class: setup?.className || pendingCharacterSetup?.className || Object.keys(CLASSES)[0] || "Guerreiro",
       background: "Nenhum",
       level: 1,
       owner: setup?.owner || normalizeEmail(currentAccountEmail) || "",
@@ -2200,7 +2315,10 @@ function ensureCurrentUserRecord(setup = null) {
 }
 
 
-initAuth();
+loadRpgDatabases().finally(() => {
+  ensureAllPlayersSchema();
+  initAuth();
+});
 
 /* ================= GRID ================= */
 const arena = document.getElementById("arena");
@@ -2802,19 +2920,22 @@ function renderAbilities(p) {
   const skills = p.skills || [];
   list.innerHTML = skills
     .map(
-      (a, idx) => `
+      (a, idx) => {
+        const isPassive = Boolean(a.passive);
+        return `
     <div class="ability">
       <div class="abilityIcon">${a.icon}</div>
       <div style="flex:1;">
-        <div class="abilityName">${a.name}</div>
+        <div class="abilityName">${a.name}${isPassive ? ' <small style="opacity:.75;">(Passiva)</small>' : ""}</div>
         <div class="abilityDesc">${a.desc}</div>
         <div class="abilityMeta">
           <span>${a.manaCost ? `Custo: <strong>${a.manaCost} MP</strong>` : `Custo: <strong>0 MP</strong>`}</span>
-          <button class="smallBtn smallBtnPrimary" onclick="useAbility(${idx})">Usar</button>
+          <button class="smallBtn smallBtnPrimary" onclick="useAbility(${idx})" ${isPassive ? "disabled" : ""}>${isPassive ? "Passiva" : "Usar"}</button>
         </div>
       </div>
     </div>
-  `,
+  `;
+      },
     )
     .join("");
 }
@@ -2830,7 +2951,7 @@ function useAbility(skillIndex) {
 
   const skills = p.skills || [];
   const a = skills[skillIndex];
-  if (!a) return;
+  if (!a || a.passive) return;
 
   const cost = parseInt(a.manaCost || 0, 10) || 0;
   if (cost > 0 && p.mana < cost) {
@@ -2841,10 +2962,28 @@ function useAbility(skillIndex) {
   p.mana = Math.max(0, p.mana - cost);
   save(data);
 
-  pushAction(
-    currentUser,
-    `${sheetTargetName} usou ${a.icon} ${a.name}${cost > 0 ? ` (-${cost} MP)` : ""}.`,
-  );
+  pushChat(currentUser, `* ${sheetTargetName} ativou ${a.icon} ${a.name}.`, {
+    spellCast: {
+      spell: {
+        icon: a.icon || "✨",
+        name: a.name,
+        level: a.level || 1,
+        description: a.desc || "",
+        school: a.sourceType === "race" ? "Habilidade Racial" : "Habilidade de Classe",
+        castingTime: "Ação",
+        range: "—",
+        components: [],
+        duration: "Instantâneo",
+        effects: [],
+      },
+      slotLevel: 0,
+      rollText: null,
+      detailsText: [
+        a.sourceType === "race" ? "Origem: Raça" : "Origem: Classe",
+        cost > 0 ? `Custo: ${cost} MP` : "Sem custo de mana",
+      ].join(" • "),
+    },
+  });
   updateArena();
 
   renderSheetComputed(p);
