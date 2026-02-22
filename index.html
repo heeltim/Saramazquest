@@ -316,49 +316,49 @@
         </div>
 
         <div class="sheetColumns">
-          <div class="panel">
-            <div style="font-weight: 900; margin-bottom: 8px">
-              Status do personagem
-            </div>
-            <div class="sheetHeroCard">
-              <div id="sheetAvatarBadge" class="sheetAvatarBadge">🧙</div>
-              <div class="sheetHeroInfo">
-                <strong id="sheetHeroName">Personagem</strong>
-                <small id="sheetHeroClass">Classe</small>
+          <div class="panel panelStack">
+            <div class="sheetBlock">
+              <div class="sheetBlockTitle">Status do personagem</div>
+              <div class="sheetHeroCard">
+                <div id="sheetAvatarBadge" class="sheetAvatarBadge">🧙</div>
+                <div class="sheetHeroInfo">
+                  <strong id="sheetHeroName">Personagem</strong>
+                  <small id="sheetHeroClass">Classe</small>
+                </div>
               </div>
             </div>
 
-            <div class="resourceBlocks">
-              <div class="resourceBlock">
-                <div class="resourceHead"><span>Vida</span><strong id="statHPNow">-</strong><small>/ <span id="statHPMax">-</span></small></div>
-                <div class="resourceBar"><div id="sheetHpFill" class="resourceFill hp"></div></div>
-              </div>
-              <div class="resourceBlock">
-                <div class="resourceHead"><span>Magia</span><strong id="statMPNow">-</strong><small>/ <span id="statMPMax">-</span></small></div>
-                <div class="resourceBar"><div id="sheetManaFill" class="resourceFill mana"></div></div>
+            <div class="sheetBlock">
+              <div class="sheetBlockTitle">Vida e magia</div>
+              <div class="resourceComboBlock">
+                <div class="resourceBlock compact">
+                  <div class="resourceHead"><span>Vida</span><strong id="statHPNow">-</strong><small>/ <span id="statHPMax">-</span></small></div>
+                  <div class="resourceBar"><div id="sheetHpFill" class="resourceFill hp"></div></div>
+                </div>
+                <div class="resourceBlock compact">
+                  <div class="resourceHead"><span>Magia</span><strong id="statMPNow">-</strong><small>/ <span id="statMPMax">-</span></small></div>
+                  <div class="resourceBar"><div id="sheetManaFill" class="resourceFill mana"></div></div>
+                </div>
               </div>
             </div>
 
-            <div style="font-weight: 900; margin-bottom: 8px">Atributos (mod)</div>
-            <div class="statGrid">
-              <div class="kv"><span>FOR</span><strong id="statSTR">-</strong></div>
-              <div class="kv"><span>DES</span><strong id="statDEX">-</strong></div>
-              <div class="kv"><span>CON</span><strong id="statCON">-</strong></div>
-              <div class="kv"><span>INT</span><strong id="statINT">-</strong></div>
-              <div class="kv"><span>SAB</span><strong id="statWIS">-</strong></div>
-              <div class="kv"><span>CAR</span><strong id="statCHA">-</strong></div>
-              <div class="kv"><span>Prof.</span><strong id="statProf">-</strong></div>
-              <div class="kv"><span>Defesa</span><strong id="statDEF">-</strong></div>
+            <div class="sheetBlock">
+              <div class="sheetBlockTitle">Atributos (mod)</div>
+              <div class="statGrid compact">
+                <div class="kv"><span>FOR</span><strong id="statSTR">-</strong></div>
+                <div class="kv"><span>DES</span><strong id="statDEX">-</strong></div>
+                <div class="kv"><span>CON</span><strong id="statCON">-</strong></div>
+                <div class="kv"><span>INT</span><strong id="statINT">-</strong></div>
+                <div class="kv"><span>SAB</span><strong id="statWIS">-</strong></div>
+                <div class="kv"><span>CAR</span><strong id="statCHA">-</strong></div>
+                <div class="kv"><span>Prof.</span><strong id="statProf">-</strong></div>
+                <div class="kv"><span>Defesa</span><strong id="statDEF">-</strong></div>
+              </div>
             </div>
 
-            <div
-              style="
-                margin-top: 12px;
-                display: flex;
-                gap: 10px;
-                flex-wrap: wrap;
-              "
-            >
+            <div class="sheetBlock">
+              <div class="sheetBlockTitle">Controles rápidos</div>
+              <div class="sheetControlButtons">
               <button
                 class="smallBtn"
                 onclick="editStat(sheetTargetName, 'hp')"
@@ -383,10 +383,11 @@
               >
                 📖 Grimório
               </button>
+              </div>
             </div>
           </div>
 
-          <div class="panel">
+          <div class="panel panelStack">
             <div class="sheetDnaSummaryCard">
               <div class="sheetDnaSummaryHead">
                 <div style="font-weight:900;">DNA</div>
@@ -395,21 +396,22 @@
               <div id="sheetDnaSummary" class="sheetDnaSummary"></div>
             </div>
 
-            <details style="margin-top:10px">
-              <summary class="sectionSummary">Equipados</summary>
-              <div id="equipSlots"></div>
+            <details class="sheetCompactDetails" style="margin-top:10px">
+              <summary class="sectionSummary">Armaduras e equipamentos</summary>
+              <div id="equipSlots" class="compactEquipList"></div>
               <div style="opacity: 0.7; font-size: 12px; margin-top: 8px">
                 Para comprar/trocar/usar itens: abra o 🎒 Inventário.
               </div>
             </details>
             <details style="margin-top:10px">
-              <summary class="sectionSummary">Habilidades raciais e de classe</summary>
+              <summary class="sectionSummary">Habilidades de classe</summary>
               <div id="sheetAbilities" class="abilities"></div>
             </details>
+            <div id="sheetRacialAbilities" class="abilities abilitiesOutsideCard"></div>
           </div>
 
           <div class="panel">
-            <details open>
+            <details open class="sheetExpandedSection">
               <summary class="sectionSummary">Perícias</summary>
               <div id="sheetSkills" class="skillsList"></div>
             </details>

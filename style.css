@@ -1211,6 +1211,25 @@ body {
   padding: 12px;
   border-radius: 16px;
 }
+.panelStack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sheetBlock {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 13px;
+  padding: 9px;
+}
+.sheetBlockTitle {
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.84;
+  margin-bottom: 7px;
+}
 .sheetColumns {
   margin-top: 12px;
   display: grid;
@@ -1376,11 +1395,18 @@ select option {
   gap: 8px;
   margin-bottom: 12px;
 }
+.resourceComboBlock {
+  display: grid;
+  gap: 6px;
+}
 .resourceBlock {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 12px;
   padding: 8px;
+}
+.resourceBlock.compact {
+  padding: 7px;
 }
 .resourceHead {
   display: flex;
@@ -1430,6 +1456,38 @@ select option {
   grid-template-columns: 1fr 1fr;
   gap: 4px 10px;
 }
+.statGrid.compact .kv {
+  padding: 4px 0;
+}
+.sheetControlButtons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.sheetCompactDetails {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 13px;
+  padding: 8px 9px;
+}
+.sheetCompactDetails > summary {
+  margin-bottom: 4px;
+}
+.compactEquipList .kv {
+  padding: 4px 0;
+  font-size: 11px;
+}
+.compactEquipList .smallBtn {
+  min-width: 28px;
+  padding: 3px 7px;
+  font-size: 12px;
+}
+.abilitiesOutsideCard {
+  margin-top: 10px;
+}
+.sheetExpandedSection {
+  max-height: none;
+}
 .pointBuyGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1456,9 +1514,9 @@ select option {
   display: grid;
   grid-template-columns: 1fr;
   gap: 6px;
-  max-height: 260px;
-  overflow: auto;
-  padding-right: 4px;
+  max-height: none;
+  overflow: visible;
+  padding-right: 0;
 }
 .skillRow {
   display: flex;
