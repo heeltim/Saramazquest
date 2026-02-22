@@ -604,7 +604,7 @@ body {
   position: absolute;
   left: 8%;
   width: 84%;
-  height: 4px;
+  height: 5px;
   background: rgba(255, 255, 255, 0.18);
   border-radius: 999px;
   overflow: hidden;
@@ -1209,7 +1209,8 @@ label {
   opacity: 0.85;
 }
 input,
-select {
+select,
+textarea {
   background: rgba(14, 18, 28, 0.84);
   border: 1px solid rgba(255, 255, 255, 0.16);
   color: white;
@@ -1296,6 +1297,104 @@ select option {
   align-items: center;
 }
 
+
+
+.sheetHeroCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.sheetAvatarBadge {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  overflow: hidden;
+}
+.sheetAvatarBadge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sheetHeroInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.sheetHeroInfo small {
+  opacity: .75;
+}
+.resourceBlocks {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.resourceBlock {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 8px;
+}
+.resourceHead {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+.resourceHead strong {
+  margin-left: auto;
+}
+.resourceHead small {
+  opacity: .72;
+}
+.resourceBar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+.resourceFill {
+  height: 100%;
+  width: 0;
+  transition: width .2s ease;
+}
+.resourceFill.hp { background: var(--hp); }
+.resourceFill.mana { background: var(--mp); }
+.bonusTag {
+  background: rgba(76, 255, 132, 0.2);
+  color: #90ffb7;
+  border: 1px solid rgba(76, 255, 132, 0.35);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+}
+.bonusValue {
+  color: #90ffb7;
+}
+.sectionSummary {
+  cursor: pointer;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+.abilityDetails {
+  margin-top: 4px;
+}
+.abilitySummary {
+  cursor: pointer;
+  font-size: 12px;
+  opacity: .85;
+}
 
 .statGrid {
   display: grid;

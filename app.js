@@ -1339,6 +1339,47 @@ function fmtMod(value) {
   return value >= 0 ? `+${value}` : `${value}`;
 }
 
+function getClassSuggestedSkills(className) {
+  const cls = CLASSES[className] || null;
+  if (!cls || !cls.skillChoices || !Array.isArray(cls.skillChoices.from)) return [];
+  const amount = Math.max(0, parseInt(cls.skillChoices.choose || 0, 10) || 0);
+  return cls.skillChoices.from.slice(0, amount);
+}
+
+function autoApplyClassSkillProficiencies(p) {
+  if (!p) return;
+  if (p.classAutoFilledFor === p.class) return;
+  const suggested = getClassSuggestedSkills(p.class);
+  const current = new Set(p.skillProficiencies || []);
+  suggested.forEach((skillId) => current.add(skillId));
+  p.skillProficiencies = Array.from(current);
+  p.classAutoFilledFor = p.class;
+}
+
+function computeSheetBonusBreakdown(p) {
+  const race = RACES[p.race] || null;
+  const bg = BACKGROUNDS[p.background] || null;
+  const itemMods = computeItemMods(p);
+  const byAttr = { str: [], dex: [], con: [], int: [], wis: [], cha: [] };
+
+  (race?.abilityBonuses || []).forEach((entry) => {
+    if (byAttr[entry.ability]) byAttr[entry.ability].push(`Raça: +${entry.modDelta}`);
+  });
+  (bg?.abilityBonuses || []).forEach((entry) => {
+    if (byAttr[entry.ability]) byAttr[entry.ability].push(`Background: +${entry.modDelta}`);
+  });
+  if (itemMods.str) byAttr.str.push(`Itens: ${fmtMod(itemMods.str)}`);
+  if (itemMods.dex) byAttr.dex.push(`Itens: ${fmtMod(itemMods.dex)}`);
+  if (itemMods.spr) byAttr.wis.push(`Itens: ${fmtMod(itemMods.spr)}`);
+
+  return {
+    byAttr,
+    hpBonus: itemMods.hpMax || 0,
+    manaBonus: itemMods.manaMax || 0,
+    defenseBonus: itemMods.defense || 0,
+  };
+}
+
 function ensurePlayerSchema(p) {
   if (p.hp === undefined) p.hp = 100;
   if (p.hpMax === undefined) p.hpMax = 100;
@@ -2267,6 +2308,7 @@ function recalcFromSheet(p) {
 
   p.defense = 10 + mods.dex + (itemMods.defense || 0);
   p.proficiencyBonus = computeProficiencyBonus(level);
+  autoApplyClassSkillProficiencies(p);
   p.skillProficiencies = Array.from(new Set([...(p.skillProficiencies || []), ...(bg.skillProficiencies || [])]));
   p.skills = [...(race.abilities || []), ...(cls.abilities || [])];
   p.invMax = 12 + (itemMods.invExtra || 0);
@@ -2408,7 +2450,7 @@ function updateArena() {
     // HP bar
     let hpBar = document.createElement("div");
     hpBar.className = "bar";
-    hpBar.style.bottom = "-4px";
+    hpBar.style.bottom = "3px";
     let hpFill = document.createElement("div");
     hpFill.className = "hpFill";
     let hpPercent = p.hpMax > 0 ? (p.hp / p.hpMax) * 100 : 0;
@@ -2419,7 +2461,7 @@ function updateArena() {
     // Mana bar
     let manaBar = document.createElement("div");
     manaBar.className = "bar";
-    manaBar.style.bottom = "-10px";
+    manaBar.style.bottom = "9px";
     let manaFill = document.createElement("div");
     manaFill.className = "manaFill";
     let manaPercent = p.manaMax > 0 ? (p.mana / p.manaMax) * 100 : 0;
@@ -2762,15 +2804,12 @@ function openSheet(name) {
 
   const raceSel = document.getElementById("sheetRace");
   const classSel = document.getElementById("sheetClass");
-  const bgSel = document.getElementById("sheetBackground");
+  const bgInput = document.getElementById("sheetBackground");
   raceSel.innerHTML = Object.keys(RACES)
     .map((r) => `<option value="${r}">${r}</option>`)
     .join("");
   classSel.innerHTML = Object.keys(CLASSES)
     .map((c) => `<option value="${c}">${c}</option>`)
-    .join("");
-  bgSel.innerHTML = Object.keys(BACKGROUNDS)
-    .map((b) => `<option value="${b}">${b}</option>`)
     .join("");
 
   document.getElementById("sheetTitle").textContent = `Ficha — ${name}`;
@@ -2781,7 +2820,7 @@ function openSheet(name) {
   document.getElementById("sheetLevel").value = p.level || 1;
   raceSel.value = p.race;
   classSel.value = p.class;
-  bgSel.value = p.background || "Nenhum";
+  bgInput.value = p.background || "";
 
   renderPointBuy(p);
   renderSheetComputed(p);
@@ -2791,7 +2830,7 @@ function openSheet(name) {
 
   raceSel.onchange = () => previewSheet();
   classSel.onchange = () => previewSheet();
-  bgSel.onchange = () => previewSheet();
+  bgInput.oninput = () => previewSheet();
   document.getElementById("sheetLevel").oninput = () => previewSheet();
 
   document.getElementById("sheetOverlay").style.display = "flex";
@@ -2806,7 +2845,7 @@ function previewSheet() {
 
   p.race = document.getElementById("sheetRace").value;
   p.class = document.getElementById("sheetClass").value;
-  p.background = document.getElementById("sheetBackground").value;
+  p.background = (document.getElementById("sheetBackground").value || "").trim() || "Nenhum";
   p.level = parseInt(document.getElementById("sheetLevel").value || "1", 10);
   p.attributeScores = readPointBuyFromUI();
   const { profs, exps } = collectSkillFlags();
@@ -2855,22 +2894,25 @@ function renderSkills(p) {
   const expSet = new Set(p.expertiseSkills || []);
   const prof = p.proficiencyBonus || 2;
   const wrap = document.getElementById("sheetSkills");
+  const classSuggested = new Set(getClassSuggestedSkills(p.class));
 
   wrap.innerHTML = SKILLS.map((skill) => {
     const trained = profSet.has(skill.id);
     const expert = expSet.has(skill.id);
     const attrMod = p.attributeMods[skill.ability] || 0;
     const bonus = attrMod + (expert ? prof * 2 : trained ? prof : 0);
+    const classHint = classSuggested.has(skill.id) ? `Sugestão da classe ${p.class}` : "";
     return `
       <label class="skillRow">
         <div class="skillMain">
           <input type="checkbox" data-skill-prof="${skill.id}" ${trained ? "checked" : ""} />
           <span>${skill.name}</span>
           <small>(${abilityShort(skill.ability)})</small>
+          ${classSuggested.has(skill.id) ? '<span class="bonusTag" title="Perícia sugerida automaticamente pela classe">classe</span>' : ""}
         </div>
         <div class="skillMeta">
           <input type="checkbox" data-skill-exp="${skill.id}" ${expert ? "checked" : ""} ${trained ? "" : "disabled"} title="Especialização" />
-          <strong>${fmtMod(bonus)}</strong>
+          <strong class="${classSuggested.has(skill.id) ? "bonusValue" : ""}" title="${classHint}">${fmtMod(bonus)}</strong>
         </div>
       </label>
     `;
@@ -2885,6 +2927,7 @@ function renderSkills(p) {
 }
 
 function collectSkillFlags() {
+
   const profs = [];
   const exps = [];
   document.querySelectorAll("input[data-skill-prof]").forEach((el) => {
@@ -2897,18 +2940,62 @@ function collectSkillFlags() {
 }
 
 function renderSheetComputed(p) {
-  document.getElementById("statSTR").textContent = fmtMod(p.attributeMods.str || 0);
-  document.getElementById("statDEX").textContent = fmtMod(p.attributeMods.dex || 0);
-  document.getElementById("statCON").textContent = fmtMod(p.attributeMods.con || 0);
-  document.getElementById("statINT").textContent = fmtMod(p.attributeMods.int || 0);
-  document.getElementById("statWIS").textContent = fmtMod(p.attributeMods.wis || 0);
-  document.getElementById("statCHA").textContent = fmtMod(p.attributeMods.cha || 0);
+  const hpPct = p.hpMax > 0 ? (p.hp / p.hpMax) * 100 : 0;
+  const mpPct = p.manaMax > 0 ? (p.mana / p.manaMax) * 100 : 0;
+
+  const avatarNode = document.getElementById("sheetAvatarBadge");
+  if (avatarNode) {
+    const avatarEmoji = getAvatarEmoji(p.avatar || "🧙");
+    avatarNode.innerHTML = "";
+    if (isSpriteAvatar(p.avatar) || isIconAvatar(p.avatar)) {
+      avatarNode.innerHTML = `<img src="${p.avatar.url}" alt="Avatar" loading="lazy" />`;
+    } else {
+      avatarNode.textContent = avatarEmoji;
+    }
+  }
+
+  const heroName = document.getElementById("sheetHeroName");
+  const heroClass = document.getElementById("sheetHeroClass");
+  if (heroName) heroName.textContent = sheetTargetName || "Personagem";
+  if (heroClass) heroClass.textContent = `${p.race} • ${p.class}`;
+
+  const bonusInfo = computeSheetBonusBreakdown(p);
+  const statMap = [
+    ["statSTR", "str"],
+    ["statDEX", "dex"],
+    ["statCON", "con"],
+    ["statINT", "int"],
+    ["statWIS", "wis"],
+    ["statCHA", "cha"],
+  ];
+  statMap.forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    const lines = bonusInfo.byAttr[key] || [];
+    el.textContent = fmtMod(p.attributeMods[key] || 0);
+    el.classList.toggle("bonusValue", lines.length > 0);
+    el.title = lines.length ? lines.join(" • ") : "Sem bônus externos";
+  });
+
   document.getElementById("statProf").textContent = fmtMod(p.proficiencyBonus || 2);
-  document.getElementById("statDEF").textContent = p.defense ?? 10 + (p.attributeMods.dex || 0);
-  document.getElementById("statHPMax").textContent = p.hpMax;
-  document.getElementById("statMPMax").textContent = p.manaMax;
+  const defEl = document.getElementById("statDEF");
+  defEl.textContent = p.defense ?? 10 + (p.attributeMods.dex || 0);
+  defEl.classList.toggle("bonusValue", bonusInfo.defenseBonus > 0);
+  defEl.title = bonusInfo.defenseBonus > 0 ? `Bônus de itens: +${bonusInfo.defenseBonus}` : "Sem bônus externos";
+  const hpMaxEl = document.getElementById("statHPMax");
+  const mpMaxEl = document.getElementById("statMPMax");
+  hpMaxEl.textContent = p.hpMax;
+  mpMaxEl.textContent = p.manaMax;
+  hpMaxEl.classList.toggle("bonusValue", bonusInfo.hpBonus > 0);
+  mpMaxEl.classList.toggle("bonusValue", bonusInfo.manaBonus > 0);
+  hpMaxEl.title = bonusInfo.hpBonus > 0 ? `Bônus de itens: +${bonusInfo.hpBonus}` : "Sem bônus externos";
+  mpMaxEl.title = bonusInfo.manaBonus > 0 ? `Bônus de itens: +${bonusInfo.manaBonus}` : "Sem bônus externos";
   document.getElementById("statHPNow").textContent = p.hp;
   document.getElementById("statMPNow").textContent = p.mana;
+
+  const hpFill = document.getElementById("sheetHpFill");
+  const mpFill = document.getElementById("sheetManaFill");
+  if (hpFill) hpFill.style.width = `${Math.max(0, Math.min(100, hpPct))}%`;
+  if (mpFill) mpFill.style.width = `${Math.max(0, Math.min(100, mpPct))}%`;
 
   const used = totalPointBuyCost(p.attributeScores || defaultAttributeScores());
   document.getElementById("pointBuyUsed").textContent = `${used}/${POINT_BUY_BUDGET}`;
@@ -2927,7 +3014,7 @@ function renderAbilities(p) {
       <div class="abilityIcon">${a.icon}</div>
       <div style="flex:1;">
         <div class="abilityName">${a.name}${isPassive ? ' <small style="opacity:.75;">(Passiva)</small>' : ""}</div>
-        <div class="abilityDesc">${a.desc}</div>
+        <details class="abilityDetails"><summary class="abilitySummary">Detalhes</summary><div class="abilityDesc">${a.desc}</div></details>
         <div class="abilityMeta">
           <span>${a.manaCost ? `Custo: <strong>${a.manaCost} MP</strong>` : `Custo: <strong>0 MP</strong>`}</span>
           <button class="smallBtn smallBtnPrimary" onclick="useAbility(${idx})" ${isPassive ? "disabled" : ""}>${isPassive ? "Passiva" : "Usar"}</button>
@@ -3045,7 +3132,7 @@ function saveSheet() {
   p.level = parseInt(document.getElementById("sheetLevel").value || "1", 10);
   p.race = document.getElementById("sheetRace").value;
   p.class = document.getElementById("sheetClass").value;
-  p.background = document.getElementById("sheetBackground").value;
+  p.background = (document.getElementById("sheetBackground").value || "").trim() || "Nenhum";
   p.attributeScores = readPointBuyFromUI();
   const { profs, exps } = collectSkillFlags();
   p.skillProficiencies = profs;
