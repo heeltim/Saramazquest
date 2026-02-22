@@ -322,16 +322,19 @@
               <input id="sheetOwner" placeholder="Ex: Helton" />
             </div>
             <div class="field">
-              <label>Nível</label>
-              <input id="sheetLevel" type="number" min="1" max="20" step="1" />
-            </div>
-            <div class="field">
               <label>Raça</label>
               <select id="sheetRace"></select>
             </div>
-            <div class="field">
-              <label>Classe</label>
-              <select id="sheetClass"></select>
+            <div class="field classField">
+              <div class="classFieldHeader">
+                <label>Classe</label>
+                <button type="button" id="addSheetClassBtn" class="smallBtn">＋</button>
+              </div>
+              <div id="sheetClassRows" class="classRows"></div>
+              <div class="classTotalLevelRow">
+                <span>Nível total</span>
+                <input id="sheetLevel" type="number" min="1" max="20" step="1" readonly />
+              </div>
             </div>
             <div class="field">
               <label>Background</label>
