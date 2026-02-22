@@ -335,7 +335,7 @@
             </div>
             <div class="field">
               <label>Background</label>
-              <select id="sheetBackground"></select>
+              <textarea id="sheetBackground" rows="2" placeholder="Resumo breve da história do personagem"></textarea>
             </div>
 
             <div style="font-weight: 900; margin: 10px 0 8px">
@@ -348,6 +348,25 @@
           </div>
 
           <div class="panel">
+            <div class="sheetHeroCard">
+              <div id="sheetAvatarBadge" class="sheetAvatarBadge">🧙</div>
+              <div class="sheetHeroInfo">
+                <strong id="sheetHeroName">Personagem</strong>
+                <small id="sheetHeroClass">Classe</small>
+              </div>
+            </div>
+
+            <div class="resourceBlocks">
+              <div class="resourceBlock">
+                <div class="resourceHead"><span>Vida</span><strong id="statHPNow">-</strong><small>/ <span id="statHPMax">-</span></small></div>
+                <div class="resourceBar"><div id="sheetHpFill" class="resourceFill hp"></div></div>
+              </div>
+              <div class="resourceBlock">
+                <div class="resourceHead"><span>Magia</span><strong id="statMPNow">-</strong><small>/ <span id="statMPMax">-</span></small></div>
+                <div class="resourceBar"><div id="sheetManaFill" class="resourceFill mana"></div></div>
+              </div>
+            </div>
+
             <div style="font-weight: 900; margin-bottom: 8px">Atributos (mod)</div>
             <div class="statGrid">
               <div class="kv"><span>FOR</span><strong id="statSTR">-</strong></div>
@@ -358,10 +377,6 @@
               <div class="kv"><span>CAR</span><strong id="statCHA">-</strong></div>
               <div class="kv"><span>Prof.</span><strong id="statProf">-</strong></div>
               <div class="kv"><span>Defesa</span><strong id="statDEF">-</strong></div>
-              <div class="kv"><span>HP Máx</span><strong id="statHPMax">-</strong></div>
-              <div class="kv"><span>MP Máx</span><strong id="statMPMax">-</strong></div>
-              <div class="kv"><span>HP Atual</span><strong id="statHPNow">-</strong></div>
-              <div class="kv"><span>MP Atual</span><strong id="statMPNow">-</strong></div>
             </div>
 
             <div style="font-weight: 900; margin: 10px 0 8px">Point Buy <span id="pointBuyUsed">0/27</span></div>
@@ -403,10 +418,14 @@
           </div>
 
           <div class="panel">
-            <div style="font-weight: 900; margin-bottom: 8px">Perícias</div>
-            <div id="sheetSkills" class="skillsList"></div>
-            <div style="font-weight: 900; margin: 12px 0 8px">Habilidades (clicáveis)</div>
-            <div id="sheetAbilities" class="abilities"></div>
+            <details open>
+              <summary class="sectionSummary">Perícias</summary>
+              <div id="sheetSkills" class="skillsList"></div>
+            </details>
+            <details style="margin-top:10px">
+              <summary class="sectionSummary">Habilidades (clicáveis)</summary>
+              <div id="sheetAbilities" class="abilities"></div>
+            </details>
           </div>
         </div>
 
