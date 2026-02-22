@@ -860,20 +860,9 @@ function ensureHpRollsForCharacter(p, level, hitDieSize, forceReroll = false) {
 
 function computeHpFromRules(p, cls, level, conMod) {
   const hitDieSize = parseHitDieSize(cls?.hitDie || "d10");
-  const fullRollMode = cls?.hpMode?.mode === "full_roll";
-  const rollAtLevel1 = cls?.hpMode?.level1_rule === "roll";
-  const rollPerLevel = cls?.hpMode?.per_level_rule === "roll";
-  const addsConEachLevel = cls?.hpMode?.adds_con_mod_each_level !== false;
-
-  if (!fullRollMode || !rollAtLevel1 || !rollPerLevel) {
-    const fallbackHp = 10 + (conMod + 2) * 3 + (level - 1) * 2;
-    return Math.max(1, fallbackHp);
-  }
-
-  ensureHpRollsForCharacter(p, level, hitDieSize);
-  const totalRoll = p.hpRolls.reduce((sum, roll) => sum + (parseInt(roll, 10) || 0), 0);
-  const conTotal = addsConEachLevel ? conMod * level : conMod;
-  return Math.max(1, totalRoll + conTotal);
+  const safeLevel = Math.max(1, parseInt(level, 10) || 1);
+  const hpPerLevel = hitDieSize + (parseInt(conMod, 10) || 0);
+  return Math.max(1, hpPerLevel * safeLevel);
 }
 
 function computeMagicPointsFromRules(cls, level) {
