@@ -248,6 +248,25 @@ function initCharacterSetup() {
   const startBtn = document.getElementById("setupStartBtn");
   const skipBtn = document.getElementById("setupSkipBtn");
 
+  const bindSelectPicker = (selectEl) => {
+    if (!selectEl) return;
+    const canShowPicker = typeof selectEl.showPicker === "function";
+    if (!canShowPicker || selectEl.dataset.pickerBound === "1") return;
+
+    const openNativePicker = (event) => {
+      event.preventDefault();
+      selectEl.showPicker();
+    };
+
+    selectEl.addEventListener("pointerdown", openNativePicker);
+    selectEl.addEventListener("keydown", (event) => {
+      if (event.key === " " || event.key === "Enter" || event.key === "ArrowDown") {
+        openNativePicker(event);
+      }
+    });
+    selectEl.dataset.pickerBound = "1";
+  };
+
   if (!currentAccountEmail) {
     overlay.classList.add("hidden");
     return;
@@ -273,6 +292,8 @@ function initCharacterSetup() {
 
   raceSelect.value = Object.keys(RACES).includes("Humano") ? "Humano" : raceSelect.value;
   classSelect.value = Object.keys(CLASSES).includes("Guerreiro") ? "Guerreiro" : classSelect.value;
+  bindSelectPicker(raceSelect);
+  bindSelectPicker(classSelect);
 
   let selectedAvatar = normalizeAvatar(currentAvatar);
   let selectedUseSprite = isSpriteAvatar(selectedAvatar);
