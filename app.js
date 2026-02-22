@@ -1069,7 +1069,7 @@ const SPELL_SLOTS_BY_LEVEL = {
 };
 
 let grimoireTargetName = null;
-let activeGrimoireTab = "resources";
+let activeGrimoireTab = "spells";
 let selectedSpellIcon = SPELL_ICON_LIBRARY[0];
 let sheetTargetName = null;
 let invTargetName = null;
@@ -3112,7 +3112,7 @@ function openGrimoire(name) {
 function closeGrimoire() {
   document.getElementById("grimoireOverlay").style.display = "none";
   grimoireTargetName = null;
-  activeGrimoireTab = "resources";
+  activeGrimoireTab = "spells";
 }
 
 function openMyGrimoire() {
