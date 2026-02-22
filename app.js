@@ -2494,6 +2494,9 @@ function updateArena() {
     const cell = cells[idx];
     if (!cell) return;
 
+    let tokenStack = document.createElement("div");
+    tokenStack.className = "tokenStack";
+
     let token = document.createElement("div");
     token.className = "token";
     token.style.background = p.color;
@@ -2519,29 +2522,35 @@ function updateArena() {
       showMenu(name, token);
     };
 
-    // HP bar
+    token.title = `HP ${p.hp} de ${p.hpMax} • MP ${p.mana} de ${p.manaMax}`;
+
+    let resources = document.createElement("div");
+    resources.className = "tokenResources";
+
+    // HP bar (em cima)
     let hpBar = document.createElement("div");
-    hpBar.className = "bar";
-    hpBar.style.bottom = "3px";
+    hpBar.className = "bar barThin";
     let hpFill = document.createElement("div");
     hpFill.className = "hpFill";
     let hpPercent = p.hpMax > 0 ? (p.hp / p.hpMax) * 100 : 0;
     hpFill.style.width = hpPercent + "%";
     hpBar.appendChild(hpFill);
-    token.appendChild(hpBar);
+    resources.appendChild(hpBar);
 
-    // Mana bar
+    // Mana bar (embaixo)
     let manaBar = document.createElement("div");
-    manaBar.className = "bar";
-    manaBar.style.bottom = "9px";
+    manaBar.className = "bar barThin";
     let manaFill = document.createElement("div");
     manaFill.className = "manaFill";
     let manaPercent = p.manaMax > 0 ? (p.mana / p.manaMax) * 100 : 0;
     manaFill.style.width = manaPercent + "%";
     manaBar.appendChild(manaFill);
-    token.appendChild(manaBar);
+    resources.appendChild(manaBar);
 
-    cell.appendChild(token);
+    tokenStack.appendChild(token);
+    tokenStack.appendChild(resources);
+
+    cell.appendChild(tokenStack);
   });
 
   save(data);
