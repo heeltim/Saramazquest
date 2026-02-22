@@ -443,6 +443,7 @@ const DEFAULT_SCENE = {
   bgY: 0,
   bgScale: 120, // %
   bgOpacity: 65, // %
+  mapZoom: 1,
   tiles: [], // string array: "floor" | "wall" | "void"
 };
 
@@ -1315,6 +1316,7 @@ function ensureScene() {
   s.bgY = Number.isFinite(s.bgY) ? s.bgY : 0;
   s.bgScale = Number.isFinite(s.bgScale) ? s.bgScale : 120;
   s.bgOpacity = Number.isFinite(s.bgOpacity) ? s.bgOpacity : 65;
+  s.mapZoom = Number.isFinite(s.mapZoom) ? Math.max(0.5, Math.min(1.8, s.mapZoom)) : 1;
 
   data.scenes[room] = s;
   save(data);
@@ -1323,7 +1325,6 @@ ensureScene();
 
 function applySceneCSS() {
   const s = load().scenes[room];
-  const arena = document.getElementById("arena");
   arena.style.setProperty("--cols", s.cols);
   arena.style.setProperty("--rows", s.rows);
 
@@ -1333,6 +1334,7 @@ function applySceneCSS() {
   arena.style.setProperty("--scene-x", `${s.bgX}px`);
   arena.style.setProperty("--scene-y", `${s.bgY}px`);
   arena.style.setProperty("--scene-opacity", (s.bgOpacity / 100).toString());
+  arena.style.setProperty("--map-zoom", (s.mapZoom || 1).toString());
 }
 
 function tileIndex(x, y) {
@@ -2539,6 +2541,99 @@ loadRpgDatabases().finally(() => {
 
 /* ================= GRID ================= */
 const arena = document.getElementById("arena");
+const mapViewport = document.getElementById("mapViewport");
+const mapZoomInput = document.getElementById("mapZoom");
+const mapZoomValue = document.getElementById("mapZoomValue");
+let mapDragState = { active: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 };
+
+function getSceneZoom() {
+  const scene = load().scenes[room];
+  return Number.isFinite(scene?.mapZoom) ? Math.max(0.5, Math.min(1.8, scene.mapZoom)) : 1;
+}
+
+
+function updateZoomUI(zoom) {
+  const percent = Math.round(zoom * 100);
+  if (mapZoomInput) mapZoomInput.value = String(percent);
+  if (mapZoomValue) mapZoomValue.textContent = `${percent}%`;
+}
+
+function resetMapView() {
+  setMapZoom(1, false);
+  if (!mapViewport) return;
+  mapViewport.scrollLeft = Math.max(0, (mapViewport.scrollWidth - mapViewport.clientWidth) / 2);
+  mapViewport.scrollTop = Math.max(0, (mapViewport.scrollHeight - mapViewport.clientHeight) / 2);
+}
+window.resetMapView = resetMapView;
+
+function setMapZoom(nextZoom, keepCenter = true) {
+  const clamped = Math.max(0.5, Math.min(1.8, Number(nextZoom) || 1));
+  const data = load();
+  if (!data.scenes[room]) data.scenes[room] = structuredClone(DEFAULT_SCENE);
+  const viewportRect = mapViewport?.getBoundingClientRect?.() || null;
+  const centerRatioX = keepCenter && mapViewport && arena.offsetWidth ? (mapViewport.scrollLeft + mapViewport.clientWidth / 2) / (arena.offsetWidth * getSceneZoom()) : 0.5;
+  const centerRatioY = keepCenter && mapViewport && arena.offsetHeight ? (mapViewport.scrollTop + mapViewport.clientHeight / 2) / (arena.offsetHeight * getSceneZoom()) : 0.5;
+
+  data.scenes[room].mapZoom = clamped;
+  save(data);
+  applySceneCSS();
+
+  updateZoomUI(clamped);
+
+  if (mapViewport && viewportRect) {
+    const w = arena.offsetWidth * clamped;
+    const h = arena.offsetHeight * clamped;
+    mapViewport.scrollLeft = Math.max(0, w * centerRatioX - mapViewport.clientWidth / 2);
+    mapViewport.scrollTop = Math.max(0, h * centerRatioY - mapViewport.clientHeight / 2);
+  }
+}
+
+function adjustMapZoom(delta) {
+  setMapZoom(getSceneZoom() + delta);
+}
+window.adjustMapZoom = adjustMapZoom;
+
+function bindMapInteractions() {
+  if (mapZoomInput) {
+    updateZoomUI(getSceneZoom());
+    mapZoomInput.addEventListener("input", () => {
+      setMapZoom(parseInt(mapZoomInput.value, 10) / 100);
+    });
+  }
+
+  if (!mapViewport) return;
+  mapViewport.addEventListener("mousedown", (e) => {
+    if (e.button !== 1 && e.button !== 0) return;
+    if (e.target.closest(".token") || e.target.closest(".cell")) return;
+    mapDragState = {
+      active: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      scrollLeft: mapViewport.scrollLeft,
+      scrollTop: mapViewport.scrollTop,
+    };
+    mapViewport.classList.add("dragging");
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!mapDragState.active) return;
+    mapViewport.scrollLeft = mapDragState.scrollLeft - (e.clientX - mapDragState.startX);
+    mapViewport.scrollTop = mapDragState.scrollTop - (e.clientY - mapDragState.startY);
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (!mapDragState.active) return;
+    mapDragState.active = false;
+    mapViewport.classList.remove("dragging");
+  });
+
+  mapViewport.addEventListener("wheel", (e) => {
+    if (!e.ctrlKey) return;
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.05 : -0.05;
+    setMapZoom(getSceneZoom() + delta);
+  }, { passive: false });
+}
 function createGrid() {
   ensureScene();
   const s = load().scenes[room];
@@ -4601,6 +4696,7 @@ function syncSceneUIFromStorage() {
   document.getElementById("bgOpacity").value = s.bgOpacity;
   document.getElementById("bgX").value = s.bgX;
   document.getElementById("bgY").value = s.bgY;
+  updateZoomUI(s.mapZoom || 1);
   applySceneCSS();
 }
 
@@ -4737,6 +4833,8 @@ if (logoutBtn) {
 /* ================= INIT ================= */
 createGrid();
 applySceneCSS();
+bindMapInteractions();
+resetMapView();
 updateArena();
 setDiceTrayOpen(false);
 initChatComposer();

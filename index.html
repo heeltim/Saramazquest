@@ -67,7 +67,18 @@
 
     <div id="game">
       <div id="arenaWrap">
-        <div id="arena"></div>
+        <div id="mapViewport">
+          <div id="mapSurface">
+            <div id="arena"></div>
+          </div>
+        </div>
+        <div id="mapZoomControls" aria-label="Controles de zoom do mapa">
+          <button type="button" class="zoomBtn" onclick="adjustMapZoom(-0.1)">−</button>
+          <input id="mapZoom" type="range" min="50" max="180" value="100" step="5" aria-label="Zoom do mapa" />
+          <button type="button" class="zoomBtn" onclick="adjustMapZoom(0.1)">+</button>
+          <strong id="mapZoomValue">100%</strong>
+          <button type="button" class="mapMiniBtn" onclick="resetMapView()">Centralizar</button>
+        </div>
         <div id="combatSpellSlots" aria-label="Slots de magia rápidos"></div>
         <button
           id="diceTrayToggle"

@@ -228,27 +228,121 @@ body {
   flex: 1;
   position: relative;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 12px;
-  background: linear-gradient(180deg, #10131c 0%, #0f1117 100%);
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 14px 12px;
+  background: radial-gradient(circle at 12% 12%, #1a2235 0%, #111726 54%, #0a0d14 100%);
+  overflow: hidden;
 }
+
+#mapViewport {
+  flex: 1;
+  position: relative;
+  overflow: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, #111724 0%, #0e1220 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03), 0 20px 60px rgba(0, 0, 0, 0.45);
+  cursor: grab;
+}
+
+#mapViewport.dragging {
+  cursor: grabbing;
+}
+
+#mapSurface {
+  width: max-content;
+  min-width: 100%;
+  min-height: 100%;
+  padding: 34px;
+  background:
+    radial-gradient(circle at 24% 18%, rgba(255, 255, 255, 0.05), transparent 48%),
+    radial-gradient(circle at 72% 74%, rgba(140, 188, 255, 0.04), transparent 54%),
+    linear-gradient(180deg, #171e2d 0%, #121827 100%);
+}
+
 #arena {
   position: relative;
   display: grid;
-  gap: 2px;
+  gap: 0;
   justify-content: center;
   align-content: center;
-  /* tamanho default (pode mudar depois) */
   --cols: 20;
   --rows: 12;
+  --map-zoom: 1;
   grid-template-columns: repeat(var(--cols), 40px);
   grid-template-rows: repeat(var(--rows), 40px);
-  padding: 10px;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   overflow: hidden;
+  transform-origin: top left;
+  transform: scale(var(--map-zoom));
+}
+
+#mapZoomControls {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(9, 12, 18, 0.82);
+  backdrop-filter: blur(4px);
+}
+
+.zoomBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 19px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.zoomBtn:hover {
+  border-color: rgba(255, 215, 94, 0.85);
+  background: rgba(255, 215, 94, 0.2);
+}
+
+#mapZoom {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  width: 28px;
+  height: 180px;
+  accent-color: #ff5cb8;
+}
+
+#mapZoomValue {
+  font-size: 11px;
+  font-weight: 900;
+  min-width: 42px;
+  text-align: center;
+}
+
+.mapMiniBtn {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-radius: 8px;
+  padding: 4px 6px;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mapMiniBtn:hover {
+  border-color: rgba(255, 215, 94, 0.85);
+  background: rgba(255, 215, 94, 0.2);
 }
 
 #combatSpellSlots {
@@ -495,32 +589,36 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    1200px 700px at 30% 10%,
-    rgba(255, 255, 255, 0.05),
-    transparent 60%
-  );
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    radial-gradient(1200px 700px at 30% 10%, rgba(255, 255, 255, 0.06), transparent 60%);
+  background-size: 40px 40px, 40px 40px, cover;
   pointer-events: none;
 }
 
 .cell {
   position: relative;
-  border-radius: 6px;
-  outline: 1px solid var(--tile-outline);
-  background: var(--tile-floor);
+  border-radius: 0;
+  outline: none;
+  background: transparent;
   overflow: visible;
 }
 .cell.tile-floor {
-  background: var(--tile-floor);
+  background: transparent;
 }
 .cell.tile-wall {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.16)),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.06) 0 6px, rgba(255, 255, 255, 0.02) 6px 12px),
     var(--tile-wall);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 .cell.tile-void {
-  background: var(--tile-void);
-  outline: 1px solid rgba(255, 255, 255, 0.03);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(10, 12, 18, 0.2), rgba(0, 0, 0, 0.7)),
+    var(--tile-void);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 /* highlight do editor */
@@ -1917,6 +2015,10 @@ kbd {
     padding: 56px 10px 78px;
   }
 
+  #mapSurface {
+    padding: 22px;
+  }
+
   #arena {
     max-width: 100%;
     max-height: 100%;
@@ -1942,6 +2044,23 @@ kbd {
   #arenaWrap {
     min-height: 48dvh;
     padding: 86px 8px 72px;
+  }
+
+  #mapZoomControls {
+    right: 8px;
+    top: auto;
+    bottom: 82px;
+    transform: none;
+    flex-direction: row;
+    gap: 6px;
+    padding: 6px;
+  }
+
+  #mapZoom {
+    writing-mode: horizontal-tb;
+    direction: ltr;
+    width: 108px;
+    height: 24px;
   }
 
   #diceTrayToggle,
