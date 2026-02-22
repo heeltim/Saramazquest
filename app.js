@@ -3932,6 +3932,7 @@ updateArena();
 setDiceTrayOpen(false);
 initChatComposer();
 updateChat();
+updateCreateCharacterButtonState();
 loadShopCatalogs().then(() => {
   if (!invTargetName) return;
   const p = load().rooms[room][invTargetName];
