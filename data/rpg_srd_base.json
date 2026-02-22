@@ -5,185 +5,273 @@
     "hp_rule": "PV por nível = rolagem cheia do dado de vida + mod CON (sem média)."
   },
   "enums": {
-    "attributes": ["forca", "destreza", "constituicao", "inteligencia", "sabedoria", "carisma"],
-    "sizes": ["pequeno", "medio"],
-    "spell_progression_types": ["full", "half", "third", "pact", "none"]
+    "attributes": [
+      "forca",
+      "destreza",
+      "constituicao",
+      "inteligencia",
+      "sabedoria",
+      "carisma"
+    ],
+    "sizes": [
+      "pequeno",
+      "medio"
+    ],
+    "spell_progression_types": [
+      "full",
+      "half",
+      "third",
+      "pact",
+      "none"
+    ]
   },
-
   "trait_dictionary": {
     "t_olhos_profundezas": {
       "nome": "Olhos das Profundezas",
       "resumo": "Enxerga melhor em pouca luz/escuridão (alcance típico ~18m).",
-      "tags": ["percepcao", "exploracao"]
+      "tags": [
+        "percepcao",
+        "exploracao"
+      ]
     },
     "t_visao_crepuscular": {
       "nome": "Visão Crepuscular",
       "resumo": "Adaptação superior a baixa luminosidade (alcance típico ~18m).",
-      "tags": ["percepcao", "exploracao"]
+      "tags": [
+        "percepcao",
+        "exploracao"
+      ]
     },
     "t_percepcao_aguçada": {
       "nome": "Percepção Aguçada",
       "resumo": "Proficiência em Percepção.",
-      "tags": ["pericia"]
+      "tags": [
+        "pericia"
+      ]
     },
     "t_sangue_antigo": {
       "nome": "Sangue Antigo",
       "resumo": "Vantagem contra ser enfeitiçado; efeitos de sono mágico não funcionam.",
-      "tags": ["defesa", "status"]
+      "tags": [
+        "defesa",
+        "status"
+      ]
     },
     "t_vigilia_interior": {
       "nome": "Vigília Interior",
       "resumo": "Descansa por meditação em vez de sono comum.",
-      "tags": ["descanso"]
+      "tags": [
+        "descanso"
+      ]
     },
-
     "t_corpo_endurecido": {
       "nome": "Corpo Endurecido",
       "resumo": "Vantagem contra venenos e resistência a dano de veneno.",
-      "tags": ["defesa"]
+      "tags": [
+        "defesa"
+      ]
     },
     "t_treinamento_tradicional": {
       "nome": "Treinamento Marcial Tradicional",
       "resumo": "Familiaridade/proficiência com armas tradicionais (lista configurável).",
-      "tags": ["combate"]
+      "tags": [
+        "combate"
+      ]
     },
     "t_memoria_rocha": {
       "nome": "Memória da Rocha",
       "resumo": "Facilidade para analisar pedra, estruturas e formações minerais.",
-      "tags": ["exploracao", "conhecimento"]
+      "tags": [
+        "exploracao",
+        "conhecimento"
+      ]
     },
     "t_tenacidade_colina": {
       "nome": "Tenacidade da Colina",
       "resumo": "Ganha robustez extra ao progredir (ex.: PV extra por nível, se ativado).",
-      "tags": ["defesa", "progressao"],
-      "params": { "enabled_by_default": false }
+      "tags": [
+        "defesa",
+        "progressao"
+      ],
+      "params": {
+        "enabled_by_default": false
+      }
     },
-
     "t_destino_favoravel": {
       "nome": "Destino Favorável",
       "resumo": "Ao tirar 1 em d20 (ataque/teste/salvaguarda), pode rolar novamente.",
-      "tags": ["sorte"]
+      "tags": [
+        "sorte"
+      ]
     },
     "t_animo_firme": {
       "nome": "Ânimo Firme",
       "resumo": "Vantagem contra medo.",
-      "tags": ["defesa", "status"]
+      "tags": [
+        "defesa",
+        "status"
+      ]
     },
     "t_movimento_agil": {
       "nome": "Movimento Ágil",
       "resumo": "Pode atravessar o espaço de criaturas maiores.",
-      "tags": ["movimento"]
+      "tags": [
+        "movimento"
+      ]
     },
     "t_furtividade_natural": {
       "nome": "Furtividade Natural",
       "resumo": "Consegue se esconder com mais facilidade usando criaturas maiores como cobertura.",
-      "tags": ["furtividade"]
+      "tags": [
+        "furtividade"
+      ]
     },
-
     "t_heranca_primordial": {
       "nome": "Herança Primordial",
       "resumo": "Escolhe uma afinidade elemental (define sopro e resistência).",
-      "tags": ["elemental"]
+      "tags": [
+        "elemental"
+      ]
     },
     "t_exalacao_elemental": {
       "nome": "Exalação Elemental",
       "resumo": "Libera energia em área conforme afinidade (forma/alcance configuráveis).",
-      "tags": ["combate", "elemental"]
+      "tags": [
+        "combate",
+        "elemental"
+      ]
     },
     "t_pele_resistente": {
       "nome": "Pele Resistente",
       "resumo": "Resistência ao dano do elemento escolhido.",
-      "tags": ["defesa", "elemental"]
+      "tags": [
+        "defesa",
+        "elemental"
+      ]
     },
-
     "t_mente_resguardada": {
       "nome": "Mente Resguardada",
       "resumo": "Vantagem em salvaguardas mentais contra magia (Int/Sab/Car).",
-      "tags": ["defesa"]
+      "tags": [
+        "defesa"
+      ]
     },
     "t_truque_ilusorio": {
       "nome": "Truque Ilusório",
       "resumo": "Acesso a um efeito menor de ilusão (se o sistema usar magia).",
-      "tags": ["magia"]
+      "tags": [
+        "magia"
+      ]
     },
     "t_engenhocas": {
       "nome": "Engenhocas",
       "resumo": "Cria pequenos dispositivos/bugigangas (regra exata adaptável).",
-      "tags": ["craft", "utilidade"]
+      "tags": [
+        "craft",
+        "utilidade"
+      ]
     },
-
     "t_talento_versatil": {
       "nome": "Talento Versátil",
       "resumo": "Ganha proficiência em 2 perícias à escolha.",
-      "tags": ["pericia"]
+      "tags": [
+        "pericia"
+      ]
     },
-
     "t_presenca_intimidante": {
       "nome": "Presença Intimidante",
       "resumo": "Proficiência em Intimidação.",
-      "tags": ["pericia", "social"]
+      "tags": [
+        "pericia",
+        "social"
+      ]
     },
     "t_instinto_sobrevivencia": {
       "nome": "Instinto de Sobrevivência",
       "resumo": "1 vez por descanso longo, ao cair a 0 PV, fica com 1 PV em vez disso.",
-      "tags": ["defesa", "sobrevivencia"]
+      "tags": [
+        "defesa",
+        "sobrevivencia"
+      ]
     },
     "t_impacto_devastador": {
       "nome": "Impacto Devastador",
       "resumo": "Em acerto crítico corpo a corpo, rola 1 dado extra de dano da arma.",
-      "tags": ["combate"]
+      "tags": [
+        "combate"
+      ]
     },
-
     "t_resiliencia_ignea": {
       "nome": "Resiliência Ígnea",
       "resumo": "Resistência a dano de fogo.",
-      "tags": ["defesa", "elemental"]
+      "tags": [
+        "defesa",
+        "elemental"
+      ]
     },
     "t_legado_sobrenatural": {
       "nome": "Legado Sobrenatural",
       "resumo": "Acesso a efeitos mágicos temáticos em níveis específicos (se usar magia).",
-      "tags": ["magia"]
+      "tags": [
+        "magia"
+      ]
     },
-
     "t_idioma_extra": {
       "nome": "Idioma Extra",
       "resumo": "Aprende 1 idioma adicional à escolha.",
-      "tags": ["social", "mundo"]
+      "tags": [
+        "social",
+        "mundo"
+      ]
     },
     "t_pericia_extra": {
       "nome": "Perícia Extra",
       "resumo": "Ganha proficiência em 1 perícia à escolha.",
-      "tags": ["pericia"]
+      "tags": [
+        "pericia"
+      ]
     },
     "t_talento_inicial": {
       "nome": "Talento Inicial",
       "resumo": "Ganha 1 talento à escolha (opcional, se seu sistema usar talentos).",
-      "tags": ["customizacao"],
-      "params": { "enabled_by_default": false }
+      "tags": [
+        "customizacao"
+      ],
+      "params": {
+        "enabled_by_default": false
+      }
     },
-
     "t_aprendizado_arcano": {
       "nome": "Aprendizado Arcano",
       "resumo": "Conhece um truque simples (se o sistema usar magia).",
-      "tags": ["magia"]
+      "tags": [
+        "magia"
+      ]
     },
     "t_discricao_natural": {
       "nome": "Discrição Natural",
       "resumo": "Mais apto a se ocultar/mover sem ser notado em terreno natural (adaptável).",
-      "tags": ["furtividade", "exploracao"]
+      "tags": [
+        "furtividade",
+        "exploracao"
+      ]
     },
     "t_olhar_abismo": {
       "nome": "Olhar do Abismo",
       "resumo": "Visão melhorada em escuridão total (alcance pode ser maior).",
-      "tags": ["percepcao", "exploracao"]
+      "tags": [
+        "percepcao",
+        "exploracao"
+      ]
     },
     "t_marca_linhagem_sombria": {
       "nome": "Marca da Linhagem Sombria",
       "resumo": "Acesso a manifestações arcanas limitadas (se usar magia).",
-      "tags": ["magia"]
+      "tags": [
+        "magia"
+      ]
     }
   },
-
   "races": [
     {
       "id": "anao_montanha",
@@ -191,9 +279,16 @@
       "descricao_curta": "Robusto e treinado para combate, com raízes nas profundezas.",
       "size": "medio",
       "speed_m": 7.5,
-      "atributos_fixos": { "forca": 2 },
+      "atributos_fixos": {
+        "forca": 2
+      },
       "atributos_distribuiveis": null,
-      "tracos": ["t_olhos_profundezas", "t_corpo_endurecido", "t_treinamento_tradicional", "t_memoria_rocha"]
+      "tracos": [
+        "t_olhos_profundezas",
+        "t_corpo_endurecido",
+        "t_treinamento_tradicional",
+        "t_memoria_rocha"
+      ]
     },
     {
       "id": "anao_colina",
@@ -201,20 +296,34 @@
       "descricao_curta": "Resiliente e atento, com vigor constante.",
       "size": "medio",
       "speed_m": 7.5,
-      "atributos_fixos": { "sabedoria": 1 },
+      "atributos_fixos": {
+        "sabedoria": 1
+      },
       "atributos_distribuiveis": null,
-      "tracos": ["t_olhos_profundezas", "t_corpo_endurecido", "t_treinamento_tradicional", "t_memoria_rocha", "t_tenacidade_colina"]
+      "tracos": [
+        "t_olhos_profundezas",
+        "t_corpo_endurecido",
+        "t_treinamento_tradicional",
+        "t_memoria_rocha",
+        "t_tenacidade_colina"
+      ]
     },
-
     {
       "id": "elfo",
       "nome": "Elfo",
       "descricao_curta": "Ágil, perceptivo e de herança antiga.",
       "size": "medio",
       "speed_m": 9,
-      "atributos_fixos": { "destreza": 2 },
+      "atributos_fixos": {
+        "destreza": 2
+      },
       "atributos_distribuiveis": null,
-      "tracos": ["t_visao_crepuscular", "t_percepcao_aguçada", "t_sangue_antigo", "t_vigilia_interior"]
+      "tracos": [
+        "t_visao_crepuscular",
+        "t_percepcao_aguçada",
+        "t_sangue_antigo",
+        "t_vigilia_interior"
+      ]
     },
     {
       "id": "alto_elfo",
@@ -222,9 +331,17 @@
       "descricao_curta": "Inclinado ao estudo e a artes arcanas sutis.",
       "size": "medio",
       "speed_m": 9,
-      "atributos_fixos": { "inteligencia": 1 },
+      "atributos_fixos": {
+        "inteligencia": 1
+      },
       "atributos_distribuiveis": null,
-      "tracos": ["t_visao_crepuscular", "t_percepcao_aguçada", "t_sangue_antigo", "t_vigilia_interior", "t_aprendizado_arcano"]
+      "tracos": [
+        "t_visao_crepuscular",
+        "t_percepcao_aguçada",
+        "t_sangue_antigo",
+        "t_vigilia_interior",
+        "t_aprendizado_arcano"
+      ]
     },
     {
       "id": "elfo_floresta",
@@ -232,9 +349,17 @@
       "descricao_curta": "Rápido e discreto em ambientes naturais.",
       "size": "medio",
       "speed_m": 9,
-      "atributos_fixos": { "sabedoria": 1 },
+      "atributos_fixos": {
+        "sabedoria": 1
+      },
       "atributos_distribuiveis": null,
-      "tracos": ["t_visao_crepuscular", "t_percepcao_aguçada", "t_sangue_antigo", "t_vigilia_interior", "t_discricao_natural"]
+      "tracos": [
+        "t_visao_crepuscular",
+        "t_percepcao_aguçada",
+        "t_sangue_antigo",
+        "t_vigilia_interior",
+        "t_discricao_natural"
+      ]
     },
     {
       "id": "drow",
@@ -242,20 +367,33 @@
       "descricao_curta": "Linhagem subterrânea com presença marcante e dons incomuns.",
       "size": "medio",
       "speed_m": 9,
-      "atributos_fixos": { "carisma": 1 },
+      "atributos_fixos": {
+        "carisma": 1
+      },
       "atributos_distribuiveis": null,
-      "tracos": ["t_olhar_abismo", "t_percepcao_aguçada", "t_sangue_antigo", "t_vigilia_interior", "t_marca_linhagem_sombria"]
+      "tracos": [
+        "t_olhar_abismo",
+        "t_percepcao_aguçada",
+        "t_sangue_antigo",
+        "t_vigilia_interior",
+        "t_marca_linhagem_sombria"
+      ]
     },
-
     {
       "id": "halfling",
       "nome": "Halfling",
       "descricao_curta": "Pequeno, ágil e surpreendentemente sortudo.",
       "size": "pequeno",
       "speed_m": 7.5,
-      "atributos_fixos": { "destreza": 2 },
+      "atributos_fixos": {
+        "destreza": 2
+      },
       "atributos_distribuiveis": null,
-      "tracos": ["t_destino_favoravel", "t_animo_firme", "t_movimento_agil"]
+      "tracos": [
+        "t_destino_favoravel",
+        "t_animo_firme",
+        "t_movimento_agil"
+      ]
     },
     {
       "id": "halfling_pes_leves",
@@ -263,9 +401,16 @@
       "descricao_curta": "Sociável e bom em sumir no meio da confusão.",
       "size": "pequeno",
       "speed_m": 7.5,
-      "atributos_fixos": { "carisma": 1 },
+      "atributos_fixos": {
+        "carisma": 1
+      },
       "atributos_distribuiveis": null,
-      "tracos": ["t_destino_favoravel", "t_animo_firme", "t_movimento_agil", "t_furtividade_natural"]
+      "tracos": [
+        "t_destino_favoravel",
+        "t_animo_firme",
+        "t_movimento_agil",
+        "t_furtividade_natural"
+      ]
     },
     {
       "id": "halfling_robusto",
@@ -273,31 +418,48 @@
       "descricao_curta": "Mais resistente e durão que o comum.",
       "size": "pequeno",
       "speed_m": 7.5,
-      "atributos_fixos": { "constituicao": 1 },
+      "atributos_fixos": {
+        "constituicao": 1
+      },
       "atributos_distribuiveis": null,
-      "tracos": ["t_destino_favoravel", "t_animo_firme", "t_movimento_agil", "t_corpo_endurecido"]
+      "tracos": [
+        "t_destino_favoravel",
+        "t_animo_firme",
+        "t_movimento_agil",
+        "t_corpo_endurecido"
+      ]
     },
-
     {
       "id": "draconato",
       "nome": "Draconato",
       "descricao_curta": "Herança primordial com sopro elemental e resistência.",
       "size": "medio",
       "speed_m": 9,
-      "atributos_fixos": { "forca": 2, "carisma": 1 },
+      "atributos_fixos": {
+        "forca": 2,
+        "carisma": 1
+      },
       "atributos_distribuiveis": null,
-      "tracos": ["t_heranca_primordial", "t_exalacao_elemental", "t_pele_resistente"]
+      "tracos": [
+        "t_heranca_primordial",
+        "t_exalacao_elemental",
+        "t_pele_resistente"
+      ]
     },
-
     {
       "id": "gnomo",
       "nome": "Gnomo",
       "descricao_curta": "Curioso, esperto e mentalmente protegido.",
       "size": "pequeno",
       "speed_m": 7.5,
-      "atributos_fixos": { "inteligencia": 2 },
+      "atributos_fixos": {
+        "inteligencia": 2
+      },
       "atributos_distribuiveis": null,
-      "tracos": ["t_olhos_profundezas", "t_mente_resguardada"]
+      "tracos": [
+        "t_olhos_profundezas",
+        "t_mente_resguardada"
+      ]
     },
     {
       "id": "gnomo_floresta",
@@ -305,9 +467,15 @@
       "descricao_curta": "Discreto e afeito a truques sutis.",
       "size": "pequeno",
       "speed_m": 7.5,
-      "atributos_fixos": { "destreza": 1 },
+      "atributos_fixos": {
+        "destreza": 1
+      },
       "atributos_distribuiveis": null,
-      "tracos": ["t_olhos_profundezas", "t_mente_resguardada", "t_truque_ilusorio"]
+      "tracos": [
+        "t_olhos_profundezas",
+        "t_mente_resguardada",
+        "t_truque_ilusorio"
+      ]
     },
     {
       "id": "gnomo_rochas",
@@ -315,44 +483,67 @@
       "descricao_curta": "Inventivo e resistente; cria bugigangas úteis.",
       "size": "pequeno",
       "speed_m": 7.5,
-      "atributos_fixos": { "constituicao": 1 },
+      "atributos_fixos": {
+        "constituicao": 1
+      },
       "atributos_distribuiveis": null,
-      "tracos": ["t_olhos_profundezas", "t_mente_resguardada", "t_engenhocas"]
+      "tracos": [
+        "t_olhos_profundezas",
+        "t_mente_resguardada",
+        "t_engenhocas"
+      ]
     },
-
     {
       "id": "meio_elfo",
       "nome": "Meio-Elfo",
       "descricao_curta": "Linhagem mista com grande flexibilidade social e prática.",
       "size": "medio",
       "speed_m": 9,
-      "atributos_fixos": { "carisma": 2 },
+      "atributos_fixos": {
+        "carisma": 2
+      },
       "atributos_distribuiveis": null,
-      "tracos": ["t_visao_crepuscular", "t_sangue_antigo", "t_talento_versatil"]
+      "tracos": [
+        "t_visao_crepuscular",
+        "t_sangue_antigo",
+        "t_talento_versatil"
+      ]
     },
-
     {
       "id": "meio_orc",
       "nome": "Meio-Orc",
       "descricao_curta": "Físico poderoso e uma tenacidade difícil de derrubar.",
       "size": "medio",
       "speed_m": 9,
-      "atributos_fixos": { "forca": 2, "constituicao": 1 },
+      "atributos_fixos": {
+        "forca": 2,
+        "constituicao": 1
+      },
       "atributos_distribuiveis": null,
-      "tracos": ["t_olhos_profundezas", "t_presenca_intimidante", "t_instinto_sobrevivencia", "t_impacto_devastador"]
+      "tracos": [
+        "t_olhos_profundezas",
+        "t_presenca_intimidante",
+        "t_instinto_sobrevivencia",
+        "t_impacto_devastador"
+      ]
     },
-
     {
       "id": "tiefling",
       "nome": "Tiefling",
       "descricao_curta": "Herança sobrenatural com resistência ígnea e dons arcanos.",
       "size": "medio",
       "speed_m": 9,
-      "atributos_fixos": { "inteligencia": 1, "carisma": 2 },
+      "atributos_fixos": {
+        "inteligencia": 1,
+        "carisma": 2
+      },
       "atributos_distribuiveis": null,
-      "tracos": ["t_visao_crepuscular", "t_resiliencia_ignea", "t_legado_sobrenatural"]
+      "tracos": [
+        "t_visao_crepuscular",
+        "t_resiliencia_ignea",
+        "t_legado_sobrenatural"
+      ]
     },
-
     {
       "id": "humano",
       "nome": "Humano",
@@ -360,70 +551,170 @@
       "size": "medio",
       "speed_m": 9,
       "atributos_fixos": {},
-      "atributos_distribuiveis": { "quantidade": 2, "max_por_atributo": 1, "regra": "Distribua +1 em dois atributos diferentes." },
-      "tracos": ["t_idioma_extra", "t_pericia_extra", "t_talento_inicial"]
+      "atributos_distribuiveis": {
+        "quantidade": 2,
+        "max_por_atributo": 1,
+        "regra": "Distribua +1 em dois atributos diferentes."
+      },
+      "tracos": [
+        "t_idioma_extra",
+        "t_pericia_extra",
+        "t_talento_inicial"
+      ]
     }
   ],
-
   "class_feature_dictionary": {
-    "c_furia": { "nome": "Fúria", "resumo": "Modo de combate que melhora dano/defesa por tempo limitado." },
-    "c_defesa_sem_armadura": { "nome": "Defesa sem Armadura", "resumo": "Cálculo alternativo de CA quando sem armadura." },
-    "c_ataque_imprudente": { "nome": "Ataque Imprudente", "resumo": "Vantagem no ataque; inimigos têm vantagem para te atingir até seu próximo turno (modelo típico)." },
-    "c_instinto_perigo": { "nome": "Instinto de Perigo", "resumo": "Melhor reação contra ameaças súbitas (salvaguardas específicas)." },
-
-    "c_segundo_folego": { "nome": "Segundo Fôlego", "resumo": "Recuperação curta de PV." },
-    "c_surto_acao": { "nome": "Surto de Ação", "resumo": "Ganha uma ação extra em momento-chave." },
-    "c_ataque_extra": { "nome": "Ataque Extra", "resumo": "Aumenta número de ataques na ação de Ataque." },
-
-    "c_ataque_oportunidade_furtivo": { "nome": "Ataque Preciso", "resumo": "Dano extra 1x/turno quando cumpre condições (vantagem/aliado)." },
-    "c_esquiva_instintiva": { "nome": "Esquiva Instintiva", "resumo": "Reação para reduzir dano de um ataque." },
-    "c_evasao": { "nome": "Evasão", "resumo": "Em efeitos de área, melhora resultados em salvaguardas (modelo típico de Destreza)." },
-
-    "c_grimorio": { "nome": "Grimório", "resumo": "Registro de fórmulas/efeitos; prepara e amplia repertório." },
-    "c_recuperacao_arcana": { "nome": "Recuperação Arcana", "resumo": "Recupera parte dos recursos mágicos em descanso curto." },
-
-    "c_origem": { "nome": "Origem", "resumo": "Define variações e poderes centrais do conjurador inato." },
-    "c_pontos_foco": { "nome": "Pontos de Foco", "resumo": "Recurso para flexibilizar efeitos mágicos." },
-    "c_modelagem_magica": { "nome": "Modelagem Mágica", "resumo": "Ajusta forma/alcance/duração de efeitos (metamagia equivalente)." },
-
-    "c_magia_pacto": { "nome": "Magia de Pacto", "resumo": "Slots poucos, no maior nível disponível; recupera em descanso curto." },
-    "c_invocacoes": { "nome": "Aprimoramentos", "resumo": "Melhorias modulares permanentes." },
-    "c_pacto": { "nome": "Vínculo", "resumo": "Escolha central que define progressão temática (patrono/pacto equivalente)." },
-
-    "c_canalizacao": { "nome": "Canalização", "resumo": "Recurso de fé para efeitos marcantes (varia por domínio)." },
-    "c_forma_selvagem": { "nome": "Forma Selvagem", "resumo": "Transformação em criatura; uso limitado por descanso." },
-    "c_energia_interna": { "nome": "Energia Interna", "resumo": "Recurso para técnicas (ki equivalente)." },
-    "c_reserva_curativa": { "nome": "Reserva Curativa", "resumo": "Pool de cura para distribuir." },
-    "c_aura": { "nome": "Aura", "resumo": "Bônus defensivo para você e aliados próximos." },
-    "c_inspiracao": { "nome": "Inspiração", "resumo": "Dado bônus para aliados em testes/ataques/defesas (conforme uso)." },
-    "c_especializacao_caca": { "nome": "Especialização de Caça", "resumo": "Vantagens situacionais contra alvos/ambientes (adaptável depois)." }
+    "c_furia": {
+      "nome": "Fúria",
+      "resumo": "Modo de combate que melhora dano/defesa por tempo limitado."
+    },
+    "c_defesa_sem_armadura": {
+      "nome": "Defesa sem Armadura",
+      "resumo": "Cálculo alternativo de CA quando sem armadura."
+    },
+    "c_ataque_imprudente": {
+      "nome": "Ataque Imprudente",
+      "resumo": "Vantagem no ataque; inimigos têm vantagem para te atingir até seu próximo turno (modelo típico)."
+    },
+    "c_instinto_perigo": {
+      "nome": "Instinto de Perigo",
+      "resumo": "Melhor reação contra ameaças súbitas (salvaguardas específicas)."
+    },
+    "c_segundo_folego": {
+      "nome": "Segundo Fôlego",
+      "resumo": "Recuperação curta de PV."
+    },
+    "c_surto_acao": {
+      "nome": "Surto de Ação",
+      "resumo": "Ganha uma ação extra em momento-chave."
+    },
+    "c_ataque_extra": {
+      "nome": "Ataque Extra",
+      "resumo": "Aumenta número de ataques na ação de Ataque."
+    },
+    "c_ataque_oportunidade_furtivo": {
+      "nome": "Ataque Preciso",
+      "resumo": "Dano extra 1x/turno quando cumpre condições (vantagem/aliado)."
+    },
+    "c_esquiva_instintiva": {
+      "nome": "Esquiva Instintiva",
+      "resumo": "Reação para reduzir dano de um ataque."
+    },
+    "c_evasao": {
+      "nome": "Evasão",
+      "resumo": "Em efeitos de área, melhora resultados em salvaguardas (modelo típico de Destreza)."
+    },
+    "c_grimorio": {
+      "nome": "Grimório",
+      "resumo": "Registro de fórmulas/efeitos; prepara e amplia repertório."
+    },
+    "c_recuperacao_arcana": {
+      "nome": "Recuperação Arcana",
+      "resumo": "Recupera parte dos recursos mágicos em descanso curto."
+    },
+    "c_origem": {
+      "nome": "Origem",
+      "resumo": "Define variações e poderes centrais do conjurador inato."
+    },
+    "c_pontos_foco": {
+      "nome": "Pontos de Foco",
+      "resumo": "Recurso para flexibilizar efeitos mágicos."
+    },
+    "c_modelagem_magica": {
+      "nome": "Modelagem Mágica",
+      "resumo": "Ajusta forma/alcance/duração de efeitos (metamagia equivalente)."
+    },
+    "c_magia_pacto": {
+      "nome": "Magia de Pacto",
+      "resumo": "Slots poucos, no maior nível disponível; recupera em descanso curto."
+    },
+    "c_invocacoes": {
+      "nome": "Aprimoramentos",
+      "resumo": "Melhorias modulares permanentes."
+    },
+    "c_pacto": {
+      "nome": "Vínculo",
+      "resumo": "Escolha central que define progressão temática (patrono/pacto equivalente)."
+    },
+    "c_canalizacao": {
+      "nome": "Canalização",
+      "resumo": "Recurso de fé para efeitos marcantes (varia por domínio)."
+    },
+    "c_forma_selvagem": {
+      "nome": "Forma Selvagem",
+      "resumo": "Transformação em criatura; uso limitado por descanso."
+    },
+    "c_energia_interna": {
+      "nome": "Energia Interna",
+      "resumo": "Recurso para técnicas (ki equivalente)."
+    },
+    "c_reserva_curativa": {
+      "nome": "Reserva Curativa",
+      "resumo": "Pool de cura para distribuir."
+    },
+    "c_aura": {
+      "nome": "Aura",
+      "resumo": "Bônus defensivo para você e aliados próximos."
+    },
+    "c_inspiracao": {
+      "nome": "Inspiração",
+      "resumo": "Dado bônus para aliados em testes/ataques/defesas (conforme uso)."
+    },
+    "c_especializacao_caca": {
+      "nome": "Especialização de Caça",
+      "resumo": "Vantagens situacionais contra alvos/ambientes (adaptável depois)."
+    }
   },
-
   "spell_progressions": {
-    "full": { "notes": "Use tabela SRD padrão de slots por nível (conjurador completo)." },
-    "half": { "notes": "Use tabela SRD via nível efetivo (metade do nível), se adotar." },
-    "third": { "notes": "Use tabela SRD via nível efetivo (1/3 do nível), se adotar." },
-    "pact": { "notes": "Slots fixos por nível + recupera em descanso curto; nível do slot escala." },
-    "none": { "notes": "Sem progressão de magia." }
+    "full": {
+      "notes": "Use tabela SRD padrão de slots por nível (conjurador completo)."
+    },
+    "half": {
+      "notes": "Use tabela SRD via nível efetivo (metade do nível), se adotar."
+    },
+    "third": {
+      "notes": "Use tabela SRD via nível efetivo (1/3 do nível), se adotar."
+    },
+    "pact": {
+      "notes": "Slots fixos por nível + recupera em descanso curto; nível do slot escala."
+    },
+    "none": {
+      "notes": "Sem progressão de magia."
+    }
   },
-
   "classes": [
     {
       "id": "barbaro",
       "nome": "Bárbaro",
       "hit_die": "d12",
-      "hp": { "mode": "full_roll", "level1_rule": "roll", "per_level_rule": "roll", "adds_con_mod_each_level": true },
-      "atributos_chave": ["forca", "constituicao"],
-      "salvaguardas": ["forca", "constituicao"],
+      "hp": {
+        "mode": "full_roll",
+        "level1_rule": "roll",
+        "per_level_rule": "roll",
+        "adds_con_mod_each_level": true
+      },
+      "atributos_chave": [
+        "forca",
+        "constituicao"
+      ],
+      "salvaguardas": [
+        "forca",
+        "constituicao"
+      ],
       "spell_progression": "none",
       "features_by_level": {
-        "1": ["c_furia", "c_defesa_sem_armadura"],
+        "1": [
+          "c_furia",
+          "c_defesa_sem_armadura"
+        ],
         "2": [],
         "3": [],
         "4": [],
         "5": [],
         "6": [],
-        "7": ["c_instinto_perigo"],
+        "7": [
+          "c_instinto_perigo"
+        ],
         "8": [],
         "9": [],
         "10": [],
@@ -437,22 +728,43 @@
         "18": [],
         "19": [],
         "20": []
+      },
+      "magic_points": {
+        "enabled": false
       }
     },
     {
       "id": "guerreiro",
       "nome": "Guerreiro",
       "hit_die": "d10",
-      "hp": { "mode": "full_roll", "level1_rule": "roll", "per_level_rule": "roll", "adds_con_mod_each_level": true },
-      "atributos_chave": ["forca", "destreza", "constituicao"],
-      "salvaguardas": ["forca", "constituicao"],
+      "hp": {
+        "mode": "full_roll",
+        "level1_rule": "roll",
+        "per_level_rule": "roll",
+        "adds_con_mod_each_level": true
+      },
+      "atributos_chave": [
+        "forca",
+        "destreza",
+        "constituicao"
+      ],
+      "salvaguardas": [
+        "forca",
+        "constituicao"
+      ],
       "spell_progression": "third",
       "features_by_level": {
-        "1": ["c_segundo_folego"],
-        "2": ["c_surto_acao"],
+        "1": [
+          "c_segundo_folego"
+        ],
+        "2": [
+          "c_surto_acao"
+        ],
         "3": [],
         "4": [],
-        "5": ["c_ataque_extra"],
+        "5": [
+          "c_ataque_extra"
+        ],
         "6": [],
         "7": [],
         "8": [],
@@ -468,24 +780,44 @@
         "18": [],
         "19": [],
         "20": []
+      },
+      "magic_points": {
+        "enabled": false,
+        "note": "Ativar apenas se a subclasse for conjuradora."
       }
     },
     {
       "id": "ladino",
       "nome": "Ladino",
       "hit_die": "d8",
-      "hp": { "mode": "full_roll", "level1_rule": "roll", "per_level_rule": "roll", "adds_con_mod_each_level": true },
-      "atributos_chave": ["destreza"],
-      "salvaguardas": ["destreza", "inteligencia"],
+      "hp": {
+        "mode": "full_roll",
+        "level1_rule": "roll",
+        "per_level_rule": "roll",
+        "adds_con_mod_each_level": true
+      },
+      "atributos_chave": [
+        "destreza"
+      ],
+      "salvaguardas": [
+        "destreza",
+        "inteligencia"
+      ],
       "spell_progression": "third",
       "features_by_level": {
-        "1": ["c_ataque_oportunidade_furtivo"],
+        "1": [
+          "c_ataque_oportunidade_furtivo"
+        ],
         "2": [],
         "3": [],
         "4": [],
-        "5": ["c_esquiva_instintiva"],
+        "5": [
+          "c_esquiva_instintiva"
+        ],
         "6": [],
-        "7": ["c_evasao"],
+        "7": [
+          "c_evasao"
+        ],
         "8": [],
         "9": [],
         "10": [],
@@ -499,20 +831,37 @@
         "18": [],
         "19": [],
         "20": []
+      },
+      "magic_points": {
+        "enabled": false,
+        "note": "Ativar apenas se a subclasse for conjuradora."
       }
     },
-
     {
       "id": "mago",
       "nome": "Mago",
       "hit_die": "d6",
-      "hp": { "mode": "full_roll", "level1_rule": "roll", "per_level_rule": "roll", "adds_con_mod_each_level": true },
-      "atributos_chave": ["inteligencia"],
-      "salvaguardas": ["inteligencia", "sabedoria"],
+      "hp": {
+        "mode": "full_roll",
+        "level1_rule": "roll",
+        "per_level_rule": "roll",
+        "adds_con_mod_each_level": true
+      },
+      "atributos_chave": [
+        "inteligencia"
+      ],
+      "salvaguardas": [
+        "inteligencia",
+        "sabedoria"
+      ],
       "spell_progression": "full",
       "features_by_level": {
-        "1": ["c_grimorio"],
-        "2": ["c_recuperacao_arcana"],
+        "1": [
+          "c_grimorio"
+        ],
+        "2": [
+          "c_recuperacao_arcana"
+        ],
         "3": [],
         "4": [],
         "5": [],
@@ -531,20 +880,44 @@
         "18": [],
         "19": [],
         "20": []
+      },
+      "magic_points": {
+        "enabled": true,
+        "starts_at_level": 1,
+        "casting_stat": "inteligencia",
+        "table_id": "universal_base",
+        "multiplier": 1.0,
+        "recovery": "long_rest"
       }
     },
     {
       "id": "feiticeiro",
       "nome": "Feiticeiro",
       "hit_die": "d6",
-      "hp": { "mode": "full_roll", "level1_rule": "roll", "per_level_rule": "roll", "adds_con_mod_each_level": true },
-      "atributos_chave": ["carisma"],
-      "salvaguardas": ["constituicao", "carisma"],
+      "hp": {
+        "mode": "full_roll",
+        "level1_rule": "roll",
+        "per_level_rule": "roll",
+        "adds_con_mod_each_level": true
+      },
+      "atributos_chave": [
+        "carisma"
+      ],
+      "salvaguardas": [
+        "constituicao",
+        "carisma"
+      ],
       "spell_progression": "full",
       "features_by_level": {
-        "1": ["c_origem"],
-        "2": ["c_pontos_foco"],
-        "3": ["c_modelagem_magica"],
+        "1": [
+          "c_origem"
+        ],
+        "2": [
+          "c_pontos_foco"
+        ],
+        "3": [
+          "c_modelagem_magica"
+        ],
         "4": [],
         "5": [],
         "6": [],
@@ -562,20 +935,44 @@
         "18": [],
         "19": [],
         "20": []
+      },
+      "magic_points": {
+        "enabled": true,
+        "starts_at_level": 1,
+        "casting_stat": "carisma",
+        "table_id": "universal_base",
+        "multiplier": 1.0,
+        "recovery": "long_rest"
       }
     },
     {
       "id": "bruxo",
       "nome": "Bruxo",
       "hit_die": "d8",
-      "hp": { "mode": "full_roll", "level1_rule": "roll", "per_level_rule": "roll", "adds_con_mod_each_level": true },
-      "atributos_chave": ["carisma"],
-      "salvaguardas": ["sabedoria", "carisma"],
+      "hp": {
+        "mode": "full_roll",
+        "level1_rule": "roll",
+        "per_level_rule": "roll",
+        "adds_con_mod_each_level": true
+      },
+      "atributos_chave": [
+        "carisma"
+      ],
+      "salvaguardas": [
+        "sabedoria",
+        "carisma"
+      ],
       "spell_progression": "pact",
       "features_by_level": {
-        "1": ["c_magia_pacto"],
-        "2": ["c_invocacoes"],
-        "3": ["c_pacto"],
+        "1": [
+          "c_magia_pacto"
+        ],
+        "2": [
+          "c_invocacoes"
+        ],
+        "3": [
+          "c_pacto"
+        ],
         "4": [],
         "5": [],
         "6": [],
@@ -593,20 +990,39 @@
         "18": [],
         "19": [],
         "20": []
+      },
+      "magic_points": {
+        "enabled": true,
+        "starts_at_level": 1,
+        "casting_stat": "carisma",
+        "table_id": "universal_base",
+        "multiplier": 0.7,
+        "recovery": "short_rest"
       }
     },
-
     {
       "id": "clerigo",
       "nome": "Clérigo",
       "hit_die": "d8",
-      "hp": { "mode": "full_roll", "level1_rule": "roll", "per_level_rule": "roll", "adds_con_mod_each_level": true },
-      "atributos_chave": ["sabedoria"],
-      "salvaguardas": ["sabedoria", "carisma"],
+      "hp": {
+        "mode": "full_roll",
+        "level1_rule": "roll",
+        "per_level_rule": "roll",
+        "adds_con_mod_each_level": true
+      },
+      "atributos_chave": [
+        "sabedoria"
+      ],
+      "salvaguardas": [
+        "sabedoria",
+        "carisma"
+      ],
       "spell_progression": "full",
       "features_by_level": {
         "1": [],
-        "2": ["c_canalizacao"],
+        "2": [
+          "c_canalizacao"
+        ],
         "3": [],
         "4": [],
         "5": [],
@@ -625,19 +1041,39 @@
         "18": [],
         "19": [],
         "20": []
+      },
+      "magic_points": {
+        "enabled": true,
+        "starts_at_level": 1,
+        "casting_stat": "sabedoria",
+        "table_id": "universal_base",
+        "multiplier": 1.0,
+        "recovery": "long_rest"
       }
     },
     {
       "id": "druida",
       "nome": "Druida",
       "hit_die": "d8",
-      "hp": { "mode": "full_roll", "level1_rule": "roll", "per_level_rule": "roll", "adds_con_mod_each_level": true },
-      "atributos_chave": ["sabedoria"],
-      "salvaguardas": ["inteligencia", "sabedoria"],
+      "hp": {
+        "mode": "full_roll",
+        "level1_rule": "roll",
+        "per_level_rule": "roll",
+        "adds_con_mod_each_level": true
+      },
+      "atributos_chave": [
+        "sabedoria"
+      ],
+      "salvaguardas": [
+        "inteligencia",
+        "sabedoria"
+      ],
       "spell_progression": "full",
       "features_by_level": {
         "1": [],
-        "2": ["c_forma_selvagem"],
+        "2": [
+          "c_forma_selvagem"
+        ],
         "3": [],
         "4": [],
         "5": [],
@@ -656,19 +1092,42 @@
         "18": [],
         "19": [],
         "20": []
+      },
+      "magic_points": {
+        "enabled": true,
+        "starts_at_level": 1,
+        "casting_stat": "sabedoria",
+        "table_id": "universal_base",
+        "multiplier": 1.0,
+        "recovery": "long_rest"
       }
     },
     {
       "id": "monge",
       "nome": "Monge",
       "hit_die": "d8",
-      "hp": { "mode": "full_roll", "level1_rule": "roll", "per_level_rule": "roll", "adds_con_mod_each_level": true },
-      "atributos_chave": ["destreza", "sabedoria"],
-      "salvaguardas": ["forca", "destreza"],
+      "hp": {
+        "mode": "full_roll",
+        "level1_rule": "roll",
+        "per_level_rule": "roll",
+        "adds_con_mod_each_level": true
+      },
+      "atributos_chave": [
+        "destreza",
+        "sabedoria"
+      ],
+      "salvaguardas": [
+        "forca",
+        "destreza"
+      ],
       "spell_progression": "none",
       "features_by_level": {
-        "1": ["c_defesa_sem_armadura"],
-        "2": ["c_energia_interna"],
+        "1": [
+          "c_defesa_sem_armadura"
+        ],
+        "2": [
+          "c_energia_interna"
+        ],
         "3": [],
         "4": [],
         "5": [],
@@ -687,23 +1146,41 @@
         "18": [],
         "19": [],
         "20": []
+      },
+      "magic_points": {
+        "enabled": false
       }
     },
     {
       "id": "paladino",
       "nome": "Paladino",
       "hit_die": "d10",
-      "hp": { "mode": "full_roll", "level1_rule": "roll", "per_level_rule": "roll", "adds_con_mod_each_level": true },
-      "atributos_chave": ["forca", "carisma"],
-      "salvaguardas": ["sabedoria", "carisma"],
+      "hp": {
+        "mode": "full_roll",
+        "level1_rule": "roll",
+        "per_level_rule": "roll",
+        "adds_con_mod_each_level": true
+      },
+      "atributos_chave": [
+        "forca",
+        "carisma"
+      ],
+      "salvaguardas": [
+        "sabedoria",
+        "carisma"
+      ],
       "spell_progression": "half",
       "features_by_level": {
-        "1": ["c_reserva_curativa"],
+        "1": [
+          "c_reserva_curativa"
+        ],
         "2": [],
         "3": [],
         "4": [],
         "5": [],
-        "6": ["c_aura"],
+        "6": [
+          "c_aura"
+        ],
         "7": [],
         "8": [],
         "9": [],
@@ -718,18 +1195,38 @@
         "18": [],
         "19": [],
         "20": []
+      },
+      "magic_points": {
+        "enabled": true,
+        "starts_at_level": 2,
+        "casting_stat": "carisma",
+        "table_id": "universal_base",
+        "multiplier": 0.6,
+        "recovery": "long_rest"
       }
     },
     {
       "id": "bardo",
       "nome": "Bardo",
       "hit_die": "d8",
-      "hp": { "mode": "full_roll", "level1_rule": "roll", "per_level_rule": "roll", "adds_con_mod_each_level": true },
-      "atributos_chave": ["carisma"],
-      "salvaguardas": ["destreza", "carisma"],
+      "hp": {
+        "mode": "full_roll",
+        "level1_rule": "roll",
+        "per_level_rule": "roll",
+        "adds_con_mod_each_level": true
+      },
+      "atributos_chave": [
+        "carisma"
+      ],
+      "salvaguardas": [
+        "destreza",
+        "carisma"
+      ],
       "spell_progression": "full",
       "features_by_level": {
-        "1": ["c_inspiracao"],
+        "1": [
+          "c_inspiracao"
+        ],
         "2": [],
         "3": [],
         "4": [],
@@ -749,18 +1246,39 @@
         "18": [],
         "19": [],
         "20": []
+      },
+      "magic_points": {
+        "enabled": true,
+        "starts_at_level": 1,
+        "casting_stat": "carisma",
+        "table_id": "universal_base",
+        "multiplier": 1.0,
+        "recovery": "long_rest"
       }
     },
     {
       "id": "patrulheiro",
       "nome": "Patrulheiro",
       "hit_die": "d10",
-      "hp": { "mode": "full_roll", "level1_rule": "roll", "per_level_rule": "roll", "adds_con_mod_each_level": true },
-      "atributos_chave": ["destreza", "sabedoria"],
-      "salvaguardas": ["forca", "destreza"],
+      "hp": {
+        "mode": "full_roll",
+        "level1_rule": "roll",
+        "per_level_rule": "roll",
+        "adds_con_mod_each_level": true
+      },
+      "atributos_chave": [
+        "destreza",
+        "sabedoria"
+      ],
+      "salvaguardas": [
+        "forca",
+        "destreza"
+      ],
       "spell_progression": "half",
       "features_by_level": {
-        "1": ["c_especializacao_caca"],
+        "1": [
+          "c_especializacao_caca"
+        ],
         "2": [],
         "3": [],
         "4": [],
@@ -780,7 +1298,53 @@
         "18": [],
         "19": [],
         "20": []
+      },
+      "magic_points": {
+        "enabled": true,
+        "starts_at_level": 2,
+        "casting_stat": "sabedoria",
+        "table_id": "universal_base",
+        "multiplier": 0.6,
+        "recovery": "long_rest"
       }
     }
-  ]
+  ],
+  "magic_point_rules": {
+    "cost_by_circle": {
+      "0": 0,
+      "1": 1,
+      "2": 2,
+      "3": 3,
+      "4": 4,
+      "5": 5,
+      "6": 7,
+      "7": 8,
+      "8": 10,
+      "9": 12
+    }
+  },
+  "magic_point_tables": {
+    "universal_base": {
+      "1": 2,
+      "2": 3,
+      "3": 8,
+      "4": 9,
+      "5": 15,
+      "6": 18,
+      "7": 21,
+      "8": 24,
+      "9": 31,
+      "10": 35,
+      "11": 40,
+      "12": 40,
+      "13": 46,
+      "14": 46,
+      "15": 52,
+      "16": 52,
+      "17": 59,
+      "18": 63,
+      "19": 68,
+      "20": 73
+    }
+  }
 }
