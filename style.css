@@ -1964,3 +1964,12 @@ kbd {
 .classTotalLevelRow input {
   width: 82px;
 }
+
+.profSection { border:1px solid #2a3458; border-radius:10px; padding:10px; margin-bottom:10px; }
+.profHeader { display:flex; justify-content:space-between; align-items:center; }
+.profBadge { font-size:11px; padding:2px 6px; border-radius:999px; background:#1f2937; }
+.profActions { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+.reagentRow, .shopPlayerRow { display:flex; justify-content:space-between; gap:8px; padding:4px 0; border-bottom:1px dashed #2f3b66; }
+.tokenStack { position: relative; }
+.playerShopTokenBadge { position:absolute; right:-6px; top:-6px; background:#2563eb; color:#fff; border-radius:999px; padding:1px 5px; font-size:10px; cursor:pointer; }
+#professionsPanel .smallBtn, #playerShopPanel .smallBtn { margin-right:6px; margin-top:6px; }

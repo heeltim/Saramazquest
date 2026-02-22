@@ -1010,6 +1010,38 @@ const SHOP_DB = {
   arsenal: { shopId: "arsenal", shopName: "Arsenal", items: [] },
   ferreiro: { shopId: "ferreiro", shopName: "Ferreiro", items: [] },
 };
+const PROFESSION_XP_PER_LEVEL = 100;
+const MAX_PRODUCTION_PROFESSIONS = 2;
+const PROFESSIONS_DB = {
+  professions: [
+    { id: "culinaria", nome: "Culinária", descricao: "Prepara refeições e banquetes.", ui: { cor_hex: "#d97706" }, actions: ["coletar", "craftar", "vender"] },
+    { id: "alquimia", nome: "Alquimia", descricao: "Coleta ervas e prepara poções/elixires.", ui: { cor_hex: "#059669" }, actions: ["coletar", "craftar", "vender"] },
+    { id: "ferraria", nome: "Ferraria", descricao: "Forja armas e armaduras.", ui: { cor_hex: "#64748b" }, actions: ["coletar", "craftar", "vender"] },
+    { id: "mercador", nome: "Mercador", descricao: "Gerencia a loja do jogador.", ui: { cor_hex: "#2563eb" }, actions: ["vender", "gerenciar_loja"] },
+  ],
+  reagents: [
+    { id: "erva_comum", nome: "Erva Comum", categoria: "herbal", raridade: "comum", stack_max: 99, valor_venda_gp: 1 },
+    { id: "erva_rara", nome: "Erva Rara", categoria: "herbal", raridade: "raro", stack_max: 99, valor_venda_gp: 3 },
+    { id: "carne_selvagem", nome: "Carne Selvagem", categoria: "culinaria", raridade: "comum", stack_max: 99, valor_venda_gp: 2 },
+    { id: "grao_fino", nome: "Grão Fino", categoria: "culinaria", raridade: "incomum", stack_max: 99, valor_venda_gp: 2 },
+    { id: "minerio_ferro", nome: "Minério de Ferro", categoria: "metal", raridade: "comum", stack_max: 99, valor_venda_gp: 2 },
+    { id: "minerio_aco", nome: "Minério de Aço", categoria: "metal", raridade: "raro", stack_max: 99, valor_venda_gp: 4 },
+  ],
+  recipes: [
+    { id: "cul_refeicao_simples", profissao_id: "culinaria", nome: "Refeição Simples", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "carne_selvagem", qtd: 1 }], output: { type: "item", item_id: "refeicao_simples", qtd: 1 }, xp_gain: 20 },
+    { id: "cul_refeicao_boa", profissao_id: "culinaria", nome: "Refeição Boa", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "carne_selvagem", qtd: 1 }, { id: "grao_fino", qtd: 1 }], output: { type: "item", item_id: "refeicao_boa", qtd: 1 }, xp_gain: 25 },
+    { id: "cul_banquete", profissao_id: "culinaria", nome: "Banquete", nivel_profissao_min: 2, tempo_dias: 1, reagentes: [{ id: "carne_selvagem", qtd: 2 }, { id: "grao_fino", qtd: 2 }], output: { type: "item", item_id: "banquete", qtd: 1 }, xp_gain: 40 },
+    { id: "alq_balsamo", profissao_id: "alquimia", nome: "Bálsamo Restaurador", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "erva_comum", qtd: 2 }], output: { type: "item", item_id: "balsamo_restaurador", qtd: 1 }, xp_gain: 25 },
+    { id: "alq_vinho_elfico", profissao_id: "alquimia", nome: "Elixir Élfico", nivel_profissao_min: 2, tempo_dias: 1, reagentes: [{ id: "erva_comum", qtd: 1 }, { id: "erva_rara", qtd: 1 }], output: { type: "item", item_id: "vinho_elfico", qtd: 1 }, xp_gain: 35 },
+    { id: "fer_punhal", profissao_id: "ferraria", nome: "Punhal de Combate", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "minerio_ferro", qtd: 2 }], output: { type: "item", item_id: "punhal_de_combate", qtd: 1 }, xp_gain: 25 },
+    { id: "fer_espada_longa", profissao_id: "ferraria", nome: "Espada Longa", nivel_profissao_min: 2, tempo_dias: 1, reagentes: [{ id: "minerio_ferro", qtd: 2 }, { id: "minerio_aco", qtd: 1 }], output: { type: "item", item_id: "espada_longa", qtd: 1 }, xp_gain: 40 },
+    { id: "fer_cota", profissao_id: "ferraria", nome: "Cota Metálica", nivel_profissao_min: 2, tempo_dias: 1, reagentes: [{ id: "minerio_ferro", qtd: 2 }, { id: "minerio_aco", qtd: 1 }], output: { type: "item", item_id: "cota_metalica", qtd: 1 }, xp_gain: 45 },
+  ],
+};
+const REAGENT_BY_ID = Object.fromEntries(PROFESSIONS_DB.reagents.map((r) => [r.id, r]));
+const PROFESSION_BY_ID = Object.fromEntries(PROFESSIONS_DB.professions.map((r) => [r.id, r]));
+let selectedProfessionId = "culinaria";
+let professionTargetName = null;
 let selectedShopId = "taberna";
 let selectedArsenalType = "weapon";
 let pendingUpgradeId = null;
@@ -1442,6 +1474,22 @@ function ensurePlayerSchema(p) {
   if (p.onTable === undefined) p.onTable = true;
 
   if (p.gold === undefined) p.gold = 60;
+  if (p.downtime_days === undefined) p.downtime_days = 0;
+  if (!p.professions_progress || typeof p.professions_progress !== "object") p.professions_progress = {};
+  for (const prof of PROFESSIONS_DB.professions) {
+    if (!p.professions_progress[prof.id]) p.professions_progress[prof.id] = { xp: 0, level: 1 };
+  }
+  if (!p.reagents_inventory || typeof p.reagents_inventory !== "object") p.reagents_inventory = {};
+  if (!Array.isArray(p.production_professions)) p.production_professions = ["culinaria", "alquimia"];
+  p.production_professions = p.production_professions.filter((id) => ["culinaria", "alquimia", "ferraria"].includes(id)).slice(0, MAX_PRODUCTION_PROFESSIONS);
+  if (!p.player_shop || typeof p.player_shop !== "object") p.player_shop = {};
+  p.player_shop.enabled = !!p.player_shop.enabled;
+  if (typeof p.player_shop.name !== "string") p.player_shop.name = `${p.name || "Loja"} & Cia`;
+  if (typeof p.player_shop.icon !== "string") p.player_shop.icon = "🏪";
+  if (!Array.isArray(p.player_shop.inventory)) p.player_shop.inventory = [];
+  if (!p.player_shop.rules || typeof p.player_shop.rules !== "object") p.player_shop.rules = {};
+  if (p.player_shop.rules.allow_haggle === undefined) p.player_shop.rules.allow_haggle = false;
+  if (p.player_shop.rules.sell_to_npcs === undefined) p.player_shop.rules.sell_to_npcs = true;
 
   p.attributeScores = normalizeAttributeScores(p.attributeScores);
   p.attributeMods = { ...defaultAttributeMods(), ...(p.attributeMods || {}) };
@@ -2435,6 +2483,11 @@ function ensureCurrentUserRecord(setup = null) {
       expertiseSkills: [],
       skills: [],
       gold: 60,
+      downtime_days: 0,
+      professions_progress: {},
+      reagents_inventory: {},
+      production_professions: ["culinaria", "alquimia"],
+      player_shop: { enabled: false, name: "Loja do Herói", icon: "🏪", inventory: [], rules: { allow_haggle: false, sell_to_npcs: true } },
       inventory: [],
       equipped: createEmptyEquipped(),
       color: randomColor(),
@@ -2574,6 +2627,17 @@ function updateArena() {
 
     tokenStack.appendChild(token);
     tokenStack.appendChild(resources);
+    if (p.player_shop?.enabled) {
+      const badge = document.createElement("div");
+      badge.className = "playerShopTokenBadge";
+      badge.textContent = `${p.player_shop.icon || "🏪"}`;
+      badge.title = "Loja disponível";
+      badge.onclick = (evt) => {
+        evt.stopPropagation();
+        openPlayerShop(name, currentUser);
+      };
+      tokenStack.appendChild(badge);
+    }
 
     cell.appendChild(tokenStack);
   });
@@ -2775,6 +2839,7 @@ function showMenu(name, element) {
     { icon: "❤️", title: "HP (+/-)", run: () => editStat(name, "hp") },
     { icon: "🔵", title: "MP (+/-)", run: () => editStat(name, "mana") },
     { icon: "🗑️", title: "Remover da mesa", run: () => removeFromTable(name) },
+    ...(load().rooms?.[room]?.[name]?.player_shop?.enabled ? [{ icon: "🏪", title: "Abrir Loja", run: () => openPlayerShop(name, currentUser) }] : []),
   ];
 
   actions.forEach((action) => {
@@ -4466,5 +4531,271 @@ function addBackToTable(name) {
   p.onTable = true;
 
   save(data);
+  updateArena();
+}
+
+function professionDebugLog(info) {
+  console.debug("[Profissões Debug]", info);
+}
+
+function getProfessionLevelFromXp(xp) {
+  return Math.max(1, Math.floor((xp || 0) / PROFESSION_XP_PER_LEVEL) + 1);
+}
+
+function getShopEntryById(itemId) {
+  for (const shop of Object.values(SHOP_DB)) {
+    const found = (shop.items || []).find((it) => it.id === itemId);
+    if (found) return found;
+  }
+  return null;
+}
+
+function addReagentToPlayer(p, reagentId, qty) {
+  if (!REAGENT_BY_ID[reagentId]) return;
+  p.reagents_inventory[reagentId] = (p.reagents_inventory[reagentId] || 0) + qty;
+}
+
+function consumeReagentsFromPlayer(p, reagents) {
+  for (const req of reagents) {
+    if ((p.reagents_inventory[req.id] || 0) < req.qtd) return false;
+  }
+  for (const req of reagents) {
+    p.reagents_inventory[req.id] -= req.qtd;
+    if (p.reagents_inventory[req.id] <= 0) delete p.reagents_inventory[req.id];
+  }
+  return true;
+}
+
+function gainProfessionXp(p, professionId, xpGain) {
+  const prog = p.professions_progress[professionId] || { xp: 0, level: 1 };
+  prog.xp += xpGain;
+  prog.level = getProfessionLevelFromXp(prog.xp);
+  p.professions_progress[professionId] = prog;
+}
+
+function collectProfession(professionId) {
+  if (!professionTargetName) return;
+  const data = load();
+  const p = data.rooms[room][professionTargetName];
+  if (!p) return;
+  ensurePlayerSchema(p);
+  if ((p.downtime_days || 0) < 1) {
+    alert("Sem downtime suficiente.");
+    return;
+  }
+  const table = {
+    culinaria: [{ id: "carne_selvagem", qtd: 2 }, { id: "grao_fino", qtd: 1 }],
+    alquimia: [{ id: "erva_comum", qtd: 2 }, { id: "erva_rara", qtd: 1 }],
+    ferraria: [{ id: "minerio_ferro", qtd: 2 }, { id: "minerio_aco", qtd: 1 }],
+  };
+  const gains = table[professionId] || [];
+  gains.forEach((g) => addReagentToPlayer(p, g.id, g.qtd));
+  p.downtime_days -= 1;
+  gainProfessionXp(p, professionId, 20);
+  professionDebugLog({ reagentes_ganhos: gains, xp_ganho: 20, downtime_gasto: 1, craft_output: null, saldo_ouro: p.gold });
+  save(data);
+  renderProfessionsModal(p);
+  updateArena();
+}
+
+function craftRecipe(recipeId) {
+  if (!professionTargetName) return;
+  const data = load();
+  const p = data.rooms[room][professionTargetName];
+  if (!p) return;
+  ensurePlayerSchema(p);
+  const recipe = PROFESSIONS_DB.recipes.find((r) => r.id === recipeId);
+  if (!recipe) return;
+  const prog = p.professions_progress[recipe.profissao_id] || { level: 1, xp: 0 };
+  if (prog.level < recipe.nivel_profissao_min) return alert("Nível de profissão insuficiente.");
+  if ((p.downtime_days || 0) < (recipe.tempo_dias || 1)) return alert("Downtime insuficiente.");
+  const shopEntry = getShopEntryById(recipe.output.item_id);
+  if (!shopEntry) return alert("Item de saída não existe no banco de itens.");
+  if (!consumeReagentsFromPlayer(p, recipe.reagentes || [])) return alert("Reagentes insuficientes.");
+  p.downtime_days -= (recipe.tempo_dias || 1);
+  for (let i = 0; i < (recipe.output.qtd || 1); i += 1) {
+    const itemRuntimeId = createInventoryItemFromShopEntry(shopEntry);
+    const res = addItemToPlayer(p, itemRuntimeId);
+    if (!res.ok) break;
+  }
+  gainProfessionXp(p, recipe.profissao_id, recipe.xp_gain || 0);
+  professionDebugLog({ reagentes_ganhos: [], xp_ganho: recipe.xp_gain || 0, downtime_gasto: recipe.tempo_dias || 1, craft_output: recipe.output.item_id, saldo_ouro: p.gold });
+  save(data);
+  renderProfessionsModal(p);
+  updateArena();
+}
+
+function sellFirstReagent() {
+  if (!professionTargetName) return;
+  const data = load();
+  const p = data.rooms[room][professionTargetName];
+  if (!p) return;
+  ensurePlayerSchema(p);
+  const first = Object.entries(p.reagents_inventory).find(([, q]) => q > 0);
+  if (!first) return alert("Sem reagentes para vender.");
+  const [rid] = first;
+  const reagent = REAGENT_BY_ID[rid];
+  p.reagents_inventory[rid] -= 1;
+  if (p.reagents_inventory[rid] <= 0) delete p.reagents_inventory[rid];
+  p.gold += reagent?.valor_venda_gp || 0;
+  professionDebugLog({ reagentes_ganhos: [], xp_ganho: 0, downtime_gasto: 0, craft_output: null, saldo_ouro: p.gold });
+  save(data);
+  renderProfessionsModal(p);
+  updateArena();
+}
+
+function openProfessions() {
+  professionTargetName = currentUser;
+  const p = load().rooms?.[room]?.[professionTargetName];
+  if (!p) return;
+  ensurePlayerSchema(p);
+  document.getElementById("professionsSub").textContent = `Personagem: ${professionTargetName}`;
+  document.getElementById("professionsOverlay").style.display = "flex";
+  renderProfessionsModal(p);
+}
+
+function closeProfessions() {
+  document.getElementById("professionsOverlay").style.display = "none";
+  professionTargetName = null;
+}
+
+function renderProfessionsModal(p) {
+  const panel = document.getElementById("professionsPanel");
+  if (!panel) return;
+  const profTabs = PROFESSIONS_DB.professions.map((prof) => `<button class="smallBtn ${selectedProfessionId === prof.id ? "smallBtnPrimary" : ""}" onclick="selectedProfessionId='${prof.id}'; renderProfessionsModal(load().rooms[room][professionTargetName]);">${prof.nome}</button>`).join("");
+  const recipes = PROFESSIONS_DB.recipes.filter((r) => r.profissao_id === selectedProfessionId);
+  const reagentsHtml = Object.entries(p.reagents_inventory || {}).map(([rid, qty]) => `<div class="reagentRow"><span>${REAGENT_BY_ID[rid]?.nome || rid}</span><strong>x${qty}</strong></div>`).join("") || '<div class="invDesc">Sem reagentes.</div>';
+  const productionOptions = ["culinaria", "alquimia", "ferraria"].map((id) => `<label><input type="checkbox" ${p.production_professions.includes(id) ? "checked" : ""} onchange="toggleProductionProfession('${id}', this.checked)"> ${PROFESSION_BY_ID[id].nome}</label>`).join(" ");
+  panel.innerHTML = `
+    <div class="profSection"><strong>Downtime:</strong> ${p.downtime_days}</div>
+    <div class="profSection">${profTabs}</div>
+    <div class="profSection">
+      <div><strong>Profissões de produção (máx ${MAX_PRODUCTION_PROFESSIONS})</strong></div>
+      <div>${productionOptions}</div>
+    </div>
+    ${PROFESSIONS_DB.professions.map((prof) => `<div class="profSection"><div class="profHeader"><strong>${prof.nome}</strong><span class="profBadge">Nv ${p.professions_progress[prof.id]?.level || 1} • XP ${p.professions_progress[prof.id]?.xp || 0}</span></div></div>`).join("")}
+    <div class="profSection"><strong>Ações</strong><div class="profActions"><button class="smallBtn smallBtnPrimary" onclick="collectProfession('${selectedProfessionId}')">Coletar</button><button class="smallBtn smallBtnPrimary" onclick="sellFirstReagent()">Vender</button></div></div>
+    <div class="profSection"><strong>Receitas (${PROFESSION_BY_ID[selectedProfessionId]?.nome || ''})</strong>${recipes.map((r) => `<div class="reagentRow"><span>${r.nome} → ${r.output.item_id}</span><button class="smallBtn" onclick="craftRecipe('${r.id}')">Craftar</button></div>`).join('') || '<div class="invDesc">Sem receitas.</div>'}</div>
+    <div class="profSection"><strong>Inventário de reagentes</strong>${reagentsHtml}</div>
+    <div class="profSection"><strong>Mercador / Loja do jogador</strong><button class="smallBtn" onclick="togglePlayerShopEnabled()">${p.player_shop.enabled ? "Desativar" : "Ativar"} loja</button><button class="smallBtn" onclick="openPlayerShop('${professionTargetName}','${currentUser}')">Abrir Loja</button></div>
+  `;
+}
+
+function toggleProductionProfession(id, checked) {
+  if (!professionTargetName) return;
+  const data = load();
+  const p = data.rooms[room][professionTargetName];
+  if (!p) return;
+  ensurePlayerSchema(p);
+  const set = new Set(p.production_professions || []);
+  if (checked) {
+    if (set.size >= MAX_PRODUCTION_PROFESSIONS && !set.has(id)) return alert("Limite de 2 profissões de produção.");
+    set.add(id);
+  } else {
+    set.delete(id);
+  }
+  p.production_professions = Array.from(set).slice(0, MAX_PRODUCTION_PROFESSIONS);
+  save(data);
+  renderProfessionsModal(p);
+}
+
+function togglePlayerShopEnabled() {
+  if (!professionTargetName) return;
+  const data = load();
+  const p = data.rooms[room][professionTargetName];
+  if (!p) return;
+  ensurePlayerSchema(p);
+  p.player_shop.enabled = !p.player_shop.enabled;
+  save(data);
+  renderProfessionsModal(p);
+  updateArena();
+}
+
+function openPlayerShop(sellerName, buyerName) {
+  const data = load();
+  const seller = data.rooms?.[room]?.[sellerName];
+  const buyer = data.rooms?.[room]?.[buyerName];
+  if (!seller || !seller.player_shop?.enabled) return alert("Loja indisponível.");
+  ensurePlayerSchema(seller);
+  if (buyer) ensurePlayerSchema(buyer);
+  document.getElementById("playerShopTitle").textContent = `${seller.player_shop.icon || "🏪"} ${seller.player_shop.name || "Loja"}`;
+  document.getElementById("playerShopOverlay").style.display = "flex";
+  renderPlayerShopPanel(sellerName, buyerName || currentUser);
+}
+
+function closePlayerShop() {
+  document.getElementById("playerShopOverlay").style.display = "none";
+}
+
+function addItemToPlayerShopFromInventory(invIdx) {
+  const data = load();
+  const seller = data.rooms?.[room]?.[currentUser];
+  if (!seller) return;
+  ensurePlayerSchema(seller);
+  const item = resolveInventoryItem((seller.inventory || [])[invIdx]);
+  if (!item) return;
+  const exists = getShopEntryById(item.baseId || item.id);
+  if (!exists) return alert("Item inválido para vitrine (item_id inexistente no banco).");
+  const baseId = item.baseId || exists.id;
+  const price = exists.sell_price_gp ?? Math.floor((exists.priceGold ?? 0) * 0.5);
+  seller.player_shop.inventory.push({ item_id: baseId, qty: 1, price_gp: Math.max(1, price || 1) });
+  seller.inventory.splice(invIdx, 1);
+  save(data);
+  renderPlayerShopPanel(currentUser, currentUser);
+  updateArena();
+}
+
+function renderPlayerShopPanel(sellerName, buyerName) {
+  const data = load();
+  const seller = data.rooms?.[room]?.[sellerName];
+  const buyer = data.rooms?.[room]?.[buyerName];
+  if (!seller) return;
+  const panel = document.getElementById("playerShopPanel");
+  const invRows = (seller.player_shop.inventory || []).map((entry, idx) => {
+    const db = getShopEntryById(entry.item_id);
+    if (!db) return '';
+    return `<div class="shopPlayerRow"><span>${db.name} (x${entry.qty})</span><strong>🪙${entry.price_gp}</strong>${buyerName !== sellerName ? `<button class="smallBtn" onclick="buyFromPlayerShop('${sellerName}','${buyerName}',${idx})">Comprar</button>` : ''}</div>`;
+  }).join('') || '<div class="invDesc">Sem itens na loja.</div>';
+  const ownInv = sellerName === currentUser ? (seller.inventory || []).map((entry, idx) => { const it=resolveInventoryItem(entry); return it ? `<div class=\"shopPlayerRow\"><span>${it.name}</span><button class=\"smallBtn\" onclick=\"addItemToPlayerShopFromInventory(${idx})\">Adicionar à vitrine</button><button class=\"smallBtn\" onclick=\"sellInventoryItemToMarket(${idx})\">Vender para Mercado</button></div>` : ''; }).join('') : '';
+  panel.innerHTML = `<div class="profSection"><strong>Vendedor:</strong> ${sellerName} • <strong>Comprador:</strong> ${buyerName}</div><div class="profSection"><strong>Itens à venda</strong>${invRows}</div>${ownInv ? `<div class=\"profSection\"><strong>Seu inventário</strong>${ownInv}</div>` : ''}`;
+}
+
+function buyFromPlayerShop(sellerName, buyerName, shopIdx) {
+  const data = load();
+  const seller = data.rooms?.[room]?.[sellerName];
+  const buyer = data.rooms?.[room]?.[buyerName];
+  if (!seller || !buyer) return;
+  ensurePlayerSchema(seller); ensurePlayerSchema(buyer);
+  const entry = seller.player_shop.inventory[shopIdx];
+  if (!entry || entry.qty <= 0) return;
+  if ((buyer.gold || 0) < entry.price_gp) return alert("Gold insuficiente.");
+  const db = getShopEntryById(entry.item_id);
+  if (!db) return alert("Item inválido na loja.");
+  const runtimeId = createInventoryItemFromShopEntry(db);
+  const added = addItemToPlayer(buyer, runtimeId);
+  if (!added.ok) return alert(added.msg || "Falha ao comprar.");
+  buyer.gold -= entry.price_gp;
+  seller.gold += entry.price_gp;
+  entry.qty -= 1;
+  if (entry.qty <= 0) seller.player_shop.inventory.splice(shopIdx, 1);
+  pushAction(currentUser, `[Loja] ${buyerName} comprou ${db.name} de ${sellerName} por 🪙${entry.price_gp}.`);
+  save(data);
+  renderPlayerShopPanel(sellerName, buyerName);
+  updateArena();
+}
+
+function sellInventoryItemToMarket(invIdx) {
+  const data = load();
+  const p = data.rooms?.[room]?.[currentUser];
+  if (!p) return;
+  ensurePlayerSchema(p);
+  const item = resolveInventoryItem((p.inventory || [])[invIdx]);
+  if (!item) return;
+  const db = getShopEntryById(item.baseId || item.id);
+  const sell = db?.sell_price_gp ?? Math.floor((db?.priceGold ?? 0) * 0.5);
+  p.gold += Math.max(0, sell || 0);
+  p.inventory.splice(invIdx, 1);
+  save(data);
+  renderPlayerShopPanel(currentUser, currentUser);
   updateArena();
 }
