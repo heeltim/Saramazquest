@@ -783,8 +783,18 @@ function normalizeClassDatabase(raw = {}) {
     const safeClassName = String(className || "").trim();
     if (!safeClassName) return;
 
+    const hitDie = String(classData?.hitDie || "").trim().toLowerCase();
+    const hpMode = classData?.hpMode && typeof classData.hpMode === "object" ? classData.hpMode : null;
+    const magicPoints = classData?.magicPoints && typeof classData.magicPoints === "object" ? classData.magicPoints : { enabled: false };
+    const magicPointTable = classData?.magicPointTable && typeof classData.magicPointTable === "object" ? classData.magicPointTable : null;
+
     normalized[safeClassName] = {
       id: String(classData?.id || safeClassName.toLowerCase()),
+      hitDie,
+      hpMode,
+      spellProgression: String(classData?.spellProgression || "none"),
+      magicPoints,
+      magicPointTable,
       primaryAbilities: Array.isArray(classData?.primaryAbilities)
         ? classData.primaryAbilities.map(normalizeAbilityId).filter((ability) => ATTRIBUTES.some((attr) => attr.id === ability))
         : [],
@@ -802,6 +812,83 @@ function normalizeClassDatabase(raw = {}) {
     };
   });
   return normalized;
+}
+
+
+function parseHitDieSize(hitDie) {
+  const raw = String(hitDie || "").toLowerCase().trim();
+  const match = raw.match(/^d(\d+)$/);
+  if (!match) return 10;
+  const size = parseInt(match[1], 10);
+  return Number.isFinite(size) && size > 0 ? size : 10;
+}
+
+function rollSequenceSeed(text) {
+  let hash = 2166136261;
+  const str = String(text || "seed");
+  for (let i = 0; i < str.length; i += 1) {
+    hash ^= str.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function rollDeterministicD(seedText, sides) {
+  let state = rollSequenceSeed(seedText);
+  state ^= state << 13;
+  state ^= state >>> 17;
+  state ^= state << 5;
+  const normalized = (state >>> 0) / 4294967296;
+  return Math.max(1, Math.floor(normalized * sides) + 1);
+}
+
+function ensureHpRollsForCharacter(p, level, hitDieSize, forceReroll = false) {
+  if (!Array.isArray(p.hpRolls) || forceReroll) p.hpRolls = [];
+  if (p.hpRollDie !== hitDieSize || forceReroll) {
+    p.hpRollDie = hitDieSize;
+    p.hpRolls = [];
+  }
+
+  while (p.hpRolls.length < level) {
+    const idx = p.hpRolls.length + 1;
+    const seed = `${p.owner || "anon"}|${p.class || "class"}|${p.race || "race"}|${p.name || "pc"}|${idx}|d${hitDieSize}`;
+    p.hpRolls.push(rollDeterministicD(seed, hitDieSize));
+  }
+
+  if (p.hpRolls.length > level) p.hpRolls = p.hpRolls.slice(0, level);
+}
+
+function computeHpFromRules(p, cls, level, conMod) {
+  const hitDieSize = parseHitDieSize(cls?.hitDie || "d10");
+  const fullRollMode = cls?.hpMode?.mode === "full_roll";
+  const rollAtLevel1 = cls?.hpMode?.level1_rule === "roll";
+  const rollPerLevel = cls?.hpMode?.per_level_rule === "roll";
+  const addsConEachLevel = cls?.hpMode?.adds_con_mod_each_level !== false;
+
+  if (!fullRollMode || !rollAtLevel1 || !rollPerLevel) {
+    const fallbackHp = 10 + (conMod + 2) * 3 + (level - 1) * 2;
+    return Math.max(1, fallbackHp);
+  }
+
+  ensureHpRollsForCharacter(p, level, hitDieSize);
+  const totalRoll = p.hpRolls.reduce((sum, roll) => sum + (parseInt(roll, 10) || 0), 0);
+  const conTotal = addsConEachLevel ? conMod * level : conMod;
+  return Math.max(1, totalRoll + conTotal);
+}
+
+function computeMagicPointsFromRules(cls, level) {
+  const cfg = cls?.magicPoints || { enabled: false };
+  if (!cfg.enabled) return 0;
+
+  const startsAtLevel = Math.max(1, parseInt(cfg.starts_at_level, 10) || 1);
+  if (level < startsAtLevel) return 0;
+
+  const table = cls?.magicPointTable || null;
+  if (!table) return 0;
+
+  const base = parseInt(table[String(level)], 10) || 0;
+  const multiplier = Number.isFinite(Number(cfg.multiplier)) ? Number(cfg.multiplier) : 1;
+  return Math.max(0, Math.floor(base * multiplier));
 }
 
 async function loadRpgDatabases() {
@@ -2286,8 +2373,8 @@ function recalcFromSheet(p) {
 
   p.attributeMods = mods;
 
-  let hpMax = 10 + (mods.con + 2) * 3 + cls.hpMod + (level - 1) * 2;
-  let manaMax = 5 + (mods.int + mods.wis + 2) * 2 + cls.manaMod + (level - 1) * 2;
+  let hpMax = computeHpFromRules(p, cls, level, mods.con);
+  let manaMax = computeMagicPointsFromRules(cls, level);
 
   if (String(p.race || "").toLowerCase().includes("anão da colina") || p.race === "Anao") hpMax += level * 2;
 
