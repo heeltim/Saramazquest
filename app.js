@@ -3310,7 +3310,7 @@ function renderAbilities(p) {
   }
 
   list.innerHTML = [
-    renderAbilityGroup("Habilidades Raciais e Potencial Icônico de DNA", racialSkills),
+    renderAbilityGroup("Habilidades Raciais", racialSkills),
     renderAbilityGroup("Habilidades de Classe", classSkills),
   ].join("");
 }
@@ -3416,19 +3416,56 @@ function unequip(name, slot) {
   updateArena();
 }
 
+function formatRaceSizeLabel(size) {
+  const value = String(size || "").trim().toLowerCase();
+  if (value === "pequeno") return "Pequeno";
+  if (value === "medio" || value === "médio") return "Médio";
+  if (!value) return "—";
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function extractRaceLongLifeFromAbilities(raceData) {
+  const abilities = Array.isArray(raceData?.abilities) ? raceData.abilities : [];
+  for (const ability of abilities) {
+    const text = `${ability?.name || ""} ${ability?.desc || ""}`.toLowerCase();
+    if (text.includes("longevid") || text.includes("vive") || text.includes("anos")) {
+      return String(ability?.desc || "").trim();
+    }
+  }
+  return "—";
+}
+
+function getRaceSummaryDetails(raceName) {
+  const byName = RACES?.[raceName] || null;
+  const srdBase = typeof globalThis !== "undefined" ? globalThis.RPG_SRD_BASE : null;
+  const srdRace = Array.isArray(srdBase?.races)
+    ? srdBase.races.find((entry) => String(entry?.nome || "").trim() === String(raceName || "").trim())
+    : null;
+  const sizeLabel = formatRaceSizeLabel(srdRace?.size || byName?.size);
+  const speedMeters = Number(srdRace?.speed_m);
+  const speedText = Number.isFinite(speedMeters) ? `${speedMeters}m` : "—";
+  const languages = Array.isArray(byName?.languages) && byName.languages.length ? byName.languages.join(", ") : "—";
+  const age = String(byName?.age || "").trim() || extractRaceLongLifeFromAbilities(byName);
+  const height = String(byName?.height || "").trim() || "—";
+  const weight = String(byName?.weight || "").trim() || "—";
+  return { sizeLabel, speedText, languages, age, height, weight };
+}
+
 function renderDnaSummary(p) {
   const wrap = document.getElementById("sheetDnaSummary");
   if (!wrap) return;
-  const owner = (p.owner || "—").trim() || "—";
-  const classesText = (p.classes || []).map((entry) => `${entry.classId} ${entry.level}`).join(" / ") || "—";
   const bg = (p.background || "Nenhum").trim() || "Nenhum";
   const used = totalPointBuyCost(p.attributeScores || defaultAttributeScores());
+  const race = getRaceSummaryDetails(p.race || "");
   wrap.innerHTML = `
-    <div class="kv"><span>Controlador</span><strong>${owner}</strong></div>
-    <div class="kv"><span>Raça</span><strong>${p.race || "—"}</strong></div>
-    <div class="kv"><span>Classe(s)</span><strong>${classesText}</strong></div>
-    <div class="kv"><span>Background</span><strong>${bg}</strong></div>
+    <div class="kv"><span>Background</span><strong class="sheetClampText" title="${bg}">${bg}</strong></div>
     <div class="kv"><span>Point Buy</span><strong>${used}/${POINT_BUY_BUDGET}</strong></div>
+    <div class="kv"><span>Tamanho</span><strong>${race.sizeLabel}</strong></div>
+    <div class="kv"><span>Deslocamento</span><strong>${race.speedText}</strong></div>
+    <div class="kv"><span>Altura</span><strong>${race.height}</strong></div>
+    <div class="kv"><span>Peso</span><strong>${race.weight}</strong></div>
+    <div class="kv"><span>Longevidade</span><strong>${race.age}</strong></div>
+    <div class="kv"><span>Idiomas</span><strong class="sheetClampText" title="${race.languages}">${race.languages}</strong></div>
   `;
 }
 
