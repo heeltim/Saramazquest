@@ -1499,6 +1499,7 @@ function ensurePlayerSchema(p) {
   if (!Array.isArray(p.skills)) p.skills = [];
   if (!Array.isArray(p.customSpells)) p.customSpells = [];
   if (!Array.isArray(p.spellSlots)) p.spellSlots = Array(8).fill(null);
+  p.spellSlots = normalizeQuickSlots(p.spellSlots);
 
   if (!p.spellcasting || typeof p.spellcasting !== "object") p.spellcasting = {};
   if (!Array.isArray(p.spellcasting.slotsMax)) p.spellcasting.slotsMax = [];
@@ -1531,6 +1532,30 @@ function ensurePlayerSchema(p) {
   const s = load().scenes[room];
   if (p.x === undefined) p.x = Math.floor(Math.random() * s.cols);
   if (p.y === undefined) p.y = Math.floor(Math.random() * s.rows);
+}
+
+function normalizeQuickSlotEntry(entry) {
+  if (!entry) return null;
+  if (typeof entry === "string") {
+    return { type: "spell", id: entry };
+  }
+  if (typeof entry !== "object") return null;
+
+  const type = entry.type === "ability" ? "ability" : "spell";
+  const id = String(entry.id || "").trim();
+  if (!id) return null;
+  return { type, id };
+}
+
+function normalizeQuickSlots(rawSlots, size = 8) {
+  const base = Array.from({ length: size }, (_, idx) => normalizeQuickSlotEntry(rawSlots?.[idx] || null));
+  return base;
+}
+
+function hpColorFromPercent(pct) {
+  if (pct <= 30) return "#ff4d4d";
+  if (pct <= 65) return "#ffa726";
+  return "#4cff6a";
 }
 
 function ensureAllPlayersSchema() {
@@ -2612,6 +2637,7 @@ function updateArena() {
     hpFill.className = "hpFill";
     let hpPercent = p.hpMax > 0 ? (p.hp / p.hpMax) * 100 : 0;
     hpFill.style.width = hpPercent + "%";
+    hpFill.style.background = hpColorFromPercent(hpPercent);
     hpBar.appendChild(hpFill);
     resources.appendChild(hpBar);
 
@@ -2667,6 +2693,106 @@ function updateArena() {
   }
 }
 
+function getActionSourceBySlot(player, slotEntry) {
+  if (!slotEntry || !player) return null;
+  if (slotEntry.type === "ability") {
+    const ability = (player.skills || []).find((skill) => String(skill.id || "").trim() === slotEntry.id && !skill.passive);
+    if (!ability) return null;
+    return { type: "ability", id: slotEntry.id, icon: ability.icon || "⚡", name: ability.name || "Habilidade", tooltip: abilityToCardHtml(ability) };
+  }
+
+  const spell = (player.customSpells || []).find((s) => s.id === slotEntry.id);
+  if (!spell) return null;
+  return { type: "spell", id: slotEntry.id, icon: spell.icon || "✨", name: spell.name || "Magia", tooltip: spellToCardHtml(spell) };
+}
+
+function buildSlotPickerOptions(player) {
+  const spells = (player.customSpells || []).map((spell) => ({ type: "spell", id: spell.id, icon: spell.icon || "✨", name: spell.name || "Magia" }));
+  const abilities = (player.skills || [])
+    .filter((skill) => !skill.passive)
+    .map((skill) => ({ type: "ability", id: String(skill.id || ""), icon: skill.icon || "⚡", name: skill.name || "Habilidade" }))
+    .filter((entry) => entry.id);
+  return [...spells, ...abilities];
+}
+
+function openQuickSlotPicker(slotIndex) {
+  const data = load();
+  const player = data.rooms[room]?.[currentUser];
+  if (!player) return;
+  ensurePlayerSchema(player);
+
+  const currentEntry = normalizeQuickSlotEntry(player.spellSlots?.[slotIndex]);
+  const options = buildSlotPickerOptions(player);
+  if (!options.length) {
+    alert("Crie magias ou use habilidades ativas para preencher os slots rápidos.");
+    return;
+  }
+
+  const currentLabel = currentEntry
+    ? options.find((opt) => opt.type === currentEntry.type && opt.id === currentEntry.id)
+    : null;
+
+  const listText = options
+    .map((opt, idx) => `${idx + 1}. [${opt.type === "spell" ? "Magia" : "Hab."}] ${opt.icon} ${opt.name}`)
+    .join("\n");
+  const selected = prompt(`Escolha o item para o slot ${slotIndex + 1}:\n\n${listText}\n\nDigite o número desejado.${currentLabel ? `\nAtual: ${currentLabel.icon} ${currentLabel.name}` : ""}`);
+  if (selected === null) return;
+
+  const pickedIndex = parseInt(selected, 10) - 1;
+  if (pickedIndex < 0 || pickedIndex >= options.length) {
+    alert("Opção inválida.");
+    return;
+  }
+
+  player.spellSlots[slotIndex] = { type: options[pickedIndex].type, id: options[pickedIndex].id };
+  save(data);
+  updateArena();
+}
+
+function moveQuickSlot(fromIndex, toIndex) {
+  if (fromIndex === toIndex) return;
+  const data = load();
+  const player = data.rooms[room]?.[currentUser];
+  if (!player) return;
+  ensurePlayerSchema(player);
+  const slots = normalizeQuickSlots(player.spellSlots);
+  const tmp = slots[fromIndex];
+  slots[fromIndex] = slots[toIndex];
+  slots[toIndex] = tmp;
+  player.spellSlots = slots;
+  save(data);
+  updateArena();
+}
+
+function useQuickSlot(index, event) {
+  if (event?.ctrlKey) return;
+
+  const data = load();
+  const player = data.rooms[room]?.[currentUser];
+  if (!player) return;
+  ensurePlayerSchema(player);
+
+  const slots = normalizeQuickSlots(player.spellSlots);
+  const slotEntry = slots[index];
+
+  if (!slotEntry) {
+    openQuickSlotPicker(index);
+    return;
+  }
+
+  if (event?.shiftKey) {
+    openQuickSlotPicker(index);
+    return;
+  }
+
+  if (slotEntry.type === "ability") {
+    useAbilityById(currentUser, slotEntry.id);
+    return;
+  }
+
+  castSpellForPlayer(currentUser, slotEntry.id);
+}
+
 function renderCombatSpellSlots(player) {
   const wrap = document.getElementById("combatSpellSlots");
   if (!wrap) return;
@@ -2677,20 +2803,45 @@ function renderCombatSpellSlots(player) {
   }
 
   ensurePlayerSchema(player);
-  const slots = Array.from({ length: 8 }, (_, idx) => player.spellSlots?.[idx] || null);
-  wrap.innerHTML = slots.map((spellId, idx) => {
-    const spell = (player.customSpells || []).find((s) => s.id === spellId);
-    if (!spell) {
-      return `<button class="combatSlot empty" type="button" title="Slot ${idx + 1} vazio">+</button>`;
+  const slots = normalizeQuickSlots(player.spellSlots);
+  wrap.innerHTML = slots.map((slotEntry, idx) => {
+    const action = getActionSourceBySlot(player, slotEntry);
+    if (!action) {
+      return `<button class="combatSlot empty" type="button" title="Slot ${idx + 1} vazio. Clique para escolher." draggable="true" ondragstart="handleSlotDragStart(event, ${idx})" ondragover="handleSlotDragOver(event)" ondrop="handleSlotDrop(event, ${idx})" onclick="useQuickSlot(${idx}, event)">+</button>`;
     }
+    const ctrlHint = 'Ctrl + arrastar para trocar ordem';
+    const shiftHint = 'Shift + clique para trocar item';
     return `
-      <button class="combatSlot" type="button" title="${escapeHtml(spell.name)}" onclick="castSpellForPlayer('${currentUser}','${spell.id}')">
-        <span class="slotIcon">${spell.icon || "✨"}</span>
+      <button class="combatSlot" type="button" title="${escapeHtml(action.name)} • ${shiftHint} • ${ctrlHint}" draggable="true" ondragstart="handleSlotDragStart(event, ${idx})" ondragover="handleSlotDragOver(event)" ondrop="handleSlotDrop(event, ${idx})" onclick="useQuickSlot(${idx}, event)">
+        <span class="slotIcon">${action.icon}</span>
         <span class="slotIndex">${idx + 1}</span>
-        <div class="combatSlotTooltip">${spellToCardHtml(spell)}</div>
+        <div class="combatSlotTooltip">${action.tooltip}</div>
       </button>
     `;
   }).join("");
+}
+
+function handleSlotDragStart(event, fromIndex) {
+  if (!event.ctrlKey) {
+    event.preventDefault();
+    return;
+  }
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("text/plain", String(fromIndex));
+}
+
+function handleSlotDragOver(event) {
+  if (!event.ctrlKey) return;
+  event.preventDefault();
+  event.dataTransfer.dropEffect = "move";
+}
+
+function handleSlotDrop(event, toIndex) {
+  if (!event.ctrlKey) return;
+  event.preventDefault();
+  const fromIndex = parseInt(event.dataTransfer.getData("text/plain"), 10);
+  if (!Number.isInteger(fromIndex)) return;
+  moveQuickSlot(fromIndex, toIndex);
 }
 
 /* ================= nearest floor ================= */
@@ -2743,7 +2894,7 @@ function updateSidebar(players) {
 
         <div class="statRow">
           <div class="statLabel">HP</div>
-          <div class="miniBar"><div class="miniHP" style="width:${hpPct}%"></div></div>
+          <div class="miniBar"><div class="miniHP" style="width:${hpPct}%; background:${hpColorFromPercent(hpPct)}"></div></div>
           <div class="statValue">${p.hp}/${p.hpMax}</div>
         </div>
 
@@ -3230,7 +3381,11 @@ function renderSheetComputed(p) {
 
   const hpFill = document.getElementById("sheetHpFill");
   const mpFill = document.getElementById("sheetManaFill");
-  if (hpFill) hpFill.style.width = `${Math.max(0, Math.min(100, hpPct))}%`;
+  if (hpFill) {
+    const hpSafePct = Math.max(0, Math.min(100, hpPct));
+    hpFill.style.width = `${hpSafePct}%`;
+    hpFill.style.background = hpColorFromPercent(hpSafePct);
+  }
   if (mpFill) mpFill.style.width = `${Math.max(0, Math.min(100, mpPct))}%`;
 
   const used = totalPointBuyCost(p.attributeScores || defaultAttributeScores());
@@ -3306,23 +3461,40 @@ function renderAbilities(p) {
   `;
 }
 
+function abilityToCardHtml(ability) {
+  const cost = parseInt(ability?.manaCost || 0, 10) || 0;
+  const origin = ability?.sourceType === "race" ? "Habilidade Racial" : "Habilidade de Classe";
+  return `
+    <div class="spellCard">
+      <div class="spellHead">
+        <strong>${escapeHtml(ability?.icon || "⚡")} ${escapeHtml(ability?.name || "Habilidade")}</strong>
+        <span>${origin}</span>
+      </div>
+      <div class="spellBody">${escapeHtml(ability?.desc || "Sem descrição")}</div>
+      <div class="spellFooter">
+        <span>Custo: ${cost} MP</span>
+      </div>
+    </div>
+  `;
+}
+
 function handleAbilityKeydown(event, skillIndex) {
   if (event.key !== "Enter" && event.key !== " ") return;
   event.preventDefault();
   useAbility(skillIndex);
 }
 
-function useAbility(skillIndex) {
-  if (!sheetTargetName) return;
+function useAbilityById(playerName, abilityId) {
+  if (!playerName || !abilityId) return;
   let data = load();
-  let p = data.rooms[room][sheetTargetName];
+  let p = data.rooms[room][playerName];
   if (!p) return;
 
   ensurePlayerSchema(p);
   recalcFromSheet(p);
 
   const skills = p.skills || [];
-  const a = skills[skillIndex];
+  const a = skills.find((skill) => String(skill.id || "").trim() === String(abilityId).trim());
   if (!a || a.passive) return;
 
   const cost = parseInt(a.manaCost || 0, 10) || 0;
@@ -3334,7 +3506,7 @@ function useAbility(skillIndex) {
   p.mana = Math.max(0, p.mana - cost);
   save(data);
 
-  pushChat(currentUser, `* ${sheetTargetName} ativou ${a.icon} ${a.name}.`, {
+  pushChat(currentUser, `* ${playerName} ativou ${a.icon} ${a.name}.`, {
     spellCast: {
       spell: {
         icon: a.icon || "✨",
@@ -3358,10 +3530,23 @@ function useAbility(skillIndex) {
   });
   updateArena();
 
-  renderSheetComputed(p);
-  renderEquip(p);
-  renderAbilities(p);
-  renderDnaSummary(p);
+  if (sheetTargetName === playerName) {
+    renderSheetComputed(p);
+    renderEquip(p);
+    renderAbilities(p);
+    renderDnaSummary(p);
+  }
+}
+
+function useAbility(skillIndex) {
+  if (!sheetTargetName) return;
+  const data = load();
+  const p = data.rooms[room][sheetTargetName];
+  if (!p) return;
+  ensurePlayerSchema(p);
+  const skill = (p.skills || [])[skillIndex];
+  if (!skill) return;
+  useAbilityById(sheetTargetName, skill.id);
 }
 
 function renderEquip(p) {
@@ -3769,7 +3954,7 @@ function renderCustomSpells(p) {
   }
 
   box.innerHTML = spells.map((spell) => {
-    const equippedAt = (p.spellSlots || []).findIndex((id) => id === spell.id);
+    const equippedAt = normalizeQuickSlots(p.spellSlots).findIndex((entry) => entry?.type === "spell" && entry?.id === spell.id);
     const equipLabel = equippedAt >= 0 ? `No slot ${equippedAt + 1}` : "Enviar para slot";
     return `
       ${spellToCardHtml(spell)}
@@ -3789,7 +3974,7 @@ function bindSpellToSlot(spellId) {
 
   ensurePlayerSchema(p);
 
-  const currentIdx = (p.spellSlots || []).findIndex((id) => id === spellId);
+  const currentIdx = normalizeQuickSlots(p.spellSlots).findIndex((entry) => entry?.type === "spell" && entry?.id === spellId);
   if (currentIdx >= 0) {
     p.spellSlots[currentIdx] = null;
     save(data);
@@ -3798,12 +3983,12 @@ function bindSpellToSlot(spellId) {
     return;
   }
 
-  const freeIdx = (p.spellSlots || []).findIndex((id) => !id);
+  const freeIdx = normalizeQuickSlots(p.spellSlots).findIndex((entry) => !entry);
   if (freeIdx < 0) {
     alert("Todos os slots rápidos estão ocupados.");
     return;
   }
-  p.spellSlots[freeIdx] = spellId;
+  p.spellSlots[freeIdx] = { type: "spell", id: spellId };
   save(data);
   renderGrimoire(p);
   updateArena();
