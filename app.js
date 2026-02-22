@@ -1121,28 +1121,24 @@ const SPELL_ICON_LIBRARY = [
   "🌿", "🪄", "🕸️", "🦴", "🌀", "💫", "🐉", "🔮",
 ];
 
-const SPELL_SLOTS_BY_LEVEL = {
-  1: [2],
-  2: [3],
-  3: [4, 2],
-  4: [4, 3],
-  5: [4, 3, 2],
-  6: [4, 3, 3],
-  7: [4, 3, 3, 1],
-  8: [4, 3, 3, 2],
-  9: [4, 3, 3, 3, 1],
-  10: [4, 3, 3, 3, 2],
-  11: [4, 3, 3, 3, 2, 1],
-  12: [4, 3, 3, 3, 2, 1],
-  13: [4, 3, 3, 3, 2, 1, 1],
-  14: [4, 3, 3, 3, 2, 1, 1],
-  15: [4, 3, 3, 3, 2, 1, 1, 1],
-  16: [4, 3, 3, 3, 2, 1, 1, 1],
-  17: [4, 3, 3, 3, 2, 1, 1, 1, 1],
-  18: [4, 3, 3, 3, 3, 1, 1, 1, 1],
-  19: [4, 3, 3, 3, 3, 2, 1, 1, 1],
-  20: [4, 3, 3, 3, 3, 2, 2, 1, 1],
+
+const SPELL_PM_COST_BY_CIRCLE = {
+  0: 0,
+  1: 1,
+  2: 2,
+  3: 3,
+  4: 4,
+  5: 5,
+  6: 7,
+  7: 8,
+  8: 10,
+  9: 12,
 };
+
+function getSpellCirclePmCost(circle) {
+  const safeCircle = Math.max(0, Math.min(9, parseInt(circle, 10) || 0));
+  return SPELL_PM_COST_BY_CIRCLE[safeCircle] ?? safeCircle;
+}
 
 let grimoireTargetName = null;
 let activeGrimoireTab = "spells";
@@ -1647,14 +1643,14 @@ function castSpellForPlayer(playerName, spellId) {
   const spell = (p.customSpells || []).find((s) => s.id === spellId);
   if (!spell) return;
 
-  const slotIndex = Math.max(0, (spell.level || 1) - 1);
-  const current = p.spellcasting.slotsCurrent[slotIndex] ?? 0;
-  if (current <= 0) {
-    alert(`Sem slots de nível ${spell.level} disponíveis.`);
+  const pmCost = getSpellCirclePmCost(spell.level || 0);
+  const currentMana = parseInt(p.mana, 10) || 0;
+  if (currentMana - pmCost < 0) {
+    alert(`PM insuficiente para conjurar ${spell.name}. Custo: ${pmCost} PM.`);
     return;
   }
 
-  p.spellcasting.slotsCurrent[slotIndex] = current - 1;
+  p.mana = Math.max(0, currentMana - pmCost);
   save(data);
 
   const { rollText, detailsText } = resolveSpellAutoRoll(spell);
@@ -3258,25 +3254,10 @@ function getSpellCreationLimit(level) {
   return 10;
 }
 
-function getSpellSlotsForLevel(level) {
-  const lv = Math.max(1, Math.min(20, parseInt(level || 1, 10) || 1));
-  return [...(SPELL_SLOTS_BY_LEVEL[lv] || SPELL_SLOTS_BY_LEVEL[1])];
-}
-
 function syncSpellcasting(p) {
   if (!p.spellcasting || typeof p.spellcasting !== "object") p.spellcasting = {};
-
-  const slotsMax = getSpellSlotsForLevel(p.level || 1);
-  const oldCurrent = Array.isArray(p.spellcasting.slotsCurrent)
-    ? p.spellcasting.slotsCurrent
-    : [];
-
-  p.spellcasting.slotsMax = slotsMax;
-  p.spellcasting.slotsCurrent = slotsMax.map((max, idx) => {
-    const prev = parseInt(oldCurrent[idx], 10);
-    if (Number.isNaN(prev)) return max;
-    return Math.max(0, Math.min(max, prev));
-  });
+  p.spellcasting.slotsMax = [];
+  p.spellcasting.slotsCurrent = [];
 }
 
 function openGrimoire(name) {
@@ -3290,7 +3271,7 @@ function openGrimoire(name) {
 
   grimoireTargetName = name;
   document.getElementById("grimoireTitle").textContent = `Grimório — ${name}`;
-  document.getElementById("grimoireSub").textContent = "Crie magias homebrew por pontos e use slots por nível.";
+  document.getElementById("grimoireSub").textContent = "Crie magias homebrew por pontos e conjure usando apenas PM disponível.";
   document.getElementById("grimoireOverlay").style.display = "flex";
 
   setupGrimoireFormDefaults();
@@ -3350,31 +3331,25 @@ function renderGrimoire(p) {
 function renderSpellMeta(p) {
   const meta = document.getElementById("grimoireMeta");
   const limit = getSpellCreationLimit(p.level || 1);
-  const maxSpellLevel = Math.min(9, Math.max(1, Math.ceil((p.level || 1) / 2)));
 
   meta.innerHTML = `
     <div class="kv"><span>Nível do personagem</span><strong>${p.level}</strong></div>
     <div class="kv"><span>Pontos de criação</span><strong>${limit}</strong></div>
-    <div class="kv"><span>Nível máximo da magia</span><strong>${maxSpellLevel}</strong></div>
+    <div class="kv"><span>Maior círculo disponível</span><strong>9 (limitado apenas por PM)</strong></div>
     <div class="kv"><span>Magias customizadas</span><strong>${(p.customSpells || []).length}</strong></div>
   `;
 
   const spellLevelInput = document.getElementById("spellLevel");
-  spellLevelInput.max = String(maxSpellLevel);
+  spellLevelInput.max = "9";
   const val = parseInt(spellLevelInput.value || "1", 10);
-  if (Number.isNaN(val) || val > maxSpellLevel || val < 1) {
-    spellLevelInput.value = String(Math.min(maxSpellLevel, Math.max(1, val || 1)));
+  if (Number.isNaN(val) || val > 9 || val < 1) {
+    spellLevelInput.value = String(Math.min(9, Math.max(1, val || 1)));
   }
 }
 
 function renderSpellSlots(p) {
   const wrap = document.getElementById("grimoireSlots");
-  const rows = (p.spellcasting?.slotsMax || []).map((max, idx) => {
-    const current = p.spellcasting?.slotsCurrent?.[idx] ?? max;
-    const lvl = idx + 1;
-    return `<div class="kv"><span>Slot nível ${lvl}</span><strong>${current}/${max}</strong></div>`;
-  });
-  wrap.innerHTML = rows.join("") || '<div style="opacity:.7">Sem slots.</div>';
+  wrap.innerHTML = '<div style="opacity:.7">Sem slots: conjuração usa apenas PM atual.</div>';
 }
 
 function renderSpellEffectsCatalog() {
@@ -3470,7 +3445,6 @@ function createCustomSpell() {
 
   const name = (document.getElementById("spellName").value || "").trim();
   const level = parseInt(document.getElementById("spellLevel").value || "1", 10) || 1;
-  const maxSpellLevel = Math.min(9, Math.max(1, Math.ceil((p.level || 1) / 2)));
   const limit = getSpellCreationLimit(p.level || 1);
   const castingTime = (document.getElementById("spellCastingTime").value || "1 ação").trim();
   const range = (document.getElementById("spellRange").value || "18m").trim();
@@ -3479,7 +3453,7 @@ function createCustomSpell() {
   const { selected, total } = computeSpellDraftCost();
   if (!name) return alert("Dê um nome para a magia.");
   if (selected.length === 0) return alert("Selecione ao menos 1 efeito.");
-  if (level > maxSpellLevel) return alert(`Nível de magia acima do permitido para o personagem (máx ${maxSpellLevel}).`);
+  if (level > 9 || level < 1) return alert("Círculo inválido. Use um valor entre 1 e 9.");
   if (total > limit) return alert(`Custo excede o limite de criação (${limit} pontos).`);
 
   const components = [];
@@ -3500,7 +3474,7 @@ function createCustomSpell() {
     components,
     description,
     rules: {
-      usesSpellSlots: true,
+      usesSpellSlots: false,
       preparedType: ["Mago", "Feiticeiro"].includes(p.class) ? "known" : "prepared",
     },
   };
@@ -3568,19 +3542,9 @@ function castCustomSpell(spellId) {
 }
 
 function resetSpellSlots(name) {
-  const data = load();
-  const p = data.rooms[room][name];
-  if (!p) return;
-
-  ensurePlayerSchema(p);
-  recalcFromSheet(p);
-  p.spellcasting.slotsCurrent = [...(p.spellcasting.slotsMax || [])];
-  save(data);
-
-  pushAction(currentUser, `${name} concluiu descanso longo e recuperou todos os slots de magia.`);
-
-  if (grimoireTargetName === name) renderGrimoire(p);
-  updateArena();
+  const target = name || grimoireTargetName || currentUser;
+  if (!target) return;
+  alert(`${target} não usa slots de magia: a conjuração é limitada apenas por PM disponível.`);
 }
 
 /* ================= INVENTÁRIO + LOJA ================= */
