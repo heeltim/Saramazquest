@@ -2715,38 +2715,96 @@ function buildSlotPickerOptions(player) {
   return [...spells, ...abilities];
 }
 
-function openQuickSlotPicker(slotIndex) {
+function closeQuickSlotPicker() {
+  const picker = document.getElementById("quickSlotPicker");
+  if (picker) picker.remove();
+  document.removeEventListener("click", closeQuickSlotPicker);
+}
+
+function openQuickSlotPicker(slotIndex, event = null) {
   const data = load();
   const player = data.rooms[room]?.[currentUser];
   if (!player) return;
   ensurePlayerSchema(player);
 
-  const currentEntry = normalizeQuickSlotEntry(player.spellSlots?.[slotIndex]);
   const options = buildSlotPickerOptions(player);
   if (!options.length) {
     alert("Crie magias ou use habilidades ativas para preencher os slots rápidos.");
     return;
   }
 
-  const currentLabel = currentEntry
-    ? options.find((opt) => opt.type === currentEntry.type && opt.id === currentEntry.id)
-    : null;
+  closeQuickSlotPicker();
+  const picker = document.createElement("div");
+  picker.id = "quickSlotPicker";
+  picker.className = "quickSlotPicker";
+  picker.onclick = (evt) => evt.stopPropagation();
 
-  const listText = options
-    .map((opt, idx) => `${idx + 1}. [${opt.type === "spell" ? "Magia" : "Hab."}] ${opt.icon} ${opt.name}`)
-    .join("\n");
-  const selected = prompt(`Escolha o item para o slot ${slotIndex + 1}:\n\n${listText}\n\nDigite o número desejado.${currentLabel ? `\nAtual: ${currentLabel.icon} ${currentLabel.name}` : ""}`);
-  if (selected === null) return;
+  const header = document.createElement("div");
+  header.className = "quickSlotPickerHeader";
+  header.textContent = `Slot ${slotIndex + 1} · Selecione magia/habilidade`;
+  picker.appendChild(header);
 
-  const pickedIndex = parseInt(selected, 10) - 1;
-  if (pickedIndex < 0 || pickedIndex >= options.length) {
-    alert("Opção inválida.");
-    return;
+  const currentEntry = normalizeQuickSlotEntry(player.spellSlots?.[slotIndex]);
+  if (currentEntry) {
+    const clearBtn = document.createElement("button");
+    clearBtn.type = "button";
+    clearBtn.className = "quickSlotPickerBtn clear";
+    clearBtn.textContent = "🧹 Limpar slot";
+    clearBtn.onclick = () => {
+      const latest = load();
+      const current = latest.rooms[room]?.[currentUser];
+      if (!current) return;
+      ensurePlayerSchema(current);
+      current.spellSlots[slotIndex] = null;
+      save(latest);
+      closeQuickSlotPicker();
+      updateArena();
+    };
+    picker.appendChild(clearBtn);
   }
 
-  player.spellSlots[slotIndex] = { type: options[pickedIndex].type, id: options[pickedIndex].id };
-  save(data);
-  updateArena();
+  options.forEach((opt) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    const isActive = currentEntry?.type === opt.type && currentEntry?.id === opt.id;
+    btn.className = `quickSlotPickerBtn${isActive ? " active" : ""}`;
+    btn.innerHTML = `<span>${opt.icon}</span><strong>${escapeHtml(opt.name)}</strong><small>${opt.type === "spell" ? "Magia" : "Habilidade"}</small>`;
+    btn.onclick = () => {
+      const latest = load();
+      const current = latest.rooms[room]?.[currentUser];
+      if (!current) return;
+      ensurePlayerSchema(current);
+      current.spellSlots[slotIndex] = { type: opt.type, id: opt.id };
+      save(latest);
+      closeQuickSlotPicker();
+      updateArena();
+    };
+    picker.appendChild(btn);
+  });
+
+  document.body.appendChild(picker);
+
+  const anchor = event?.currentTarget;
+  const margin = 8;
+  if (anchor && anchor.getBoundingClientRect) {
+    const rect = anchor.getBoundingClientRect();
+    const pickerRect = picker.getBoundingClientRect();
+    let left = rect.left + rect.width / 2 - pickerRect.width / 2;
+    let top = rect.top - pickerRect.height - 10;
+    if (top < margin) top = rect.bottom + 10;
+    left = Math.max(margin, Math.min(left, window.innerWidth - pickerRect.width - margin));
+    top = Math.max(margin, Math.min(top, window.innerHeight - pickerRect.height - margin));
+    picker.style.left = `${left}px`;
+    picker.style.top = `${top}px`;
+  } else {
+    picker.style.left = "50%";
+    picker.style.top = "50%";
+    picker.style.transform = "translate(-50%, -50%)";
+  }
+
+  setTimeout(() => {
+    document.addEventListener("click", closeQuickSlotPicker);
+  }, 0);
 }
 
 function moveQuickSlot(fromIndex, toIndex) {
@@ -2776,12 +2834,12 @@ function useQuickSlot(index, event) {
   const slotEntry = slots[index];
 
   if (!slotEntry) {
-    openQuickSlotPicker(index);
+    openQuickSlotPicker(index, event);
     return;
   }
 
   if (event?.shiftKey) {
-    openQuickSlotPicker(index);
+    openQuickSlotPicker(index, event);
     return;
   }
 
@@ -2796,6 +2854,7 @@ function useQuickSlot(index, event) {
 function renderCombatSpellSlots(player) {
   const wrap = document.getElementById("combatSpellSlots");
   if (!wrap) return;
+  closeQuickSlotPicker();
 
   if (!player) {
     wrap.innerHTML = "";
