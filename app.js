@@ -880,6 +880,65 @@ function computeMagicPointsFromRules(cls, level) {
   return Math.max(0, Math.floor(base * multiplier));
 }
 
+function normalizeMulticlassEntries(p) {
+  const fallbackClass = String(p?.class || Object.keys(CLASSES)[0] || "Guerreiro");
+  const fallbackLevel = Math.max(1, parseInt(p?.level, 10) || 1);
+  const raw = Array.isArray(p?.classes) ? p.classes : [{ classId: fallbackClass, level: fallbackLevel }];
+
+  const normalized = raw
+    .map((entry) => ({
+      classId: String(entry?.classId || entry?.class_id || fallbackClass),
+      level: Math.max(1, parseInt(entry?.level, 10) || 1),
+    }))
+    .filter((entry) => CLASSES[entry.classId]);
+
+  return normalized.length ? normalized : [{ classId: fallbackClass, level: fallbackLevel }];
+}
+
+function getTotalClassLevel(classEntries) {
+  return classEntries.reduce((sum, entry) => sum + Math.max(1, parseInt(entry.level, 10) || 1), 0);
+}
+
+function ensureHpRollsByClass(p, classEntries) {
+  if (!Array.isArray(p.hpRollsByClass)) p.hpRollsByClass = [];
+  p.hpRollsByClass = classEntries.map((entry) => {
+    const cls = CLASSES[entry.classId] || null;
+    const hitDieSize = parseHitDieSize(cls?.hitDie || "d10");
+    const safeLevel = Math.max(1, parseInt(entry.level, 10) || 1);
+    const existing = p.hpRollsByClass.find((rollEntry) => rollEntry?.classId === entry.classId && parseInt(rollEntry.hitDieSize, 10) === hitDieSize);
+    const rolls = Array.isArray(existing?.rolls) ? [...existing.rolls] : [];
+
+    while (rolls.length < safeLevel) {
+      const idx = rolls.length + 1;
+      const seed = `${p.owner || "anon"}|${entry.classId}|${p.race || "race"}|${p.name || "pc"}|${idx}|d${hitDieSize}`;
+      rolls.push(rollDeterministicD(seed, hitDieSize));
+    }
+
+    return {
+      classId: entry.classId,
+      level: safeLevel,
+      hitDieSize,
+      rolls: rolls.slice(0, safeLevel),
+    };
+  });
+
+  return p.hpRollsByClass;
+}
+
+function computeMulticlassHpFromRules(p, classEntries, conMod) {
+  const rollEntries = ensureHpRollsByClass(p, classEntries);
+  const hpRollsTotal = rollEntries.reduce((sum, entry) => sum + entry.rolls.reduce((acc, value) => acc + value, 0), 0);
+  const totalLevel = getTotalClassLevel(classEntries);
+  return Math.max(1, hpRollsTotal + totalLevel * (parseInt(conMod, 10) || 0));
+}
+
+function computeMulticlassMagicPointsFromRules(classEntries) {
+  return classEntries.reduce((sum, entry) => {
+    const cls = CLASSES[entry.classId] || null;
+    return sum + computeMagicPointsFromRules(cls, entry.level);
+  }, 0);
+}
+
 async function loadRpgDatabases() {
   try {
     const [racesResp, classesResp] = await Promise.all([
@@ -1464,6 +1523,9 @@ function ensurePlayerSchema(p) {
   if (p.class === undefined) p.class = Object.keys(CLASSES)[0] || "Guerreiro";
   if (p.background === undefined) p.background = "Nenhum";
   if (p.level === undefined) p.level = 1;
+  p.classes = normalizeMulticlassEntries(p);
+  p.class = p.classes[0].classId;
+  p.level = getTotalClassLevel(p.classes);
   if (p.owner === undefined) p.owner = "";
   if (p.onTable === undefined) p.onTable = true;
 
@@ -2285,7 +2347,7 @@ function computeDefenseFromRules(p, mods, itemMods) {
   const equipped = p.equipped || {};
   const armor = equipped.armor ? ITEM_DB[equipped.armor] : null;
   const shield = equipped.shield ? ITEM_DB[equipped.shield] : null;
-  const normalizedClass = normalizeClassId(p.class);
+  const normalizedClass = normalizeClassId(getPrimaryClassEntry(p).classId);
 
   if (!armor) {
     if (normalizedClass === "barbaro") candidates.push(10 + mods.dex + mods.con);
@@ -2360,8 +2422,17 @@ function useConsumable(p, itemId) {
 }
 
 /* ================= REGRAS / RECALC ================= */
+function getPrimaryClassEntry(p) {
+  const classEntries = Array.isArray(p?.classes) ? p.classes : [];
+  if (classEntries.length && classEntries[0]?.classId) return classEntries[0];
+  const fallbackClass = String(p?.class || Object.keys(CLASSES)[0] || "Guerreiro");
+  const fallbackLevel = Math.max(1, parseInt(p?.level, 10) || 1);
+  return { classId: fallbackClass, level: fallbackLevel };
+}
+
 function ensureMageFreeWeapon(p) {
-  if (p.class !== "Mago") return;
+  const primaryClass = getPrimaryClassEntry(p);
+  if (primaryClass.classId !== "Mago") return;
   if (!p.inventory) p.inventory = [];
   if (!p.inventory.includes("icebolt")) p.inventory.push("icebolt");
   if (!p.inventory.includes("firebolt")) p.inventory.push("firebolt");
@@ -2373,11 +2444,14 @@ function recalcFromSheet(p) {
   const defaultRaceName = Object.keys(RACES)[0];
   const defaultClassName = Object.keys(CLASSES)[0];
   const race = RACES[p.race] || RACES[defaultRaceName] || LEGACY_RACES.Humano;
-  const cls = CLASSES[p.class] || CLASSES[defaultClassName] || LEGACY_CLASSES.Guerreiro;
+  const classEntries = normalizeMulticlassEntries(p);
+  const primaryClassEntry = classEntries[0];
+  const cls = CLASSES[primaryClassEntry.classId] || CLASSES[defaultClassName] || LEGACY_CLASSES.Guerreiro;
   const bg = BACKGROUNDS[p.background] || BACKGROUNDS.Nenhum;
 
-  let level = parseInt(p.level, 10);
-  if (isNaN(level) || level < 1) level = 1;
+  const level = getTotalClassLevel(classEntries);
+  p.classes = classEntries;
+  p.class = primaryClassEntry.classId;
   p.level = level;
 
   ensureMageFreeWeapon(p);
@@ -2405,8 +2479,8 @@ function recalcFromSheet(p) {
 
   p.attributeMods = mods;
 
-  let hpMax = computeHpFromRules(p, cls, level, mods.con);
-  let manaMax = computeMagicPointsFromRules(cls, level);
+  let hpMax = computeMulticlassHpFromRules(p, classEntries, mods.con);
+  let manaMax = computeMulticlassMagicPointsFromRules(classEntries);
 
   if (String(p.race || "").toLowerCase().includes("anão da colina") || p.race === "Anao") hpMax += level * 2;
 
@@ -2429,7 +2503,8 @@ function recalcFromSheet(p) {
   p.proficiencyBonus = computeProficiencyBonus(level);
   autoApplyClassSkillProficiencies(p);
   p.skillProficiencies = Array.from(new Set([...(p.skillProficiencies || []), ...(bg.skillProficiencies || [])]));
-  p.skills = [...(race.abilities || []), ...(cls.abilities || [])];
+  const classSkills = classEntries.flatMap((entry) => (CLASSES[entry.classId]?.abilities || []));
+  p.skills = [...(race.abilities || []), ...classSkills];
   p.invMax = 12 + (itemMods.invExtra || 0);
   syncSpellcasting(p);
 }
@@ -2448,6 +2523,7 @@ function ensureCurrentUserRecord(setup = null) {
       manaMax: 50,
       race: setup?.race || pendingCharacterSetup?.race || Object.keys(RACES)[0] || "Humano",
       class: setup?.className || pendingCharacterSetup?.className || Object.keys(CLASSES)[0] || "Guerreiro",
+      classes: [{ classId: setup?.className || pendingCharacterSetup?.className || Object.keys(CLASSES)[0] || "Guerreiro", level: 1 }],
       background: "Nenhum",
       level: 1,
       owner: setup?.owner || normalizeEmail(currentAccountEmail) || "",
@@ -2931,13 +3007,9 @@ function openSheet(name) {
   sheetTargetName = name;
 
   const raceSel = document.getElementById("sheetRace");
-  const classSel = document.getElementById("sheetClass");
   const bgInput = document.getElementById("sheetBackground");
   raceSel.innerHTML = Object.keys(RACES)
     .map((r) => `<option value="${r}">${r}</option>`)
-    .join("");
-  classSel.innerHTML = Object.keys(CLASSES)
-    .map((c) => `<option value="${c}">${c}</option>`)
     .join("");
 
   document.getElementById("sheetTitle").textContent = `Ficha — ${name}`;
@@ -2945,11 +3017,10 @@ function openSheet(name) {
     `Equipados ficam aqui. Inventário/Loja ficam no 🎒.`;
 
   document.getElementById("sheetOwner").value = p.owner || "";
-  document.getElementById("sheetLevel").value = p.level || 1;
   raceSel.value = p.race;
-  classSel.value = p.class;
   bgInput.value = p.background || "";
 
+  renderClassRows(p);
   renderPointBuy(p);
   renderSheetComputed(p);
   renderSkills(p);
@@ -2957,11 +3028,77 @@ function openSheet(name) {
   renderAbilities(p);
 
   raceSel.onchange = () => previewSheet();
-  classSel.onchange = () => previewSheet();
   bgInput.oninput = () => previewSheet();
-  document.getElementById("sheetLevel").oninput = () => previewSheet();
 
   document.getElementById("sheetOverlay").style.display = "flex";
+}
+
+function readClassesFromUI() {
+  const rows = Array.from(document.querySelectorAll(".sheetClassRow"));
+  const fallbackClass = Object.keys(CLASSES)[0] || "Guerreiro";
+  const parsed = rows
+    .map((row) => {
+      const classSelect = row.querySelector("select[data-class-id]");
+      const levelInput = row.querySelector("input[data-class-level]");
+      return {
+        classId: classSelect?.value || fallbackClass,
+        level: Math.max(1, parseInt(levelInput?.value || "1", 10) || 1),
+      };
+    })
+    .filter((entry) => CLASSES[entry.classId]);
+  return parsed.length ? parsed : [{ classId: fallbackClass, level: 1 }];
+}
+
+function renderClassRows(p) {
+  const wrap = document.getElementById("sheetClassRows");
+  if (!wrap) return;
+  p.classes = normalizeMulticlassEntries(p);
+
+  wrap.innerHTML = p.classes
+    .map((entry, idx) => {
+      const options = Object.keys(CLASSES)
+        .map((className) => `<option value="${className}" ${className === entry.classId ? "selected" : ""}>${className}</option>`)
+        .join("");
+      const removeBtn = idx > 0 ? `<button type="button" class="smallBtn" data-remove-class="${idx}">−</button>` : "";
+      return `
+        <div class="sheetClassRow">
+          <select data-class-id>${options}</select>
+          <input data-class-level type="number" min="1" max="20" step="1" value="${entry.level}" />
+          ${removeBtn}
+        </div>
+      `;
+    })
+    .join("");
+
+  const addBtn = document.getElementById("addSheetClassBtn");
+  if (addBtn) {
+    addBtn.onclick = () => {
+      const current = readClassesFromUI();
+      current.push({ classId: Object.keys(CLASSES)[0] || "Guerreiro", level: 1 });
+      p.classes = current;
+      renderClassRows(p);
+      previewSheet();
+    };
+  }
+
+  wrap.querySelectorAll("select[data-class-id], input[data-class-level]").forEach((el) => {
+    el.onchange = () => previewSheet();
+    el.oninput = () => previewSheet();
+  });
+
+  wrap.querySelectorAll("button[data-remove-class]").forEach((btn) => {
+    btn.onclick = () => {
+      const idx = parseInt(btn.dataset.removeClass, 10);
+      const current = readClassesFromUI();
+      current.splice(idx, 1);
+      p.classes = current;
+      renderClassRows(p);
+      previewSheet();
+    };
+  });
+
+  const totalLevelInput = document.getElementById("sheetLevel");
+  if (totalLevelInput) totalLevelInput.value = String(getTotalClassLevel(readClassesFromUI()));
 }
 
 function previewSheet() {
@@ -2972,9 +3109,8 @@ function previewSheet() {
   ensurePlayerSchema(p);
 
   p.race = document.getElementById("sheetRace").value;
-  p.class = document.getElementById("sheetClass").value;
   p.background = (document.getElementById("sheetBackground").value || "").trim() || "Nenhum";
-  p.level = parseInt(document.getElementById("sheetLevel").value || "1", 10);
+  p.classes = readClassesFromUI();
   p.attributeScores = readPointBuyFromUI();
   const { profs, exps } = collectSkillFlags();
   p.skillProficiencies = profs;
@@ -3022,14 +3158,14 @@ function renderSkills(p) {
   const expSet = new Set(p.expertiseSkills || []);
   const prof = p.proficiencyBonus || 2;
   const wrap = document.getElementById("sheetSkills");
-  const classSuggested = new Set(getClassSuggestedSkills(p.class));
+  const classSuggested = new Set((p.classes || []).flatMap((entry) => getClassSuggestedSkills(entry.classId)));
 
   wrap.innerHTML = SKILLS.map((skill) => {
     const trained = profSet.has(skill.id);
     const expert = expSet.has(skill.id);
     const attrMod = p.attributeMods[skill.ability] || 0;
     const bonus = attrMod + (expert ? prof * 2 : trained ? prof : 0);
-    const classHint = classSuggested.has(skill.id) ? `Sugestão da classe ${p.class}` : "";
+    const classHint = classSuggested.has(skill.id) ? "Sugestão de classe" : "";
     return `
       <label class="skillRow">
         <div class="skillMain">
@@ -3085,7 +3221,7 @@ function renderSheetComputed(p) {
   const heroName = document.getElementById("sheetHeroName");
   const heroClass = document.getElementById("sheetHeroClass");
   if (heroName) heroName.textContent = sheetTargetName || "Personagem";
-  if (heroClass) heroClass.textContent = `${p.race} • ${p.class}`;
+  if (heroClass) heroClass.textContent = `${p.race} • ${(p.classes || []).map((entry) => `${entry.classId} ${entry.level}`).join(" / ")}`;
 
   const bonusInfo = computeSheetBonusBreakdown(p);
   const statMap = [
@@ -3282,9 +3418,8 @@ function saveSheet() {
   ensurePlayerSchema(p);
 
   p.owner = document.getElementById("sheetOwner").value || "";
-  p.level = parseInt(document.getElementById("sheetLevel").value || "1", 10);
   p.race = document.getElementById("sheetRace").value;
-  p.class = document.getElementById("sheetClass").value;
+  p.classes = readClassesFromUI();
   p.background = (document.getElementById("sheetBackground").value || "").trim() || "Nenhum";
   p.attributeScores = readPointBuyFromUI();
   const { profs, exps } = collectSkillFlags();

@@ -1856,3 +1856,37 @@ kbd {
     padding-right: 0;
   }
 }
+
+.classFieldHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.classRows {
+  display: grid;
+  gap: 6px;
+}
+.sheetClassRow {
+  display: grid;
+  grid-template-columns: 1fr 82px auto;
+  gap: 8px;
+  align-items: center;
+}
+.sheetClassRow select,
+.sheetClassRow input {
+  width: 100%;
+}
+.classTotalLevelRow {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+.classTotalLevelRow input {
+  width: 82px;
+}
