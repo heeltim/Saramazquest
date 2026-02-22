@@ -701,6 +701,8 @@ function normalizeRaceDatabase(raw = {}) {
 
     normalized[safeRaceName] = {
       id: String(raceData?.id || safeRaceName.toLowerCase()),
+      parent: raceData?.parent ? String(raceData.parent) : undefined,
+      dna: raceData?.dna && typeof raceData.dna === "object" ? raceData.dna : null,
       abilityBonuses: Array.isArray(raceData?.abilityBonuses)
         ? raceData.abilityBonuses
             .map((bonus) => ({
@@ -3335,17 +3337,23 @@ function extractRaceLongLifeFromAbilities(raceData) {
 
 function getRaceSummaryDetails(raceName) {
   const byName = RACES?.[raceName] || null;
-  const srdBase = typeof globalThis !== "undefined" ? globalThis.RPG_SRD_BASE : null;
-  const srdRace = Array.isArray(srdBase?.races)
-    ? srdBase.races.find((entry) => String(entry?.nome || "").trim() === String(raceName || "").trim())
-    : null;
-  const sizeLabel = formatRaceSizeLabel(srdRace?.size || byName?.size);
-  const speedMeters = Number(srdRace?.speed_m);
+  const ficha = byName?.dna?.ficha || null;
+  const sizeLabel = formatRaceSizeLabel(ficha?.tamanho || byName?.size);
+  const speedMeters = Number(ficha?.deslocamento_m);
   const speedText = Number.isFinite(speedMeters) ? `${speedMeters}m` : "—";
-  const languages = Array.isArray(byName?.languages) && byName.languages.length ? byName.languages.join(", ") : "—";
-  const age = String(byName?.age || "").trim() || extractRaceLongLifeFromAbilities(byName);
-  const height = String(byName?.height || "").trim() || "—";
-  const weight = String(byName?.weight || "").trim() || "—";
+  const fixedLangs = Array.isArray(ficha?.idiomas?.fixos) ? ficha.idiomas.fixos : [];
+  const choice = ficha?.idiomas?.escolha;
+  const langs = [...fixedLangs];
+  if ((choice?.quantidade || 0) > 0) {
+    if (choice?.opcoes === "qualquer") langs.push(`${choice.quantidade} qualquer`);
+    else if (Array.isArray(choice?.opcoes) && choice.opcoes.length) langs.push(`${choice.quantidade} (${choice.opcoes.join("/")})`);
+  }
+  const languages = langs.length ? langs.join(", ") : "—";
+  const age = Number.isFinite(Number(ficha?.expectativa_vida_ate))
+    ? `até ${ficha.expectativa_vida_ate} anos`
+    : String(byName?.age || "").trim() || extractRaceLongLifeFromAbilities(byName);
+  const height = ficha?.altura_cm ? `${ficha.altura_cm.min}-${ficha.altura_cm.max} cm` : String(byName?.height || "").trim() || "—";
+  const weight = ficha?.peso_kg ? `${ficha.peso_kg.min}-${ficha.peso_kg.max} kg` : String(byName?.weight || "").trim() || "—";
   return { sizeLabel, speedText, languages, age, height, weight };
 }
 

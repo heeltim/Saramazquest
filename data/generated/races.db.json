@@ -1,6 +1,37 @@
 {
   "Anão da Montanha": {
     "id": "anao_montanha",
+    "parent": "anao",
+    "dna": {
+      "ui": {
+        "cor_hex": "#6B5C4E"
+      },
+      "ficha": {
+        "tamanho": "medio",
+        "deslocamento_ft": 25,
+        "deslocamento_m": 7.5,
+        "altura_cm": {
+          "min": 120,
+          "max": 150
+        },
+        "peso_kg": {
+          "min": 60,
+          "max": 120
+        },
+        "adulto_aos": 50,
+        "expectativa_vida_ate": 350,
+        "idiomas": {
+          "fixos": [
+            "comum",
+            "anao"
+          ],
+          "escolha": {
+            "quantidade": 0,
+            "opcoes": []
+          }
+        }
+      }
+    },
     "abilityBonuses": [
       {
         "ability": "forca",
@@ -52,6 +83,37 @@
   },
   "Anão da Colina": {
     "id": "anao_colina",
+    "parent": "anao",
+    "dna": {
+      "ui": {
+        "cor_hex": "#6B5C4E"
+      },
+      "ficha": {
+        "tamanho": "medio",
+        "deslocamento_ft": 25,
+        "deslocamento_m": 7.5,
+        "altura_cm": {
+          "min": 120,
+          "max": 150
+        },
+        "peso_kg": {
+          "min": 60,
+          "max": 120
+        },
+        "adulto_aos": 50,
+        "expectativa_vida_ate": 350,
+        "idiomas": {
+          "fixos": [
+            "comum",
+            "anao"
+          ],
+          "escolha": {
+            "quantidade": 0,
+            "opcoes": []
+          }
+        }
+      }
+    },
     "abilityBonuses": [
       {
         "ability": "sabedoria",
@@ -113,6 +175,36 @@
   },
   "Elfo": {
     "id": "elfo",
+    "dna": {
+      "ui": {
+        "cor_hex": "#3F6F62"
+      },
+      "ficha": {
+        "tamanho": "medio",
+        "deslocamento_ft": 30,
+        "deslocamento_m": 9,
+        "altura_cm": {
+          "min": 150,
+          "max": 190
+        },
+        "peso_kg": {
+          "min": 45,
+          "max": 85
+        },
+        "adulto_aos": 100,
+        "expectativa_vida_ate": 750,
+        "idiomas": {
+          "fixos": [
+            "comum",
+            "elfico"
+          ],
+          "escolha": {
+            "quantidade": 0,
+            "opcoes": []
+          }
+        }
+      }
+    },
     "abilityBonuses": [
       {
         "ability": "destreza",
@@ -164,6 +256,37 @@
   },
   "Alto Elfo": {
     "id": "alto_elfo",
+    "parent": "elfo",
+    "dna": {
+      "ui": {
+        "cor_hex": "#3F6F62"
+      },
+      "ficha": {
+        "tamanho": "medio",
+        "deslocamento_ft": 30,
+        "deslocamento_m": 9,
+        "altura_cm": {
+          "min": 150,
+          "max": 190
+        },
+        "peso_kg": {
+          "min": 45,
+          "max": 85
+        },
+        "adulto_aos": 100,
+        "expectativa_vida_ate": 750,
+        "idiomas": {
+          "fixos": [
+            "comum",
+            "elfico"
+          ],
+          "escolha": {
+            "quantidade": 0,
+            "opcoes": []
+          }
+        }
+      }
+    },
     "abilityBonuses": [
       {
         "ability": "inteligencia",
@@ -225,6 +348,37 @@
   },
   "Elfo da Floresta": {
     "id": "elfo_floresta",
+    "parent": "elfo",
+    "dna": {
+      "ui": {
+        "cor_hex": "#3F6F62"
+      },
+      "ficha": {
+        "tamanho": "medio",
+        "deslocamento_ft": 30,
+        "deslocamento_m": 9,
+        "altura_cm": {
+          "min": 150,
+          "max": 190
+        },
+        "peso_kg": {
+          "min": 45,
+          "max": 85
+        },
+        "adulto_aos": 100,
+        "expectativa_vida_ate": 750,
+        "idiomas": {
+          "fixos": [
+            "comum",
+            "elfico"
+          ],
+          "escolha": {
+            "quantidade": 0,
+            "opcoes": []
+          }
+        }
+      }
+    },
     "abilityBonuses": [
       {
         "ability": "sabedoria",
@@ -286,6 +440,37 @@
   },
   "Drow": {
     "id": "drow",
+    "parent": "elfo",
+    "dna": {
+      "ui": {
+        "cor_hex": "#3F6F62"
+      },
+      "ficha": {
+        "tamanho": "medio",
+        "deslocamento_ft": 30,
+        "deslocamento_m": 9,
+        "altura_cm": {
+          "min": 150,
+          "max": 190
+        },
+        "peso_kg": {
+          "min": 45,
+          "max": 85
+        },
+        "adulto_aos": 100,
+        "expectativa_vida_ate": 750,
+        "idiomas": {
+          "fixos": [
+            "comum",
+            "elfico"
+          ],
+          "escolha": {
+            "quantidade": 0,
+            "opcoes": []
+          }
+        }
+      }
+    },
     "abilityBonuses": [
       {
         "ability": "carisma",
@@ -347,6 +532,36 @@
   },
   "Halfling": {
     "id": "halfling",
+    "dna": {
+      "ui": {
+        "cor_hex": "#6B5F44"
+      },
+      "ficha": {
+        "tamanho": "pequeno",
+        "deslocamento_ft": 25,
+        "deslocamento_m": 7.5,
+        "altura_cm": {
+          "min": 90,
+          "max": 120
+        },
+        "peso_kg": {
+          "min": 30,
+          "max": 45
+        },
+        "adulto_aos": 20,
+        "expectativa_vida_ate": 150,
+        "idiomas": {
+          "fixos": [
+            "comum",
+            "halfling"
+          ],
+          "escolha": {
+            "quantidade": 0,
+            "opcoes": []
+          }
+        }
+      }
+    },
     "abilityBonuses": [
       {
         "ability": "destreza",
@@ -388,6 +603,37 @@
   },
   "Halfling Pés-Leves": {
     "id": "halfling_pes_leves",
+    "parent": "halfling",
+    "dna": {
+      "ui": {
+        "cor_hex": "#6B5F44"
+      },
+      "ficha": {
+        "tamanho": "pequeno",
+        "deslocamento_ft": 25,
+        "deslocamento_m": 7.5,
+        "altura_cm": {
+          "min": 90,
+          "max": 120
+        },
+        "peso_kg": {
+          "min": 30,
+          "max": 45
+        },
+        "adulto_aos": 20,
+        "expectativa_vida_ate": 150,
+        "idiomas": {
+          "fixos": [
+            "comum",
+            "halfling"
+          ],
+          "escolha": {
+            "quantidade": 0,
+            "opcoes": []
+          }
+        }
+      }
+    },
     "abilityBonuses": [
       {
         "ability": "carisma",
@@ -439,6 +685,37 @@
   },
   "Halfling Robusto": {
     "id": "halfling_robusto",
+    "parent": "halfling",
+    "dna": {
+      "ui": {
+        "cor_hex": "#6B5F44"
+      },
+      "ficha": {
+        "tamanho": "pequeno",
+        "deslocamento_ft": 25,
+        "deslocamento_m": 7.5,
+        "altura_cm": {
+          "min": 90,
+          "max": 120
+        },
+        "peso_kg": {
+          "min": 30,
+          "max": 45
+        },
+        "adulto_aos": 20,
+        "expectativa_vida_ate": 150,
+        "idiomas": {
+          "fixos": [
+            "comum",
+            "halfling"
+          ],
+          "escolha": {
+            "quantidade": 0,
+            "opcoes": []
+          }
+        }
+      }
+    },
     "abilityBonuses": [
       {
         "ability": "constituicao",
@@ -490,6 +767,36 @@
   },
   "Draconato": {
     "id": "draconato",
+    "dna": {
+      "ui": {
+        "cor_hex": "#6B3E3E"
+      },
+      "ficha": {
+        "tamanho": "medio",
+        "deslocamento_ft": 30,
+        "deslocamento_m": 9,
+        "altura_cm": {
+          "min": 170,
+          "max": 210
+        },
+        "peso_kg": {
+          "min": 80,
+          "max": 140
+        },
+        "adulto_aos": 15,
+        "expectativa_vida_ate": 80,
+        "idiomas": {
+          "fixos": [
+            "comum",
+            "draconico"
+          ],
+          "escolha": {
+            "quantidade": 0,
+            "opcoes": []
+          }
+        }
+      }
+    },
     "abilityBonuses": [
       {
         "ability": "forca",
@@ -535,6 +842,36 @@
   },
   "Gnomo": {
     "id": "gnomo",
+    "dna": {
+      "ui": {
+        "cor_hex": "#4E6F6A"
+      },
+      "ficha": {
+        "tamanho": "pequeno",
+        "deslocamento_ft": 25,
+        "deslocamento_m": 7.5,
+        "altura_cm": {
+          "min": 90,
+          "max": 120
+        },
+        "peso_kg": {
+          "min": 25,
+          "max": 45
+        },
+        "adulto_aos": 40,
+        "expectativa_vida_ate": 400,
+        "idiomas": {
+          "fixos": [
+            "comum",
+            "gnomico"
+          ],
+          "escolha": {
+            "quantidade": 0,
+            "opcoes": []
+          }
+        }
+      }
+    },
     "abilityBonuses": [
       {
         "ability": "inteligencia",
@@ -566,6 +903,37 @@
   },
   "Gnomo da Floresta": {
     "id": "gnomo_floresta",
+    "parent": "gnomo",
+    "dna": {
+      "ui": {
+        "cor_hex": "#4E6F6A"
+      },
+      "ficha": {
+        "tamanho": "pequeno",
+        "deslocamento_ft": 25,
+        "deslocamento_m": 7.5,
+        "altura_cm": {
+          "min": 90,
+          "max": 120
+        },
+        "peso_kg": {
+          "min": 25,
+          "max": 45
+        },
+        "adulto_aos": 40,
+        "expectativa_vida_ate": 400,
+        "idiomas": {
+          "fixos": [
+            "comum",
+            "gnomico"
+          ],
+          "escolha": {
+            "quantidade": 0,
+            "opcoes": []
+          }
+        }
+      }
+    },
     "abilityBonuses": [
       {
         "ability": "destreza",
@@ -607,6 +975,37 @@
   },
   "Gnomo das Rochas": {
     "id": "gnomo_rochas",
+    "parent": "gnomo",
+    "dna": {
+      "ui": {
+        "cor_hex": "#4E6F6A"
+      },
+      "ficha": {
+        "tamanho": "pequeno",
+        "deslocamento_ft": 25,
+        "deslocamento_m": 7.5,
+        "altura_cm": {
+          "min": 90,
+          "max": 120
+        },
+        "peso_kg": {
+          "min": 25,
+          "max": 45
+        },
+        "adulto_aos": 40,
+        "expectativa_vida_ate": 400,
+        "idiomas": {
+          "fixos": [
+            "comum",
+            "gnomico"
+          ],
+          "escolha": {
+            "quantidade": 0,
+            "opcoes": []
+          }
+        }
+      }
+    },
     "abilityBonuses": [
       {
         "ability": "constituicao",
@@ -648,6 +1047,36 @@
   },
   "Meio-Elfo": {
     "id": "meio_elfo",
+    "dna": {
+      "ui": {
+        "cor_hex": "#54707A"
+      },
+      "ficha": {
+        "tamanho": "medio",
+        "deslocamento_ft": 30,
+        "deslocamento_m": 9,
+        "altura_cm": {
+          "min": 150,
+          "max": 190
+        },
+        "peso_kg": {
+          "min": 50,
+          "max": 95
+        },
+        "adulto_aos": 20,
+        "expectativa_vida_ate": 180,
+        "idiomas": {
+          "fixos": [
+            "comum",
+            "elfico"
+          ],
+          "escolha": {
+            "quantidade": 1,
+            "opcoes": "qualquer"
+          }
+        }
+      }
+    },
     "abilityBonuses": [
       {
         "ability": "carisma",
@@ -689,6 +1118,36 @@
   },
   "Meio-Orc": {
     "id": "meio_orc",
+    "dna": {
+      "ui": {
+        "cor_hex": "#586C4F"
+      },
+      "ficha": {
+        "tamanho": "medio",
+        "deslocamento_ft": 30,
+        "deslocamento_m": 9,
+        "altura_cm": {
+          "min": 160,
+          "max": 200
+        },
+        "peso_kg": {
+          "min": 65,
+          "max": 120
+        },
+        "adulto_aos": 14,
+        "expectativa_vida_ate": 75,
+        "idiomas": {
+          "fixos": [
+            "comum",
+            "orc"
+          ],
+          "escolha": {
+            "quantidade": 0,
+            "opcoes": []
+          }
+        }
+      }
+    },
     "abilityBonuses": [
       {
         "ability": "forca",
@@ -744,6 +1203,36 @@
   },
   "Tiefling": {
     "id": "tiefling",
+    "dna": {
+      "ui": {
+        "cor_hex": "#6B3E57"
+      },
+      "ficha": {
+        "tamanho": "medio",
+        "deslocamento_ft": 30,
+        "deslocamento_m": 9,
+        "altura_cm": {
+          "min": 150,
+          "max": 190
+        },
+        "peso_kg": {
+          "min": 50,
+          "max": 95
+        },
+        "adulto_aos": 18,
+        "expectativa_vida_ate": 120,
+        "idiomas": {
+          "fixos": [
+            "comum",
+            "infernal"
+          ],
+          "escolha": {
+            "quantidade": 0,
+            "opcoes": []
+          }
+        }
+      }
+    },
     "abilityBonuses": [
       {
         "ability": "inteligencia",
@@ -789,6 +1278,35 @@
   },
   "Humano": {
     "id": "humano",
+    "dna": {
+      "ui": {
+        "cor_hex": "#6C7075"
+      },
+      "ficha": {
+        "tamanho": "medio",
+        "deslocamento_ft": 30,
+        "deslocamento_m": 9,
+        "altura_cm": {
+          "min": 150,
+          "max": 190
+        },
+        "peso_kg": {
+          "min": 50,
+          "max": 100
+        },
+        "adulto_aos": 18,
+        "expectativa_vida_ate": 100,
+        "idiomas": {
+          "fixos": [
+            "comum"
+          ],
+          "escolha": {
+            "quantidade": 1,
+            "opcoes": "qualquer"
+          }
+        }
+      }
+    },
     "abilityBonuses": [],
     "abilities": [
       {
