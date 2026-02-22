@@ -202,8 +202,7 @@ function initAuth() {
     saveAuthState(auth);
 
     overlay.classList.add("hidden");
-    initCharacterSetup();
-    updateCreateCharacterButtonState();
+    initCharacterSetup(true);
     updateArena();
     updateChat();
   };
@@ -282,25 +281,6 @@ function initCharacterSetup(forceOpen = false) {
   const characterWrap = document.getElementById("setupCharacterOptions");
   const useSpriteInput = document.getElementById("setupUseSprite");
   const startBtn = document.getElementById("setupStartBtn");
-
-  const bindSelectPicker = (selectEl) => {
-    if (!selectEl) return;
-    const canShowPicker = typeof selectEl.showPicker === "function";
-    if (!canShowPicker || selectEl.dataset.pickerBound === "1") return;
-
-    const openNativePicker = (event) => {
-      event.preventDefault();
-      selectEl.showPicker();
-    };
-
-    selectEl.addEventListener("pointerdown", openNativePicker);
-    selectEl.addEventListener("keydown", (event) => {
-      if (event.key === " " || event.key === "Enter" || event.key === "ArrowDown") {
-        openNativePicker(event);
-      }
-    });
-    selectEl.dataset.pickerBound = "1";
-  };
 
   if (!currentAccountEmail) {
     overlay.classList.add("hidden");
@@ -977,6 +957,8 @@ const SPELL_SLOTS_BY_LEVEL = {
 let grimoireTargetName = null;
 let activeGrimoireTab = "resources";
 let selectedSpellIcon = SPELL_ICON_LIBRARY[0];
+let sheetTargetName = null;
+let invTargetName = null;
 
 /* ================= STORAGE ================= */
 function load() {
@@ -2629,7 +2611,6 @@ function editStat(name, stat) {
 }
 
 /* ================= FICHA ================= */
-let sheetTargetName = null;
 
 function closeAllCharacterModals() {
   const sheet = document.getElementById("sheetOverlay");
@@ -3275,8 +3256,6 @@ function resetSpellSlots(name) {
 }
 
 /* ================= INVENTÁRIO + LOJA ================= */
-let invTargetName = null;
-
 function openInventory(name) {
   let data = load();
   let p = data.rooms[room][name];
