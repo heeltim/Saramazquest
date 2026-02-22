@@ -261,6 +261,25 @@ function initCharacterSetup() {
   const useSpriteInput = document.getElementById("setupUseSprite");
   const startBtn = document.getElementById("setupStartBtn");
 
+  const bindSelectPicker = (selectEl) => {
+    if (!selectEl) return;
+    const canShowPicker = typeof selectEl.showPicker === "function";
+    if (!canShowPicker || selectEl.dataset.pickerBound === "1") return;
+
+    const openNativePicker = (event) => {
+      event.preventDefault();
+      selectEl.showPicker();
+    };
+
+    selectEl.addEventListener("pointerdown", openNativePicker);
+    selectEl.addEventListener("keydown", (event) => {
+      if (event.key === " " || event.key === "Enter" || event.key === "ArrowDown") {
+        openNativePicker(event);
+      }
+    });
+    selectEl.dataset.pickerBound = "1";
+  };
+
   if (!currentAccountEmail) {
     overlay.classList.add("hidden");
     return;
