@@ -200,6 +200,22 @@
               </div>
             </div>
 
+            <div class="field full layerEditorField">
+              <label>Camadas de imagem (estilo mesa virtual)</label>
+              <div class="layerImportGrid">
+                <input id="sceneLayerUrl" placeholder="URL da imagem para camada" />
+                <button class="toolBtn" type="button" onclick="addSceneLayerFromUrl()">Adicionar por URL</button>
+                <input id="sceneLayerFile" type="file" accept="image/*" />
+                <select id="sceneLayerKind">
+                  <option value="map">Camada Mapa</option>
+                  <option value="objects">Camada Objetos</option>
+                  <option value="foreground">Camada Superior</option>
+                </select>
+                <label class="layerSnapToggle"><input id="sceneLayerSnap" type="checkbox" checked /> Encaixar no grid</label>
+              </div>
+              <div id="sceneLayerList" class="sceneLayerList"></div>
+            </div>
+
             <div class="field">
               <label>Zoom (Scale)</label>
               <input id="bgScale" type="range" min="40" max="300" value="120" />
@@ -207,6 +223,25 @@
             <div class="field">
               <label>Opacidade</label>
               <input id="bgOpacity" type="range" min="0" max="100" value="65" />
+            </div>
+
+            <div class="field">
+              <label>Tipo de Grid</label>
+              <select id="gridStyle">
+                <option value="square">Linhas quadradas</option>
+                <option value="hex">Linhas hexagonais</option>
+                <option value="dots">Pontinhos (grid quadrado)</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Transparência do Grid</label>
+              <input id="gridOpacity" type="range" min="0" max="100" value="55" />
+            </div>
+
+            <div class="field">
+              <label>Espessura da Linha</label>
+              <input id="gridLine" type="range" min="1" max="4" value="1" />
             </div>
 
             <div class="field">
