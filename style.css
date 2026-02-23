@@ -783,10 +783,17 @@ body {
 }
 
 #arena[data-grid-style="square"]::after {
-  background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.95) var(--grid-line, 1px), transparent var(--grid-line, 1px)),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.95) var(--grid-line, 1px), transparent var(--grid-line, 1px));
-  background-size: var(--cell-size) var(--cell-size);
+  display: none;
+}
+
+#arena[data-grid-style="square"] .cell:not(.tile-void)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 var(--grid-line, 1px) rgba(255, 255, 255, 0.95);
+  opacity: var(--grid-opacity, 0.55);
+  z-index: 5;
 }
 
 #arena[data-grid-style="dots"]::after {
@@ -800,22 +807,8 @@ body {
     display: none;
   }
 
-  #arena[data-grid-style="square"] .cell::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    border-right: var(--grid-line, 1px) solid rgba(255, 255, 255, 0.52);
-    border-bottom: var(--grid-line, 1px) solid rgba(255, 255, 255, 0.52);
-    z-index: 5;
-  }
-
-  #arena[data-grid-style="square"] .cell[data-x="0"]::after {
-    border-left: var(--grid-line, 1px) solid rgba(255, 255, 255, 0.52);
-  }
-
-  #arena[data-grid-style="square"] .cell[data-y="0"]::after {
-    border-top: var(--grid-line, 1px) solid rgba(255, 255, 255, 0.52);
+  #arena[data-grid-style="square"] .cell:not(.tile-void)::after {
+    box-shadow: inset 0 0 0 var(--grid-line, 1px) rgba(255, 255, 255, 0.52);
   }
 }
 
