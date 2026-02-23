@@ -187,9 +187,14 @@ const DEFAULT_SPRITE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/ma
 const TOKEN_GRID_UNIT = 40;
 
 function getArenaCellSize() {
-  const raw = getComputedStyle(arena).getPropertyValue("--cell-size").trim();
-  const parsed = Number.parseFloat(raw);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : TOKEN_GRID_UNIT;
+  const styles = getComputedStyle(arena);
+  const rawSize = styles.getPropertyValue("--cell-size").trim();
+  const rawZoom = styles.getPropertyValue("--map-zoom").trim();
+  const size = Number.parseFloat(rawSize);
+  const zoom = Number.parseFloat(rawZoom);
+  const resolvedSize = Number.isFinite(size) && size > 0 ? size : TOKEN_GRID_UNIT;
+  const resolvedZoom = Number.isFinite(zoom) && zoom > 0 ? zoom : 1;
+  return resolvedSize * resolvedZoom;
 }
 const TOKEN_CONDITION_LIBRARY = [
   { id: "bleeding", icon: "🩸", label: "Sangrando" },
@@ -1775,7 +1780,7 @@ function ensureScene() {
   s.bgY = Number.isFinite(s.bgY) ? s.bgY : 0;
   s.bgScale = Number.isFinite(s.bgScale) ? s.bgScale : 120;
   s.bgOpacity = Number.isFinite(s.bgOpacity) ? s.bgOpacity : 65;
-  s.mapZoom = Number.isFinite(s.mapZoom) ? Math.max(0.5, Math.min(1.6, s.mapZoom)) : 1;
+  s.mapZoom = Number.isFinite(s.mapZoom) ? Math.max(0.5, Math.min(3, s.mapZoom)) : 1;
   s.gridStyle = ["square", "dots"].includes(s.gridStyle) ? s.gridStyle : "square";
   s.gridOpacity = Number.isFinite(s.gridOpacity) ? Math.max(0, Math.min(100, s.gridOpacity)) : 55;
   s.gridLine = Number.isFinite(s.gridLine) ? Math.max(1, Math.min(4, s.gridLine)) : 1;
@@ -1792,8 +1797,8 @@ function ensureScene() {
 }
 ensureScene();
 
-function applySceneCSS() {
-  const s = load().scenes[room];
+function applySceneCSS(sceneOverride = null) {
+  const s = sceneOverride || load().scenes[room];
   arena.style.setProperty("--cols", s.cols);
   arena.style.setProperty("--rows", s.rows);
 
@@ -3330,43 +3335,64 @@ const mapZoomInput = document.getElementById("mapZoom");
 const artboardSelect = document.getElementById("artboardSelect");
 let mapDragState = { active: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 };
 let isSceneDockOpen = false;
+let mapZoomPersistTimer = null;
+let wheelZoomRAF = 0;
+let wheelZoomDelta = 0;
+let wheelZoomAnchor = null;
+
+function clampMapZoom(value) {
+  return Math.max(0.5, Math.min(3, Number(value) || 1));
+}
+
+function persistMapZoom(zoomValue) {
+  if (mapZoomPersistTimer) clearTimeout(mapZoomPersistTimer);
+  mapZoomPersistTimer = setTimeout(() => {
+    const data = load();
+    if (!data.scenes[room]) data.scenes[room] = structuredClone(DEFAULT_SCENE);
+    data.scenes[room].mapZoom = clampMapZoom(zoomValue);
+    save(data);
+    mapZoomPersistTimer = null;
+  }, 130);
+}
 
 function getSceneZoom() {
+  const cssZoom = Number.parseFloat(getComputedStyle(arena).getPropertyValue("--map-zoom"));
+  if (Number.isFinite(cssZoom) && cssZoom > 0) return clampMapZoom(cssZoom);
   const scene = load().scenes[room];
-  return Number.isFinite(scene?.mapZoom) ? Math.max(0.5, Math.min(1.6, scene.mapZoom)) : 1;
+  return Number.isFinite(scene?.mapZoom) ? clampMapZoom(scene.mapZoom) : 1;
 }
 
 function setMapZoom(nextZoom, options = {}) {
-  const { keepCenter = true, anchorClientX = null, anchorClientY = null } = options;
-  const clamped = Math.max(0.5, Math.min(1.6, Number(nextZoom) || 1));
+  const { keepCenter = true, anchorClientX = null, anchorClientY = null, persist = true } = options || {};
+  const clamped = clampMapZoom(nextZoom);
   const data = load();
   if (!data.scenes[room]) data.scenes[room] = structuredClone(DEFAULT_SCENE);
   const viewportRect = mapViewport?.getBoundingClientRect?.() || null;
-  const prevZoom = getSceneZoom();
   let centerRatioX = 0.5;
   let centerRatioY = 0.5;
 
   if (mapViewport && arena.offsetWidth && arena.offsetHeight) {
     if (anchorClientX != null && anchorClientY != null && viewportRect) {
-      const anchorX = (mapViewport.scrollLeft + (anchorClientX - viewportRect.left)) / (arena.offsetWidth * prevZoom);
-      const anchorY = (mapViewport.scrollTop + (anchorClientY - viewportRect.top)) / (arena.offsetHeight * prevZoom);
+      const anchorX = (mapViewport.scrollLeft + (anchorClientX - viewportRect.left)) / arena.offsetWidth;
+      const anchorY = (mapViewport.scrollTop + (anchorClientY - viewportRect.top)) / arena.offsetHeight;
       centerRatioX = anchorX;
       centerRatioY = anchorY;
     } else if (keepCenter) {
-      centerRatioX = (mapViewport.scrollLeft + mapViewport.clientWidth / 2) / (arena.offsetWidth * prevZoom);
-      centerRatioY = (mapViewport.scrollTop + mapViewport.clientHeight / 2) / (arena.offsetHeight * prevZoom);
+      centerRatioX = (mapViewport.scrollLeft + mapViewport.clientWidth / 2) / arena.offsetWidth;
+      centerRatioY = (mapViewport.scrollTop + mapViewport.clientHeight / 2) / arena.offsetHeight;
     }
   }
 
   data.scenes[room].mapZoom = clamped;
-  save(data);
-  applySceneCSS();
+  applySceneCSS(data.scenes[room]);
+  if (persist) save(data);
+  else persistMapZoom(clamped);
 
   if (mapZoomInput) mapZoomInput.value = String(Math.round(clamped * 100));
 
   if (mapViewport) {
-    const w = arena.offsetWidth * clamped;
-    const h = arena.offsetHeight * clamped;
+    const w = arena.offsetWidth;
+    const h = arena.offsetHeight;
     if (anchorClientX != null && anchorClientY != null && viewportRect) {
       mapViewport.scrollLeft = Math.max(0, w * centerRatioX - (anchorClientX - viewportRect.left));
       mapViewport.scrollTop = Math.max(0, h * centerRatioY - (anchorClientY - viewportRect.top));
@@ -3386,7 +3412,7 @@ function bindMapInteractions() {
   if (mapZoomInput) {
     mapZoomInput.value = String(Math.round(getSceneZoom() * 100));
     mapZoomInput.addEventListener("input", () => {
-      setMapZoom(parseInt(mapZoomInput.value, 10) / 100);
+      setMapZoom(parseInt(mapZoomInput.value, 10) / 100, { persist: false });
     });
   }
 
@@ -3419,12 +3445,23 @@ function bindMapInteractions() {
   mapViewport.addEventListener("wheel", (e) => {
     if (e.target.closest("#sidebar")) return;
     e.preventDefault();
-    const delta = e.deltaY < 0 ? 0.06 : -0.06;
-    setMapZoom(getSceneZoom() + delta, {
-      keepCenter: false,
-      anchorClientX: e.clientX,
-      anchorClientY: e.clientY,
-    });
+
+    wheelZoomDelta += e.deltaY < 0 ? 0.035 : -0.035;
+    wheelZoomAnchor = { x: e.clientX, y: e.clientY };
+
+    if (!wheelZoomRAF) {
+      wheelZoomRAF = requestAnimationFrame(() => {
+        setMapZoom(getSceneZoom() + wheelZoomDelta, {
+          keepCenter: false,
+          anchorClientX: wheelZoomAnchor?.x ?? null,
+          anchorClientY: wheelZoomAnchor?.y ?? null,
+          persist: false,
+        });
+        wheelZoomDelta = 0;
+        wheelZoomAnchor = null;
+        wheelZoomRAF = 0;
+      });
+    }
   }, { passive: false });
 }
 function createGrid() {
@@ -7352,7 +7389,7 @@ if (logoutBtn) {
 createGrid();
 applySceneCSS();
 bindMapInteractions();
-setMapZoom(getSceneZoom(), false);
+setMapZoom(getSceneZoom(), { persist: false });
 updateArena();
 loadWorldBiomeTileLibrary().finally(() => renderTileLibrary());
 setDiceTrayOpen(false);
