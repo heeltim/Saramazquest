@@ -5486,14 +5486,20 @@ const TILE_LIBRARY_META = {
 };
 const TILE_BIOME_LABELS = {
   all: "Todos os biomas",
+  oceano_olirion: "Oceano",
+  vaels_forest: "Floresta",
+  mistico_cristalino: "Caídos Místicos",
+  saramaz_savana: "Saramaz",
+  cordilheira_sul: "Montanha",
+  arquipelago_sul: "Ilhas",
+  neutral: "Neutros",
+  estruturas_humanas: "Estruturas",
   ocean: "Oceano",
-  coast: "Costa",
   forest: "Floresta",
   mystic: "Caídos Místicos",
   saramaz: "Saramaz",
   mountains: "Montanha",
   islands: "Ilhas",
-  neutral: "Neutros",
   structures: "Estruturas",
 };
 const DEFAULT_TILE_LIBRARY = TILE_TYPES.map((type) => ({
@@ -5506,13 +5512,13 @@ const DEFAULT_TILE_LIBRARY = TILE_TYPES.map((type) => ({
   sourceTag: TILE_LIBRARY_META[type]?.sourceTag || "base",
 }));
 const BASE_TILE_TYPES = [...TILE_TYPES];
-const BIOME_TILE_LIBRARY_ORDER = Object.keys(TILE_BIOME_LABELS).filter((key) => key !== "all");
+const BIOME_TILE_LIBRARY_ORDER = ["oceano_olirion", "vaels_forest", "mistico_cristalino", "saramaz_savana", "cordilheira_sul", "arquipelago_sul", "neutral", "estruturas_humanas"];
 const DEFAULT_BIOME_TILE_LIBRARY = {
   version: 1,
   biomes: Object.fromEntries(BIOME_TILE_LIBRARY_ORDER.map((biome) => [biome, []])),
 };
 const DEFAULT_TILE_LIBRARY_FILTER = { text: "" };
-const TILE_CATEGORY_ORDER = ["ocean", "forest", "mystic", "saramaz", "mountains", "islands", "neutral", "structures"];
+const TILE_CATEGORY_ORDER = ["oceano_olirion", "vaels_forest", "mistico_cristalino", "saramaz_savana", "cordilheira_sul", "arquipelago_sul", "neutral", "estruturas_humanas", "ocean", "forest", "mystic", "saramaz", "mountains", "islands", "structures"];
 let tileCatalogCache = null;
 let tileCatalogPromise = null;
 let tileLibraryForRender = [...DEFAULT_TILE_LIBRARY];
@@ -6365,7 +6371,9 @@ function normalizeBiomeTileLibrary(raw) {
     version: parseInt(raw?.version, 10) || 1,
     biomes: {},
   };
-  BIOME_TILE_LIBRARY_ORDER.forEach((biome) => {
+  const discoveredBiomes = Object.keys(raw?.biomes || {});
+  const biomeKeys = [...new Set([...BIOME_TILE_LIBRARY_ORDER, ...discoveredBiomes])];
+  biomeKeys.forEach((biome) => {
     const entries = normalizeTileLibraryList(raw?.biomes?.[biome] || []);
     normalized.biomes[biome] = entries.length ? entries : [];
   });
@@ -6375,8 +6383,13 @@ function normalizeBiomeTileLibrary(raw) {
 function buildTileLibraryFromBiomeConfig(config = DEFAULT_BIOME_TILE_LIBRARY) {
   const merged = [];
   const seen = new Set();
-  BIOME_TILE_LIBRARY_ORDER.forEach((biome) => {
-    (config?.biomes?.[biome] || []).forEach((entry) => {
+  const biomeEntries = Object.entries(config?.biomes || {}).sort((a, b) => {
+    const ai = BIOME_TILE_LIBRARY_ORDER.indexOf(a[0]);
+    const bi = BIOME_TILE_LIBRARY_ORDER.indexOf(b[0]);
+    return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+  });
+  biomeEntries.forEach(([biome, list]) => {
+    (list || []).forEach((entry) => {
       if (!entry || seen.has(entry.id)) return;
       seen.add(entry.id);
       merged.push({ ...entry, biome, sourceTag: entry.sourceTag || biome });
@@ -6431,8 +6444,7 @@ function renderTileLibrary() {
           const activeClass = entry.id === paintTool ? " active" : "";
           return `<button type="button" class="toolBtn tileCard${activeClass}" data-tile-id="${escapeHtml(entry.id)}">
             <span class="tileCardMain">${escapeHtml(entry.icon)} ${escapeHtml(entry.label)}</span>
-            <span class="tileCardMeta">${escapeHtml(TILE_BIOME_LABELS[biome] || biome)} · ${escapeHtml(entry.sourceTag || biome)}</span>
-          </button>`;
+            </button>`;
         })
         .join("");
       return `<details class="tileBiomeGroup" open>

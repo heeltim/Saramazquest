@@ -2322,20 +2322,22 @@ select option {
 }
 .tileCardGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
   gap: 6px;
 }
 .tileCard {
-  border-radius: 12px;
+  border-radius: 10px;
   display: grid;
-  gap: 2px;
+  gap: 1px;
   justify-items: start;
   text-align: left;
-  min-height: 62px;
+  min-height: 46px;
+  padding: 4px 7px;
 }
 .tileCardMain {
   font-weight: 900;
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.2;
 }
 .tileCardMeta {
   font-size: 10px;
