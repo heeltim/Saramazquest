@@ -726,6 +726,102 @@
       </div>
     </div>
 
+
+    <div id="tokenSettingsOverlay" class="modalOverlay">
+      <div class="modal tokenModal">
+        <div class="modalHeader">
+          <div>
+            <h3 id="tokenSettingsTitle" class="modalTitle">Token Settings</h3>
+            <div class="modalSub">Configurações visuais e comportamento do token no grid.</div>
+          </div>
+          <button class="btn" type="button" onclick="closeTokenSettingsModal()">Fechar</button>
+        </div>
+
+        <div class="tokenModalGrid">
+          <div class="panel panelStack">
+            <div class="sheetBlockTitle">Geral</div>
+            <div class="field">
+              <label for="tokenTooltipInput">Tooltip</label>
+              <textarea id="tokenTooltipInput" rows="3" placeholder="Mensagem rápida para o token..."></textarea>
+            </div>
+            <div class="field">
+              <label for="tokenTooltipVisibility">Visibilidade do tooltip</label>
+              <select id="tokenTooltipVisibility">
+                <option value="all">Todos</option>
+                <option value="gm">Somente GM</option>
+              </select>
+            </div>
+
+            <div class="sheetBlockTitle">Comportamento do token</div>
+            <div class="tokenInlineFields">
+              <div class="field">
+                <label for="tokenScaleInput">Tamanho (células)</label>
+                <input id="tokenScaleInput" type="number" min="1" max="4" step="1" value="1" />
+              </div>
+              <div class="field">
+                <label for="tokenRotationInput">Rotação</label>
+                <input id="tokenRotationInput" type="number" min="0" max="345" step="15" value="0" />
+              </div>
+            </div>
+            <small class="tokenHelpText">O tamanho sempre encaixa na grade (1 a 4 células).</small>
+          </div>
+
+          <div class="panel panelStack">
+            <div class="sheetBlockTitle">Imagem do token</div>
+            <div class="tokenUploadBox">
+              <img id="tokenPreviewImage" alt="Preview do token" />
+              <div class="tokenUploadControls">
+                <input id="tokenImageUpload" type="file" accept="image/png,image/*" />
+                <button class="smallBtn" type="button" onclick="resetTokenImageToOriginal()">Resetar token original</button>
+              </div>
+            </div>
+
+            <div class="sheetBlockTitle">Auras</div>
+            <div id="tokenAuraRows" class="tokenAuraRows"></div>
+
+            <div class="tokenModalActions">
+              <button class="btn btnPrimary" type="button" onclick="saveTokenSettingsModal()">Salvar configurações</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tokenConditionsOverlay" class="modalOverlay">
+      <div class="modal tokenModal tokenConditionsModal">
+        <div class="modalHeader">
+          <div>
+            <h3 id="tokenConditionsTitle" class="modalTitle">Condições do Token</h3>
+            <div class="modalSub">Selecione as condições ativas para este personagem.</div>
+          </div>
+          <button class="btn" type="button" onclick="closeTokenConditionsModal()">Fechar</button>
+        </div>
+        <div id="tokenConditionsGrid" class="tokenConditionsGrid"></div>
+        <div class="tokenModalActions">
+          <button class="btn btnPrimary" type="button" onclick="saveTokenConditionsModal()">Salvar condições</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="statEditOverlay" class="modalOverlay">
+      <div class="modal tokenModal tokenStatModal">
+        <div class="modalHeader">
+          <div>
+            <h3 id="statEditTitle" class="modalTitle">Ajustar recurso</h3>
+            <div class="modalSub">Digite um valor positivo ou negativo para aplicar.</div>
+          </div>
+          <button class="btn" type="button" onclick="closeStatEditModal()">Fechar</button>
+        </div>
+        <div class="field">
+          <label for="statDeltaInput">Delta</label>
+          <input id="statDeltaInput" type="number" step="1" value="-10" />
+        </div>
+        <div class="tokenModalActions">
+          <button class="btn btnPrimary" type="button" onclick="applyStatEditModal()">Aplicar</button>
+        </div>
+      </div>
+    </div>
+
     <script src="app.js?v=20260222-prof"></script>
   </body>
 </html>

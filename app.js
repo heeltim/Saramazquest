@@ -17,6 +17,10 @@ let currentUser = "Jogador";
 let currentAvatar = "🧙";
 let currentAccountEmail = "";
 let pendingCharacterSetup = null;
+let tokenSettingsTargetName = null;
+let tokenConditionsTargetName = null;
+let statEditTargetName = null;
+let statEditTargetField = "hp";
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
@@ -179,6 +183,19 @@ const CHARACTER_TEMPLATES = [
   },
 ];
 const DEFAULT_SPRITE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif";
+const TOKEN_GRID_UNIT = 40;
+const TOKEN_CONDITION_LIBRARY = [
+  { id: "bleeding", icon: "🩸", label: "Sangrando" },
+  { id: "downed", icon: "🛌", label: "Caído" },
+  { id: "prone", icon: "↘️", label: "Derrubado" },
+  { id: "unconscious", icon: "😵", label: "Inconsciente" },
+  { id: "sleeping", icon: "💤", label: "Dormindo" },
+  { id: "poisoned", icon: "☠️", label: "Envenenado" },
+  { id: "blinded", icon: "🙈", label: "Cego" },
+  { id: "restrained", icon: "🕸️", label: "Restrito" },
+  { id: "stunned", icon: "💫", label: "Atordoado" },
+  { id: "dead", icon: "💀", label: "Morto" },
+];
 
 function isSpriteAvatar(avatar) {
   return !!avatar && typeof avatar === "object" && avatar.type === "sprite" && typeof avatar.url === "string";
@@ -1798,6 +1815,258 @@ function computeSheetBonusBreakdown(p) {
   };
 }
 
+function getTokenConditionMeta(conditionId) {
+  const hit = TOKEN_CONDITION_LIBRARY.find((cond) => cond.id === conditionId);
+  if (hit) return hit;
+  return { id: conditionId, icon: "❔", label: conditionId };
+}
+
+function cloneAvatar(avatar) {
+  return JSON.parse(JSON.stringify(normalizeAvatar(avatar)));
+}
+
+function isCurrentUserGM() {
+  return currentUser === DEV_AUTH_USER.playerName || /mestre|gm/i.test(String(currentUser || ""));
+}
+
+function normalizeTokenAuraEntry(aura, fallbackColor = "#78d37a") {
+  const shape = ["circle", "square", "hex"].includes(aura?.shape) ? aura.shape : "circle";
+  return {
+    enabled: !!aura?.enabled,
+    radius: Math.max(1, Math.min(12, parseInt(aura?.radius, 10) || 1)),
+    shape,
+    color: String(aura?.color || fallbackColor),
+  };
+}
+
+function getTokenTooltipText(player) {
+  if (!player?.tokenTooltip) return "";
+  if (player.tokenTooltipVisibility === "gm" && !isCurrentUserGM()) return "";
+  return String(player.tokenTooltip || "").trim();
+}
+
+function renderTokenAuras(tokenStack, player, tokenScale) {
+  const activeAuras = (player.tokenAuras || []).filter((aura) => aura?.enabled);
+  if (!activeAuras.length) return;
+
+  const auraLayer = document.createElement("div");
+  auraLayer.className = "tokenAuras";
+
+  activeAuras.forEach((aura, auraIndex) => {
+    const auraEl = document.createElement("div");
+    auraEl.className = `tokenAura tokenAura-${aura.shape}`;
+    const auraDiameter = (tokenScale + aura.radius * 2) * TOKEN_GRID_UNIT;
+    auraEl.style.width = `${auraDiameter}px`;
+    auraEl.style.height = `${auraDiameter}px`;
+    auraEl.style.borderColor = aura.color;
+    auraEl.style.opacity = String(Math.max(0.2, 0.34 - auraIndex * 0.08));
+    auraLayer.appendChild(auraEl);
+  });
+
+  tokenStack.appendChild(auraLayer);
+}
+
+function openTokenSettings(name) {
+  const data = load();
+  const player = data.rooms?.[room]?.[name];
+  if (!player) return;
+  ensurePlayerSchema(player);
+  tokenSettingsTargetName = name;
+  removeMenu();
+
+  document.getElementById("tokenSettingsTitle").textContent = `Token Settings • ${name}`;
+  document.getElementById("tokenTooltipInput").value = player.tokenTooltip || "";
+  document.getElementById("tokenTooltipVisibility").value = player.tokenTooltipVisibility || "all";
+  document.getElementById("tokenScaleInput").value = String(player.tokenScale || 1);
+  document.getElementById("tokenRotationInput").value = String(player.tokenRotation || 0);
+
+  const uploadInput = document.getElementById("tokenImageUpload");
+  if (uploadInput) uploadInput.value = "";
+
+  const preview = document.getElementById("tokenPreviewImage");
+  if (preview) {
+    if (isSpriteAvatar(player.avatar) || isIconAvatar(player.avatar)) {
+      preview.src = player.avatar.url;
+    } else {
+      preview.src = "";
+    }
+  }
+
+  renderTokenAuraRows(player.tokenAuras || []);
+  document.getElementById("tokenSettingsOverlay").style.display = "flex";
+}
+
+function closeTokenSettingsModal() {
+  document.getElementById("tokenSettingsOverlay").style.display = "none";
+  tokenSettingsTargetName = null;
+}
+
+function renderTokenAuraRows(auraList) {
+  const rows = document.getElementById("tokenAuraRows");
+  if (!rows) return;
+  rows.innerHTML = "";
+  const normalized = Array.from({ length: 3 }, (_, idx) => normalizeTokenAuraEntry(auraList?.[idx], idx === 0 ? "#d7de70" : idx === 1 ? "#6eddb6" : "#a58df4"));
+  normalized.forEach((aura, idx) => {
+    const row = document.createElement("div");
+    row.className = "tokenAuraRow";
+    row.innerHTML = `
+      <label><input type="checkbox" data-field="enabled" ${aura.enabled ? "checked" : ""}/> Aura ${idx + 1}</label>
+      <input type="number" data-field="radius" min="1" max="12" value="${aura.radius}" />
+      <select data-field="shape">
+        <option value="circle" ${aura.shape === "circle" ? "selected" : ""}>Círculo</option>
+        <option value="square" ${aura.shape === "square" ? "selected" : ""}>Quadrado</option>
+        <option value="hex" ${aura.shape === "hex" ? "selected" : ""}>Hex</option>
+      </select>
+      <input type="color" data-field="color" value="${aura.color}" />
+    `;
+    rows.appendChild(row);
+  });
+}
+
+function collectTokenAuraRows() {
+  const rows = [...document.querySelectorAll("#tokenAuraRows .tokenAuraRow")];
+  return rows.map((row, idx) => normalizeTokenAuraEntry({
+    enabled: row.querySelector('[data-field="enabled"]')?.checked,
+    radius: row.querySelector('[data-field="radius"]')?.value,
+    shape: row.querySelector('[data-field="shape"]')?.value,
+    color: row.querySelector('[data-field="color"]')?.value,
+  }, idx === 0 ? "#d7de70" : idx === 1 ? "#6eddb6" : "#a58df4"));
+}
+
+function resetTokenImageToOriginal() {
+  if (!tokenSettingsTargetName) return;
+  const data = load();
+  const player = data.rooms?.[room]?.[tokenSettingsTargetName];
+  if (!player) return;
+  ensurePlayerSchema(player);
+  player.avatar = cloneAvatar(player.tokenBaseAvatar || player.avatar);
+  save(data);
+  openTokenSettings(tokenSettingsTargetName);
+  updateArena();
+}
+
+function saveTokenSettingsModal() {
+  if (!tokenSettingsTargetName) return;
+  const data = load();
+  const player = data.rooms?.[room]?.[tokenSettingsTargetName];
+  if (!player) return;
+  ensurePlayerSchema(player);
+
+  player.tokenTooltip = String(document.getElementById("tokenTooltipInput")?.value || "").trim();
+  player.tokenTooltipVisibility = document.getElementById("tokenTooltipVisibility")?.value === "gm" ? "gm" : "all";
+  player.tokenScale = Math.max(1, Math.min(4, parseInt(document.getElementById("tokenScaleInput")?.value, 10) || 1));
+  player.tokenRotation = Math.max(0, Math.min(345, parseInt(document.getElementById("tokenRotationInput")?.value, 10) || 0));
+  player.tokenRotation = Math.round(player.tokenRotation / 15) * 15;
+  player.tokenAuras = collectTokenAuraRows();
+
+  const input = document.getElementById("tokenImageUpload");
+  const file = input?.files?.[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      player.avatar = createIconAvatar(String(reader.result || ""), getAvatarEmoji(player.avatar), player.name || tokenSettingsTargetName);
+      save(data);
+      closeTokenSettingsModal();
+      updateArena();
+    };
+    reader.readAsDataURL(file);
+    return;
+  }
+
+  save(data);
+  closeTokenSettingsModal();
+  updateArena();
+}
+
+function openTokenConditions(name) {
+  const data = load();
+  const player = data.rooms?.[room]?.[name];
+  if (!player) return;
+  ensurePlayerSchema(player);
+  tokenConditionsTargetName = name;
+  removeMenu();
+
+  document.getElementById("tokenConditionsTitle").textContent = `Condições • ${name}`;
+  const grid = document.getElementById("tokenConditionsGrid");
+  grid.innerHTML = "";
+
+  const enabled = new Set(player.tokenConditions || []);
+  TOKEN_CONDITION_LIBRARY.forEach((condition) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `tokenConditionOption ${enabled.has(condition.id) ? "active" : ""}`;
+    btn.dataset.id = condition.id;
+    btn.innerHTML = `<span>${condition.icon}</span><strong>${condition.label}</strong>`;
+    btn.onclick = () => btn.classList.toggle("active");
+    grid.appendChild(btn);
+  });
+
+  document.getElementById("tokenConditionsOverlay").style.display = "flex";
+}
+
+function closeTokenConditionsModal() {
+  document.getElementById("tokenConditionsOverlay").style.display = "none";
+  tokenConditionsTargetName = null;
+}
+
+function saveTokenConditionsModal() {
+  if (!tokenConditionsTargetName) return;
+  const data = load();
+  const player = data.rooms?.[room]?.[tokenConditionsTargetName];
+  if (!player) return;
+  ensurePlayerSchema(player);
+
+  player.tokenConditions = [...document.querySelectorAll("#tokenConditionsGrid .tokenConditionOption.active")]
+    .map((btn) => String(btn.dataset.id || ""))
+    .filter(Boolean);
+
+  save(data);
+  closeTokenConditionsModal();
+  updateArena();
+}
+
+function openStatEditModal(name, stat) {
+  const data = load();
+  const player = data.rooms?.[room]?.[name];
+  if (!player) return;
+  ensurePlayerSchema(player);
+  statEditTargetName = name;
+  statEditTargetField = stat === "mana" ? "mana" : "hp";
+  removeMenu();
+
+  const label = statEditTargetField === "mana" ? "MP" : "HP";
+  document.getElementById("statEditTitle").textContent = `Ajustar ${label} • ${name}`;
+  document.getElementById("statDeltaInput").value = "-10";
+  document.getElementById("statEditOverlay").style.display = "flex";
+}
+
+function closeStatEditModal() {
+  document.getElementById("statEditOverlay").style.display = "none";
+  statEditTargetName = null;
+}
+
+function applyStatEditModal() {
+  if (!statEditTargetName) return;
+  const data = load();
+  const player = data.rooms?.[room]?.[statEditTargetName];
+  if (!player) return;
+  ensurePlayerSchema(player);
+  recalcFromSheet(player);
+
+  const delta = parseInt(document.getElementById("statDeltaInput")?.value, 10);
+  if (!Number.isFinite(delta)) return;
+
+  if (statEditTargetField === "hp") {
+    player.hp = Math.max(0, Math.min(player.hpMax, player.hp + delta));
+  } else {
+    player.mana = Math.max(0, Math.min(player.manaMax, player.mana + delta));
+  }
+
+  save(data);
+  closeStatEditModal();
+  updateArena();
+}
+
 function ensurePlayerSchema(p) {
   if (p.hp === undefined) p.hp = 100;
   if (p.hpMax === undefined) p.hpMax = 100;
@@ -1869,6 +2138,19 @@ function ensurePlayerSchema(p) {
   if (p.color === undefined) p.color = randomColor();
   if (p.avatar === undefined) p.avatar = "🧙";
   p.avatar = normalizeAvatar(p.avatar);
+  if (p.tokenBaseAvatar === undefined) p.tokenBaseAvatar = cloneAvatar(p.avatar);
+  else p.tokenBaseAvatar = normalizeAvatar(p.tokenBaseAvatar);
+  p.tokenScale = Math.max(1, Math.min(4, parseInt(p.tokenScale, 10) || 1));
+  p.tokenRotation = Math.max(0, Math.min(345, parseInt(p.tokenRotation, 10) || 0));
+  p.tokenRotation = Math.round(p.tokenRotation / 15) * 15;
+  if (!Array.isArray(p.tokenConditions)) p.tokenConditions = [];
+  p.tokenConditions = p.tokenConditions
+    .map((entry) => String(entry || "").trim())
+    .filter((entry) => entry);
+  p.tokenTooltip = String(p.tokenTooltip || "").trim();
+  p.tokenTooltipVisibility = p.tokenTooltipVisibility === "gm" ? "gm" : "all";
+  if (!Array.isArray(p.tokenAuras)) p.tokenAuras = [];
+  p.tokenAuras = Array.from({ length: 3 }, (_, idx) => normalizeTokenAuraEntry(p.tokenAuras[idx], idx === 0 ? "#d7de70" : idx === 1 ? "#6eddb6" : "#a58df4"));
 
   const s = load().scenes[room];
   if (p.x === undefined) p.x = Math.floor(Math.random() * s.cols);
@@ -3070,6 +3352,13 @@ function updateArena() {
     let token = document.createElement("div");
     token.className = "token";
     token.style.background = p.color;
+    const tokenScale = Math.max(1, Math.min(4, parseInt(p.tokenScale, 10) || 1));
+    const tokenSize = tokenScale * TOKEN_GRID_UNIT;
+    tokenStack.style.width = `${tokenSize}px`;
+    tokenStack.style.height = `${tokenSize}px`;
+    token.style.width = `${tokenSize - 8}px`;
+    token.style.height = `${tokenSize - 8}px`;
+    token.style.transform = `rotate(${p.tokenRotation || 0}deg)`;
     const avatarEmoji = getAvatarEmoji(p.avatar || name[0].toUpperCase());
     token.innerHTML = "";
     if (isSpriteAvatar(p.avatar) || isIconAvatar(p.avatar)) {
@@ -3092,7 +3381,8 @@ function updateArena() {
       showMenu(name, token);
     };
 
-    token.title = `HP ${p.hp}/${p.hpMax} • MP ${p.mana}/${p.manaMax}`;
+    const tooltipText = getTokenTooltipText(p);
+    token.title = tooltipText || `HP ${p.hp}/${p.hpMax} • MP ${p.mana}/${p.manaMax}`;
 
     let resources = document.createElement("div");
     resources.className = "tokenResources";
@@ -3118,8 +3408,24 @@ function updateArena() {
     manaBar.appendChild(manaFill);
     resources.appendChild(manaBar);
 
+    renderTokenAuras(tokenStack, p, tokenScale);
     tokenStack.appendChild(token);
     tokenStack.appendChild(resources);
+
+    if (p.tokenConditions?.length) {
+      const conditionWrap = document.createElement("div");
+      conditionWrap.className = "tokenConditionBadges";
+      p.tokenConditions.slice(0, 5).forEach((conditionId) => {
+        const meta = getTokenConditionMeta(conditionId);
+        const badge = document.createElement("span");
+        badge.className = "tokenConditionBadge";
+        badge.title = meta.label;
+        badge.textContent = meta.icon;
+        conditionWrap.appendChild(badge);
+      });
+      tokenStack.appendChild(conditionWrap);
+    }
+
     if (p.player_shop?.enabled) {
       const badge = document.createElement("div");
       badge.className = "playerShopTokenBadge";
@@ -3519,8 +3825,10 @@ function showMenu(name, element) {
     { icon: "🎒", title: "Inventário", run: () => openInventory(name) },
     { icon: "📜", title: "Ficha", run: () => openSheet(name) },
     { icon: "📖", title: "Grimório", run: () => openGrimoire(name) },
-    { icon: "❤️", title: "HP (+/-)", run: () => editStat(name, "hp") },
-    { icon: "🔵", title: "MP (+/-)", run: () => editStat(name, "mana") },
+    { icon: "❤️", title: "HP (+/-)", run: () => openStatEditModal(name, "hp") },
+    { icon: "🔵", title: "MP (+/-)", run: () => openStatEditModal(name, "mana") },
+    { icon: "⚙️", title: "Token settings", run: () => openTokenSettings(name) },
+    { icon: "🩹", title: "Condições", run: () => openTokenConditions(name) },
     { icon: "🗑️", title: "Remover da mesa", run: () => removeFromTable(name) },
     ...(load().rooms?.[room]?.[name]?.player_shop?.enabled ? [{ icon: "🏪", title: "Abrir Loja", run: () => openPlayerShop(name, currentUser) }] : []),
   ];
@@ -3600,29 +3908,7 @@ function addBackToTable(name) {
 
 /* ================= EDIT HP/MP (delta) ================= */
 function editStat(name, stat) {
-  let data = load();
-  let p = data.rooms[room][name];
-  if (!p) return;
-  ensurePlayerSchema(p);
-  recalcFromSheet(p);
-
-  let v = prompt(
-    `Digite um valor para ${stat.toUpperCase()} (ex: -20 ou +10):`,
-    "-10",
-  );
-  if (v === null) return;
-
-  let delta = parseInt(v, 10);
-  if (isNaN(delta)) return;
-
-  if (stat === "hp") {
-    p.hp = Math.max(0, Math.min(p.hpMax, p.hp + delta));
-  } else {
-    p.mana = Math.max(0, Math.min(p.manaMax, p.mana + delta));
-  }
-
-  save(data);
-  updateArena();
+  openStatEditModal(name, stat);
 }
 
 /* ================= FICHA ================= */
@@ -6219,3 +6505,25 @@ function sellInventoryItemToMarket(invIdx) {
   renderPlayerShopPanel(currentUser, currentUser);
   updateArena();
 }
+
+
+document.getElementById("tokenSettingsOverlay")?.addEventListener("click", (event) => {
+  if (event.target.id === "tokenSettingsOverlay") closeTokenSettingsModal();
+});
+document.getElementById("tokenConditionsOverlay")?.addEventListener("click", (event) => {
+  if (event.target.id === "tokenConditionsOverlay") closeTokenConditionsModal();
+});
+document.getElementById("statEditOverlay")?.addEventListener("click", (event) => {
+  if (event.target.id === "statEditOverlay") closeStatEditModal();
+});
+
+document.getElementById("tokenImageUpload")?.addEventListener("change", (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const preview = document.getElementById("tokenPreviewImage");
+    if (preview) preview.src = String(reader.result || "");
+  };
+  reader.readAsDataURL(file);
+});
