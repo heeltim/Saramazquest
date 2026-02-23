@@ -1194,6 +1194,17 @@ const PROFESSIONS_DB = {
 };
 let REAGENT_BY_ID = Object.fromEntries(PROFESSIONS_DB.reagents.map((r) => [r.id, r]));
 const PROFESSION_BY_ID = Object.fromEntries(PROFESSIONS_DB.professions.map((r) => [r.id, r]));
+const PROFESSION_ICON_BY_ID = {
+  culinaria: "🍳",
+  alquimia: "🧪",
+  ferraria: "⚒️",
+  mercador: "🏪",
+};
+
+function getProfessionIcon(professionId, fallback = "🧭") {
+  return PROFESSION_ICON_BY_ID[professionId] || fallback;
+}
+
 let MANUAL_RECIPES_DB = { recipes: [] };
 let selectedProfessionId = "culinaria";
 let professionTargetName = null;
@@ -1752,18 +1763,30 @@ function tileIndex(x, y) {
 function getTile(x, y) {
   const s = load().scenes[room];
   const idx = y * s.cols + x;
-  return TILE_TYPES.includes(s.tiles[idx]) ? s.tiles[idx] : "floor";
+  const tileId = s.tiles[idx];
+  return tileMetadataById.has(tileId) ? tileId : "floor";
 }
 function setTile(x, y, type) {
   let data = load();
   const s = data.scenes[room];
   const idx = y * s.cols + x;
-  s.tiles[idx] = TILE_TYPES.includes(type) ? type : "floor";
+  s.tiles[idx] = tileMetadataById.has(type) ? type : "floor";
   save(data);
 }
 
+function getTileCssClass(tileId = "") {
+  return tileMetadataById.get(tileId)?.cssClass || `tile-${tileId}`;
+}
+
+function getTileBaseType(tileId = "") {
+  return tileMetadataById.get(tileId)?.baseTile || "floor";
+}
+
 function clearTileClasses(cell) {
-  TILE_TYPES.forEach((type) => cell.classList.remove(`tile-${type}`));
+  TILE_TYPES.forEach((type) => {
+    cell.classList.remove(`tile-${type}`);
+    cell.classList.remove(getTileCssClass(type));
+  });
 }
 
 /* ================= PLAYER SCHEMA ================= */
@@ -3374,9 +3397,10 @@ function updateArenaNow() {
   for (const cell of cells) {
     const x = parseInt(cell.dataset.x, 10);
     const y = parseInt(cell.dataset.y, 10);
-    const t = TILE_TYPES.includes(s.tiles[tileIndex(x, y)]) ? s.tiles[tileIndex(x, y)] : "floor";
+    const rawTile = s.tiles[tileIndex(x, y)];
+    const t = tileMetadataById.has(rawTile) ? rawTile : "floor";
     clearTileClasses(cell);
-    cell.classList.add("tile-" + t);
+    cell.classList.add(getTileCssClass(t));
     cell.innerHTML = "";
   }
 
@@ -3397,7 +3421,7 @@ function updateArenaNow() {
     if (!p.onTable) return;
 
     // se cair em wall/void, ajusta pra floor mais próximo (bem simples)
-    if (getTile(p.x, p.y) !== "floor") {
+    if (getTileBaseType(getTile(p.x, p.y)) !== "floor") {
       const found = findNearestFloor(p.x, p.y);
       if (found) {
         p.x = found.x;
@@ -3861,7 +3885,7 @@ document.addEventListener("keydown", (e) => {
 
   // colisão
   const tile = data.scenes[room].tiles[tileIndex(nx, ny)] || "floor";
-  if (tile !== "floor") {
+  if (getTileBaseType(tile) !== "floor") {
     // feedback leve: pisca a célula destino
     flashCell(nx, ny);
     return;
@@ -5835,6 +5859,7 @@ window.setBrushSize = setBrushSize;
 
 function syncSceneUIFromStorage() {
   ensureScene();
+  renderTileLibrary();
   const s = load().scenes[room];
   document.getElementById("bgScale").value = s.bgScale;
   document.getElementById("bgOpacity").value = s.bgOpacity;
@@ -6128,6 +6153,101 @@ const DEFAULT_WORLD_BIOME_COLOR_TABLE = {
   ],
 };
 
+
+const BIOME_TO_TILE_RULES = {
+  ocean: { defaultTile: "void", variants: [{ tile: "void", weight: 100 }] },
+  coast: { defaultTile: "stone", variants: [{ tile: "stone", weight: 65 }, { tile: "floor", weight: 35 }] },
+  plains: { defaultTile: "grass", variants: [{ tile: "grass", weight: 85 }, { tile: "floor", weight: 15 }] },
+  forest: { defaultTile: "grass", variants: [{ tile: "grass", weight: 70 }, { tile: "stone", weight: 30 }] },
+  desert: { defaultTile: "stone", variants: [{ tile: "stone", weight: 90 }, { tile: "floor", weight: 10 }] },
+  mountains: { defaultTile: "stonewall", variants: [{ tile: "stonewall", weight: 55 }, { tile: "stone", weight: 45 }] },
+  tundra: { defaultTile: "floor", variants: [{ tile: "floor", weight: 65 }, { tile: "stone", weight: 35 }] },
+  volcanic: { defaultTile: "stonewall", variants: [{ tile: "stonewall", weight: 70 }, { tile: "void", weight: 30 }] },
+  unknown: { defaultTile: "floor", variants: [{ tile: "floor", weight: 100 }] },
+};
+
+function seededRandom01(seedInput = "") {
+  const hashHex = hashText(String(seedInput));
+  const raw = parseInt(hashHex.slice(0, 8), 16);
+  return Number.isFinite(raw) ? raw / 0xffffffff : Math.random();
+}
+
+function pickWeightedTile(rule, seedInput = "") {
+  const fallbackTile = TILE_TYPES.includes(rule?.defaultTile) ? rule.defaultTile : "floor";
+  const variants = Array.isArray(rule?.variants)
+    ? rule.variants
+        .map((entry) => ({
+          tile: TILE_TYPES.includes(entry?.tile) ? entry.tile : null,
+          weight: Math.max(0, Number(entry?.weight) || 0),
+        }))
+        .filter((entry) => entry.tile && entry.weight > 0)
+    : [];
+  if (!variants.length) return fallbackTile;
+  const totalWeight = variants.reduce((sum, entry) => sum + entry.weight, 0);
+  if (totalWeight <= 0) return fallbackTile;
+  let cursor = seededRandom01(seedInput) * totalWeight;
+  for (const variant of variants) {
+    cursor -= variant.weight;
+    if (cursor <= 0) return variant.tile;
+  }
+  return variants[variants.length - 1].tile || fallbackTile;
+}
+
+function isWorldCellTerrainLocked(cellData) {
+  if (!cellData || typeof cellData !== "object") return false;
+  const boolLockKeys = ["terrainLock", "tileLock", "locked", "isLocked", "manualLock", "lockTerrain", "lockTile"];
+  if (boolLockKeys.some((key) => cellData[key] === true)) return true;
+  const sourceKeys = ["terrainSource", "tileSource", "terrainOverride", "tileOverride", "editSource"];
+  if (sourceKeys.some((key) => String(cellData[key] || "").toLowerCase() === "manual")) return true;
+  return false;
+}
+
+function generateTerrainFromWorldBiomes(scene, options = {}) {
+  if (!scene) return { updated: 0, skipped: 0, total: 0 };
+  const meta = normalizeWorldMapMetaWithScene(scene);
+  const cells = meta && typeof meta.cells === "object" ? meta.cells : {};
+  const sceneCols = Math.max(1, parseInt(scene.cols, 10) || DEFAULT_COLS);
+  const sceneRows = Math.max(1, parseInt(scene.rows, 10) || DEFAULT_ROWS);
+  const worldCols = Math.max(1, parseInt(meta?.cols, 10) || parseInt(scene.worldMap?.gridCols, 10) || sceneCols);
+  const worldRows = Math.max(1, parseInt(meta?.rows, 10) || parseInt(scene.worldMap?.gridRows, 10) || sceneRows);
+  const needed = sceneCols * sceneRows;
+  if (!Array.isArray(scene.tiles)) scene.tiles = [];
+  if (scene.tiles.length !== needed) {
+    scene.tiles = Array.from({ length: needed }, (_, i) => scene.tiles?.[i] || "floor");
+  }
+
+  const baseSeed = String(options.seed || meta?.classification?.signature || scene.worldMap?.imageUrl || "default");
+  let updated = 0;
+  let skipped = 0;
+  Object.entries(cells).forEach(([key, cellData]) => {
+    const [xRaw, yRaw] = String(key).split("_");
+    const worldX = parseInt(xRaw, 10);
+    const worldY = parseInt(yRaw, 10);
+    if (!Number.isFinite(worldX) || !Number.isFinite(worldY) || worldX < 0 || worldY < 0 || worldX >= worldCols || worldY >= worldRows) {
+      skipped += 1;
+      return;
+    }
+    if (isWorldCellTerrainLocked(cellData)) {
+      skipped += 1;
+      return;
+    }
+    const biome = String(cellData?.biome || cellData?.biomeDetection?.detectedBiome || "unknown").trim().toLowerCase();
+    const rule = BIOME_TO_TILE_RULES[biome] || BIOME_TO_TILE_RULES.unknown;
+    const tile = pickWeightedTile(rule, `${baseSeed}:${key}:${biome}`);
+    const sceneX = Math.min(sceneCols - 1, Math.max(0, Math.floor((worldX / worldCols) * sceneCols)));
+    const sceneY = Math.min(sceneRows - 1, Math.max(0, Math.floor((worldY / worldRows) * sceneRows)));
+    const idx = sceneY * sceneCols + sceneX;
+    if (!TILE_TYPES.includes(tile) || idx < 0 || idx >= scene.tiles.length) {
+      skipped += 1;
+      return;
+    }
+    scene.tiles[idx] = tile;
+    updated += 1;
+  });
+
+  return { updated, skipped, total: Object.keys(cells).length };
+}
+
 let worldBiomeColorTableCache = null;
 let worldBiomeColorTablePromise = null;
 let worldMapImageBuffer = { src: "", canvas: null, ctx: null, width: 0, height: 0 };
@@ -6152,6 +6272,97 @@ function rgbToHex(rgb = [0, 0, 0]) {
   return `#${rgb
     .map((value) => Math.max(0, Math.min(255, Math.round(value) || 0)).toString(16).padStart(2, "0"))
     .join("")}`;
+}
+
+function sanitizeTileEntry(entry, fallback = null) {
+  const tileId = String(entry?.id || "").trim();
+  if (!tileId) return null;
+  const fallbackBaseTile = String(fallback?.baseTile || "").trim();
+  const rawBaseTile = String(entry?.baseTile || fallbackBaseTile || "floor").trim();
+  const baseTile = BASE_TILE_TYPES.includes(rawBaseTile) ? rawBaseTile : "floor";
+  const label = String(entry?.label || fallback?.label || tileId).trim();
+  const icon = String(entry?.emoji || entry?.icon || fallback?.icon || "🧱").trim() || "🧱";
+  const cssClass = String(entry?.cssClass || fallback?.cssClass || `tile-${baseTile}`).trim();
+  const spawnWeightRaw = entry?.spawnWeight;
+  const spawnWeight = spawnWeightRaw === undefined || spawnWeightRaw === null ? undefined : Math.max(1, parseFloat(spawnWeightRaw) || 1);
+  return {
+    id: tileId,
+    label: label || tileId,
+    icon,
+    cssClass,
+    baseTile,
+    ...(spawnWeight === undefined ? {} : { spawnWeight }),
+  };
+}
+
+function normalizeTileLibraryList(list = []) {
+  const seen = new Set();
+  return list
+    .map((entry) => sanitizeTileEntry(entry, DEFAULT_TILE_LIBRARY.find((item) => item.id === String(entry?.id || "").trim())))
+    .filter((entry) => entry && !seen.has(entry.id) && seen.add(entry.id));
+}
+
+function normalizeBiomeTileLibrary(raw) {
+  const normalized = {
+    version: parseInt(raw?.version, 10) || 1,
+    biomes: {},
+  };
+  BIOME_TILE_LIBRARY_ORDER.forEach((biome) => {
+    const entries = normalizeTileLibraryList(raw?.biomes?.[biome] || []);
+    normalized.biomes[biome] = entries.length ? entries : [];
+  });
+  return normalized;
+}
+
+function buildTileLibraryFromBiomeConfig(config = DEFAULT_BIOME_TILE_LIBRARY) {
+  const merged = [];
+  const seen = new Set();
+  BIOME_TILE_LIBRARY_ORDER.forEach((biome) => {
+    (config?.biomes?.[biome] || []).forEach((entry) => {
+      if (!entry || seen.has(entry.id)) return;
+      seen.add(entry.id);
+      merged.push(entry);
+    });
+  });
+  return merged.length ? merged : DEFAULT_TILE_LIBRARY;
+}
+
+function syncTileMetadataRegistry(tileList = []) {
+  const metadata = new Map(DEFAULT_TILE_LIBRARY.map((entry) => [entry.id, entry]));
+  tileList.forEach((entry) => {
+    if (!entry?.id) return;
+    metadata.set(entry.id, entry);
+  });
+  tileMetadataById = metadata;
+  TILE_TYPES = Array.from(metadata.keys());
+}
+
+function renderTileLibrary() {
+  const wrap = document.getElementById("tileLibraryButtons");
+  if (!wrap) return;
+  const tools = Array.isArray(tileLibraryForRender) && tileLibraryForRender.length ? tileLibraryForRender : DEFAULT_TILE_LIBRARY;
+  wrap.innerHTML = tools
+    .map((entry) => `<button class="toolBtn" id="tool${entry.id.charAt(0).toUpperCase()}${entry.id.slice(1)}" onclick="setTool('${entry.id}')">${entry.icon} ${escapeHtml(entry.label)}</button>`)
+    .join("");
+  setTool(paintTool);
+}
+
+async function loadWorldBiomeTileLibrary() {
+  if (worldBiomeTileLibraryCache) return worldBiomeTileLibraryCache;
+  if (!worldBiomeTileLibraryPromise) {
+    worldBiomeTileLibraryPromise = fetch("data/world/biome-tiles.json", { cache: "no-store" })
+      .then((resp) => (resp.ok ? resp.json() : null))
+      .catch(() => null)
+      .then((raw) => {
+        const normalized = normalizeBiomeTileLibrary(raw || DEFAULT_BIOME_TILE_LIBRARY);
+        const mergedLibrary = buildTileLibraryFromBiomeConfig(normalized);
+        tileLibraryForRender = mergedLibrary.length ? mergedLibrary : DEFAULT_TILE_LIBRARY;
+        syncTileMetadataRegistry(tileLibraryForRender);
+        worldBiomeTileLibraryCache = normalized;
+        return worldBiomeTileLibraryCache;
+      });
+  }
+  return worldBiomeTileLibraryPromise;
 }
 
 async function loadWorldBiomeColorTable() {
@@ -6569,14 +6780,36 @@ window.importWorldMapImage = function importWorldMapImage() {
     setWorldMapUploadStatus(`Mapa global carregado: ${file.name}`, "success");
     syncWorldMapToggleVisibility(scene);
     classifyWorldMapBiomes(scene, { force: true }).finally(() => {
+      let terrainData = load();
+      const terrainScene = terrainData.scenes[room];
+      const terrainSummary = generateTerrainFromWorldBiomes(terrainScene);
+      save(terrainData);
+      updateArena();
+      setWorldMapUploadStatus(`Mapa global carregado: ${file.name} · terreno gerado (${terrainSummary.updated}/${terrainSummary.total})`, "success");
       renderWorldMapWindow();
-      const selected = getSelectedWorldCell(scene);
+      const selected = getSelectedWorldCell(terrainScene);
       updateWorldMapDrawer(selected ? { x: selected.col - 1, y: selected.row - 1 } : null);
     });
     fileInput.value = "";
   };
   reader.onerror = () => setWorldMapUploadStatus("Falha ao carregar o arquivo de imagem.", "error");
   reader.readAsDataURL(file);
+};
+
+window.generateProceduralTerrainFromWorldBiomes = function generateProceduralTerrainFromWorldBiomes() {
+  let data = load();
+  const scene = data.scenes[room];
+  classifyWorldMapBiomes(scene, { force: false })
+    .then(() => {
+      const summary = generateTerrainFromWorldBiomes(scene);
+      save(data);
+      updateArena();
+      setWorldMapUploadStatus(`Terreno procedural atualizado (${summary.updated}/${summary.total} células).`, "success");
+      if (isWorldMapWindowOpen) renderWorldMapWindow();
+    })
+    .catch(() => {
+      setWorldMapUploadStatus("Não foi possível gerar o terreno procedural a partir dos biomas.", "error");
+    });
 };
 
 window.clearWorldMapImage = function clearWorldMapImage() {
@@ -6611,6 +6844,7 @@ function bindWorldBuilderInputs() {
   const setNameBtn = document.getElementById("worldCellSetNameBtn");
   const saveBtn = document.getElementById("worldCellSaveBtn");
   const clearBtn = document.getElementById("worldCellClearBtn");
+  const generateTerrainBtn = document.getElementById("worldGenerateTerrainBtn");
 
   bindWorldMapViewportInteractions();
 
@@ -6633,8 +6867,13 @@ function bindWorldBuilderInputs() {
     meta.classification = null;
     saveGlobalMapMeta(meta);
     classifyWorldMapBiomes(scene, { force: true }).finally(() => {
+      let terrainData = load();
+      const terrainScene = terrainData.scenes[room];
+      generateTerrainFromWorldBiomes(terrainScene);
+      save(terrainData);
+      updateArena();
       if (isWorldMapWindowOpen) renderWorldMapWindow();
-      const selected = getSelectedWorldCell(scene);
+      const selected = getSelectedWorldCell(terrainScene);
       updateWorldMapDrawer(selected ? { x: selected.col - 1, y: selected.row - 1 } : null);
     });
     if (isWorldMapWindowOpen) renderWorldMapWindow();
@@ -6667,6 +6906,10 @@ function bindWorldBuilderInputs() {
   if (clearBtn && !clearBtn.dataset.bound) {
     clearBtn.dataset.bound = "1";
     clearBtn.addEventListener("click", clearSelectedWorldCellMeta);
+  }
+  if (generateTerrainBtn && !generateTerrainBtn.dataset.bound) {
+    generateTerrainBtn.dataset.bound = "1";
+    generateTerrainBtn.addEventListener("click", () => window.generateProceduralTerrainFromWorldBiomes());
   }
 }
 
@@ -6743,7 +6986,7 @@ bindSceneInputs();
 bindWorldBuilderInputs();
 
 function fillAll(type) {
-  const fillType = TILE_TYPES.includes(type) ? type : "floor";
+  const fillType = tileMetadataById.has(type) ? type : "floor";
   let data = load();
   const s = data.scenes[room];
   s.tiles = new Array(s.cols * s.rows).fill(fillType);
@@ -6751,7 +6994,7 @@ function fillAll(type) {
   document.querySelectorAll(".cell").forEach((cell) => {
     clearTileClasses(cell);
     cell.classList.remove("paint-floor", "paint-wall", "paint-void");
-    cell.classList.add("tile-" + fillType);
+    cell.classList.add(getTileCssClass(fillType));
   });
   refreshTokenPlacements();
 }
@@ -6851,9 +7094,10 @@ function paintAtEvent(e, cell) {
       if (!targetCell) continue;
       targetCell.classList.remove("paint-floor", "paint-wall", "paint-void");
       clearTileClasses(targetCell);
-      targetCell.classList.add("tile-" + t);
-      if (t === "floor" || t === "wall" || t === "void") {
-        targetCell.classList.add("paint-" + t);
+      targetCell.classList.add(getTileCssClass(t));
+      const baseTile = getTileBaseType(t);
+      if (baseTile === "floor" || baseTile === "wall" || baseTile === "void") {
+        targetCell.classList.add("paint-" + baseTile);
       }
     }
   }
@@ -6883,6 +7127,7 @@ applySceneCSS();
 bindMapInteractions();
 setMapZoom(getSceneZoom(), false);
 updateArena();
+loadWorldBiomeTileLibrary().finally(() => renderTileLibrary());
 setDiceTrayOpen(false);
 initChatComposer();
 updateChat();
@@ -7213,35 +7458,113 @@ function closeProfessions() {
 function renderProfessionsModal(p) {
   const panel = document.getElementById("professionsPanel");
   if (!panel) return;
-  const profTabs = PROFESSIONS_DB.professions.map((prof) => `<button class="smallBtn ${selectedProfessionId === prof.id ? "smallBtnPrimary" : ""}" onclick="selectedProfessionId='${prof.id}'; renderProfessionsModal(load().rooms[room][professionTargetName]);">${prof.nome}</button>`).join("");
+  const selectedProfession = PROFESSION_BY_ID[selectedProfessionId] || null;
+  const selectedProfessionName = selectedProfession?.nome || "Profissão";
+  const selectedProfessionIcon = getProfessionIcon(selectedProfessionId);
+  const activeProductionList = (p.production_professions || []).map((id) => `${getProfessionIcon(id)} ${PROFESSION_BY_ID[id]?.nome || id}`);
+  const totalReagents = Object.values(p.reagents_inventory || {}).reduce((sum, qty) => sum + Number(qty || 0), 0);
+
+  const profTabs = PROFESSIONS_DB.professions.map((prof) => `
+    <button class="profTabBtn ${selectedProfessionId === prof.id ? "active" : ""}" onclick="selectedProfessionId='${prof.id}'; renderProfessionsModal(load().rooms[room][professionTargetName]);">
+      <span class="profIcon" aria-hidden="true">${getProfessionIcon(prof.id)}</span>
+      <span>${prof.nome}</span>
+    </button>
+  `).join("");
+
   const recipeCards = getRecipeItemCandidates(selectedProfessionId);
   const reagentsHtml = Object.entries(p.reagents_inventory || {}).map(([rid, qty]) => `<div class="reagentRow"><span>${REAGENT_BY_ID[rid]?.nome || rid}</span><strong>x${qty}</strong></div>`).join("") || '<div class="invDesc">Sem reagentes.</div>';
-  const productionOptions = ["culinaria", "alquimia", "ferraria"].map((id) => `<label><input type="checkbox" ${p.production_professions.includes(id) ? "checked" : ""} onchange="toggleProductionProfession('${id}', this.checked)"> ${PROFESSION_BY_ID[id].nome}</label>`).join(" ");
+  const productionOptions = ["culinaria", "alquimia", "ferraria"]
+    .map((id) => `
+      <label class="profOptionToggle">
+        <input type="checkbox" ${p.production_professions.includes(id) ? "checked" : ""} onchange="toggleProductionProfession('${id}', this.checked)">
+        <span class="profIcon" aria-hidden="true">${getProfessionIcon(id)}</span>
+        <span>${PROFESSION_BY_ID[id].nome}</span>
+      </label>
+    `)
+    .join("");
+
   const recipesHtml = recipeCards.map((card) => {
     const check = canCraftRecipe(p, card);
     const item = getShopEntryById(card.outputItemId);
     const reagents = (card.reagents || []).map((req) => `${REAGENT_BY_ID[req.id]?.nome || req.id} x${req.qtd}`).join(", ") || "Sem reagentes";
     const reasons = check.reasons.length > 0 ? `<div class="invDesc">${check.reasons.join(" ")}</div>` : "";
-    return `<div class="profRecipeCard">
+    return `<div class="professionCard recipeCard">
       <div class="profHeader"><strong>${item?.name || card.recipeName}</strong><span class="profBadge">${iconForShopItem(item || { type: card.outputType })} ${item?.type || card.outputType}</span></div>
       <div class="invDesc">Item final: ${(item?.name || card.outputItemId)} x${card.outputQty}${card.special ? ' <span class="profSpecialBadge">Especial</span>' : ''}</div>
       <div class="invDesc">Reagentes: ${reagents}</div>
       ${reasons}
-      <button class="smallBtn ${check.canCraft ? "smallBtnPrimary" : ""}" onclick="craftRecipe('${card.outputItemId}','${card.professionId}')" ${check.canCraft ? "" : "disabled"}>Craftar</button>
+      <button class="smallBtn profBtn ${check.canCraft ? "profBtnPrimary" : ""}" onclick="craftRecipe('${card.outputItemId}','${card.professionId}')" ${check.canCraft ? "" : "disabled"}>Craftar</button>
     </div>`;
   }).join("") || '<div class="invDesc">Sem receitas.</div>';
-  panel.innerHTML = `
-    <div class="profSection"><strong>Downtime:</strong> ${p.downtime_days}</div>
-    <div class="profSection">${profTabs}</div>
-    <div class="profSection">
-      <div><strong>Profissões de produção (máx ${MAX_PRODUCTION_PROFESSIONS})</strong></div>
-      <div>${productionOptions}</div>
+
+  const professionSummaryCards = PROFESSIONS_DB.professions.map((prof) => `
+    <div class="professionCard professionSummaryCard">
+      <div class="professionCardHeader">
+        <span class="profTitleWithIcon">
+          <span class="profIcon" aria-hidden="true">${getProfessionIcon(prof.id)}</span>
+          <strong>${prof.nome}</strong>
+        </span>
+      </div>
+      <div class="professionCardBody">
+        <span class="profBadge">Nv ${p.professions_progress[prof.id]?.level || 1}</span>
+        <span class="profBadge">XP ${p.professions_progress[prof.id]?.xp || 0}</span>
+        ${(p.production_professions || []).includes(prof.id) ? '<span class="profBadge profBadgeActive">Ativa</span>' : ""}
+      </div>
     </div>
-    ${PROFESSIONS_DB.professions.map((prof) => `<div class="profSection"><div class="profHeader"><strong>${prof.nome}</strong><span class="profBadge">Nv ${p.professions_progress[prof.id]?.level || 1} • XP ${p.professions_progress[prof.id]?.xp || 0}</span></div></div>`).join("")}
-    <div class="profSection"><strong>Ações</strong><div class="profActions"><button class="smallBtn smallBtnPrimary" onclick="collectProfession('${selectedProfessionId}')">Coletar</button><button class="smallBtn smallBtnPrimary" onclick="sellFirstReagent()">Vender</button></div></div>
-    <div class="profSection"><strong>Receitas (${PROFESSION_BY_ID[selectedProfessionId]?.nome || ''})</strong>${recipesHtml}</div>
-    <div class="profSection"><strong>Inventário de reagentes</strong>${reagentsHtml}</div>
-    <div class="profSection"><strong>Mercador / Loja do jogador</strong><button class="smallBtn" onclick="togglePlayerShopEnabled()">${p.player_shop.enabled ? "Desativar" : "Ativar"} loja</button><button class="smallBtn" onclick="openPlayerShop('${professionTargetName}','${currentUser}')">Abrir Loja</button></div>
+  `).join("");
+
+  panel.innerHTML = `
+    <div class="professionsHero">
+      <div>
+        <div class="profTitleWithIcon professionsHeroTitle"><span class="profIcon" aria-hidden="true">${selectedProfessionIcon}</span><strong>${selectedProfessionName}</strong></div>
+        <div class="invDesc">Foque sua evolução com coleta, craft e comércio.</div>
+      </div>
+      <div class="profHeroStats">
+        <div class="profHeroStat"><span>⏳ Downtime</span><strong>${p.downtime_days}</strong></div>
+        <div class="profHeroStat"><span>🧰 Reagentes</span><strong>${totalReagents}</strong></div>
+        <div class="profHeroStat"><span>🛠️ Produção ativa</span><strong>${activeProductionList.join(" • ") || "Nenhuma"}</strong></div>
+      </div>
+    </div>
+
+    <div class="profSection">${profTabs}</div>
+
+    <div class="professionsLayout">
+      <section class="professionCard">
+        <div class="professionCardHeader"><strong>📚 Progresso por profissão</strong></div>
+        <div class="professionCardBody professionSummaryGrid">${professionSummaryCards}</div>
+      </section>
+
+      <section class="professionCard">
+        <div class="professionCardHeader"><strong>🧪 Profissões de produção (máx ${MAX_PRODUCTION_PROFESSIONS})</strong></div>
+        <div class="professionCardBody professionOptionsGrid">${productionOptions}</div>
+      </section>
+
+      <section class="professionCard">
+        <div class="professionCardHeader"><strong>⚡ Ações rápidas</strong></div>
+        <div class="professionCardBody professionActionsGrid">
+          <button class="smallBtn profBtn profBtnPrimary" onclick="collectProfession('${selectedProfessionId}')">Coletar</button>
+          <button class="smallBtn profBtn profBtnGhost" onclick="sellFirstReagent()">Vender reagente</button>
+        </div>
+      </section>
+
+      <section class="professionCard professionCardWide">
+        <div class="professionCardHeader"><strong>📜 Receitas (${selectedProfessionIcon} ${selectedProfessionName})</strong></div>
+        <div class="professionCardBody recipeGrid">${recipesHtml}</div>
+      </section>
+
+      <section class="professionCard">
+        <div class="professionCardHeader"><strong>🧺 Inventário de reagentes</strong></div>
+        <div class="professionCardBody">${reagentsHtml}</div>
+      </section>
+
+      <section class="professionCard">
+        <div class="professionCardHeader"><strong>🏪 Mercador / Loja do jogador</strong></div>
+        <div class="professionCardBody professionActionsGrid">
+          <button class="smallBtn profBtn ${p.player_shop.enabled ? "profBtnDanger" : "profBtnGhost"}" onclick="togglePlayerShopEnabled()">${p.player_shop.enabled ? "Desativar" : "Ativar"} loja</button>
+          <button class="smallBtn profBtn profBtnPrimary" onclick="openPlayerShop('${professionTargetName}','${currentUser}')">Abrir Loja</button>
+        </div>
+      </section>
+    </div>
   `;
 }
 

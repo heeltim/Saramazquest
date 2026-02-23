@@ -155,6 +155,7 @@
                     <input id="worldMapUpload" type="file" accept="image/*" />
                     <button class="toolBtn" type="button" onclick="importWorldMapImage()">Carregar mapa global</button>
                     <button class="toolBtn" type="button" onclick="clearWorldMapImage()">Remover mapa global</button>
+                    <button id="worldGenerateTerrainBtn" class="toolBtn" type="button">Gerar terreno procedural</button>
                   </div>
                   <div class="sceneBgImportGrid">
                     <label>Colunas do grid <input id="worldGridCols" type="number" min="2" max="64" value="40" /></label>
@@ -856,6 +857,6 @@
     </div>
 
     <script src="src/crafting/procedural-recipes.js?v=20260223a"></script>
-    <script src="app.js?v=20260223-craft-proc"></script>
+    <script src="app.js?v=20260223-biome-tiles-v2"></script>
   </body>
 </html>

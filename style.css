@@ -2822,14 +2822,204 @@ kbd {
   width: 82px;
 }
 
-.profSection { border:1px solid #2a3458; border-radius:10px; padding:10px; margin-bottom:10px; }
-.profHeader { display:flex; justify-content:space-between; align-items:center; }
-.profBadge { font-size:11px; padding:2px 6px; border-radius:999px; background:#1f2937; }
+.profSection { border:1px solid rgba(115, 134, 211, 0.35); border-radius:14px; padding:10px; margin-bottom:10px; background:rgba(15, 21, 37, 0.72); }
+.profHeader { display:flex; justify-content:space-between; align-items:center; gap: 8px; }
+.profBadge { font-size:11px; padding:3px 8px; border-radius:999px; background:rgba(59, 130, 246, 0.15); border:1px solid rgba(96, 165, 250, 0.35); }
+.profBadgeActive { background: rgba(16, 185, 129, 0.18); border-color: rgba(52, 211, 153, 0.5); color: #d1fae5; }
 .profActions { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
-.reagentRow, .shopPlayerRow { display:flex; justify-content:space-between; gap:8px; padding:4px 0; border-bottom:1px dashed #2f3b66; }
+.reagentRow, .shopPlayerRow { display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px dashed #2f3b66; }
 .tokenStack { position: relative; }
 .playerShopTokenBadge { position:absolute; right:-6px; top:-6px; background:#2563eb; color:#fff; border-radius:999px; padding:1px 5px; font-size:10px; cursor:pointer; }
 #professionsPanel .smallBtn, #playerShopPanel .smallBtn { margin-right:6px; margin-top:6px; }
+
+#professionsPanel {
+  display: grid;
+  gap: 12px;
+}
+
+.profIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+}
+
+.profTitleWithIcon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.professionsHero {
+  border: 1px solid rgba(131, 149, 255, 0.45);
+  border-radius: 16px;
+  padding: 12px;
+  background: linear-gradient(130deg, rgba(76, 92, 255, 0.24), rgba(16, 21, 36, 0.9));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.professionsHeroTitle {
+  font-size: 18px;
+}
+
+.profHeroStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+}
+
+.profHeroStat {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 8px;
+  background: rgba(7, 10, 19, 0.38);
+  display: grid;
+  gap: 4px;
+}
+
+.profHeroStat span {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.profHeroStat strong {
+  font-size: 13px;
+}
+
+.profTabBtn {
+  border: 1px solid rgba(134, 157, 255, 0.35);
+  background: rgba(255, 255, 255, 0.03);
+  color: #e7ecff;
+  border-radius: 999px;
+  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: transform .14s ease, border-color .14s ease, background .14s ease;
+}
+
+.profTabBtn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(158, 178, 255, 0.7);
+  background: rgba(89, 104, 183, 0.22);
+}
+
+.profTabBtn.active {
+  border-color: rgba(255, 215, 94, 0.7);
+  background: rgba(255, 215, 94, 0.18);
+}
+
+.professionsLayout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.professionCard {
+  border: 1px solid rgba(118, 134, 207, 0.4);
+  border-radius: 14px;
+  padding: 11px;
+  background: linear-gradient(170deg, rgba(17, 23, 39, 0.96), rgba(13, 17, 29, 0.96));
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+
+.professionCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(153, 174, 255, 0.72);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
+}
+
+.professionCardHeader {
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.professionCardBody {
+  display: grid;
+  gap: 8px;
+}
+
+.professionCardWide {
+  grid-column: span 2;
+}
+
+.professionSummaryGrid {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.professionSummaryCard {
+  border-color: rgba(95, 111, 181, 0.45);
+  background: rgba(22, 27, 44, 0.64);
+}
+
+.professionOptionsGrid {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.profOptionToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(140, 157, 237, 0.34);
+  border-radius: 10px;
+  padding: 7px 9px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.professionActionsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.profBtn {
+  border-radius: 10px;
+  padding: 7px 10px;
+  border: 1px solid rgba(154, 170, 238, 0.35);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-weight: 700;
+}
+
+.profBtnPrimary {
+  background: linear-gradient(90deg, rgba(76, 92, 255, 0.85), rgba(111, 99, 255, 0.88));
+  border-color: rgba(170, 185, 255, 0.75);
+}
+
+.profBtnGhost {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.profBtnDanger {
+  border-color: rgba(248, 113, 113, 0.6);
+  background: rgba(220, 38, 38, 0.2);
+}
+
+.recipeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+}
+
+.recipeCard {
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .professionsLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .professionCardWide {
+    grid-column: span 1;
+  }
+}
 
 .quickSlotPicker {
   position: fixed;
