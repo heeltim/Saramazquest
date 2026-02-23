@@ -3,6 +3,15 @@ const STORAGE_KEY = "rpgquest_v2_scene";
 const LAST_LOGIN_KEY = "rpgquest_last_login";
 const LAST_AVATAR_KEY = "rpgquest_last_avatar";
 const AUTH_STORAGE_KEY = "rpgquest_auth_v1";
+const DEV_AUTH_BYPASS_ENABLED = true;
+const DEV_AUTH_USER = {
+  email: "teste@saramaz.local",
+  token: "dev-token-saramazquest",
+  playerName: "Mestre 1",
+  race: "Humano",
+  className: "Mago",
+  avatar: createIconAvatar("assets/characters/arqueira-drow.svg", "🧝", "Mestre 1"),
+};
 let room = "arena";
 let currentUser = "Jogador";
 let currentAvatar = "🧙";
@@ -35,6 +44,83 @@ function getLoggedAccount() {
   const acc = auth.accounts[accountKeyByEmail(email)];
   if (!acc) return null;
   return { email, account: acc };
+}
+
+function ensureDevSpellbook(player) {
+  if (!player || !Array.isArray(player.customSpells) || player.customSpells.length > 0) return;
+  player.customSpells = [
+    {
+      id: "dev_arcane_burst",
+      icon: "✨",
+      name: "Rajada Arcana",
+      level: 1,
+      creatorLevel: Math.max(1, parseInt(player.level, 10) || 1),
+      effects: [{ type: "dano", damageDice: "2d6", damageType: "arcano", area: "alvo único" }],
+      pointCost: 5,
+      castingTime: "1 ação",
+      range: "18m",
+      components: ["V", "S"],
+      description: "Uma descarga arcana rápida para testes de combate.",
+      rules: { usesSpellSlots: false, preparedType: "known" },
+    },
+    {
+      id: "dev_healing_tide",
+      icon: "💚",
+      name: "Maré de Cura",
+      level: 1,
+      creatorLevel: Math.max(1, parseInt(player.level, 10) || 1),
+      effects: [{ type: "cura", healDice: "2d8" }],
+      pointCost: 5,
+      castingTime: "1 ação bônus",
+      range: "toque",
+      components: ["V"],
+      description: "Recupera pontos de vida para facilitar os testes da interface.",
+      rules: { usesSpellSlots: false, preparedType: "known" },
+    },
+  ];
+}
+
+function seedDevBypassSession() {
+  if (!DEV_AUTH_BYPASS_ENABLED) return null;
+
+  const email = normalizeEmail(DEV_AUTH_USER.email);
+  const auth = loadAuthState();
+  const key = accountKeyByEmail(email);
+  auth.accounts[key] = {
+    email,
+    password: DEV_AUTH_USER.token,
+    token: DEV_AUTH_USER.token,
+    displayName: "Usuário de teste",
+    playerName: DEV_AUTH_USER.playerName,
+    avatar: normalizeAvatar(DEV_AUTH_USER.avatar),
+    createdAt: auth.accounts[key]?.createdAt || Date.now(),
+  };
+  auth.lastSessionEmail = email;
+  saveAuthState(auth);
+
+  currentAccountEmail = email;
+  currentUser = DEV_AUTH_USER.playerName;
+  currentAvatar = normalizeAvatar(DEV_AUTH_USER.avatar);
+
+  ensureCurrentUserRecord({
+    race: DEV_AUTH_USER.race,
+    className: DEV_AUTH_USER.className,
+    avatar: DEV_AUTH_USER.avatar,
+    owner: email,
+  });
+
+  const state = load();
+  const player = state.rooms?.[room]?.[DEV_AUTH_USER.playerName];
+  if (player) {
+    ensurePlayerSchema(player);
+    player.owner = email;
+    player.onTable = true;
+    ensureDevSpellbook(player);
+    recalcFromSheet(player);
+    save(state);
+  }
+
+  return { email, account: auth.accounts[key] };
 }
 
 function findOwnedCharacterEntry(email = currentAccountEmail) {
@@ -93,6 +179,7 @@ const CHARACTER_TEMPLATES = [
   },
 ];
 const DEFAULT_SPRITE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif";
+const TEMP_GLOBAL_MAP_BG = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="960" viewBox="0 0 1600 960"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#20365f"/><stop offset="100%" stop-color="#0f1a32"/></linearGradient><radialGradient id="fog" cx="50%" cy="45%" r="70%"><stop offset="0%" stop-color="rgba(125,190,255,0.18)"/><stop offset="100%" stop-color="rgba(0,0,0,0)"/></radialGradient></defs><rect width="1600" height="960" fill="url(#bg)"/><rect width="1600" height="960" fill="url(#fog)"/><g opacity="0.35" stroke="#9cc8ff" stroke-width="2" fill="none"><path d="M120 220 C260 90, 500 80, 700 180 S1120 320, 1420 180"/><path d="M180 620 C420 470, 690 520, 980 660 S1320 790, 1500 640"/><path d="M300 360 C430 290, 550 300, 640 380"/></g><g fill="#9cc8ff" opacity="0.9"><circle cx="270" cy="190" r="8"/><circle cx="740" cy="170" r="10"/><circle cx="1190" cy="290" r="9"/><circle cx="960" cy="650" r="11"/><circle cx="440" cy="610" r="10"/></g><g fill="#d9ecff" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="700" opacity="0.92"><text x="296" y="170">Norte Gelado</text><text x="774" y="150">Vales Centrais</text><text x="1222" y="275">Costa Arcana</text><text x="992" y="636">Mar do Eclipse</text><text x="472" y="596">Terras Antigas</text></g></svg>`);
 
 function isSpriteAvatar(avatar) {
   return !!avatar && typeof avatar === "object" && avatar.type === "sprite" && typeof avatar.url === "string";
@@ -244,7 +331,8 @@ function initAuth() {
     login(email, existing);
   };
 
-  const session = getLoggedAccount();
+  const devSession = seedDevBypassSession();
+  const session = devSession || getLoggedAccount();
   if (session) {
     login(session.email, session.account);
   } else {
@@ -1442,6 +1530,11 @@ function ensureScene() {
   s.bgY = Number.isFinite(s.bgY) ? s.bgY : 0;
   s.bgScale = Number.isFinite(s.bgScale) ? s.bgScale : 120;
   s.bgOpacity = Number.isFinite(s.bgOpacity) ? s.bgOpacity : 65;
+  if (!s.bgUrl && getSceneLayerList(s).length === 0) {
+    s.bgUrl = TEMP_GLOBAL_MAP_BG;
+    s.bgScale = 100;
+    s.bgOpacity = 88;
+  }
   s.mapZoom = Number.isFinite(s.mapZoom) ? Math.max(0.5, Math.min(1.6, s.mapZoom)) : 1;
   s.gridStyle = ["square", "dots"].includes(s.gridStyle) ? s.gridStyle : "square";
   s.gridOpacity = Number.isFinite(s.gridOpacity) ? Math.max(0, Math.min(100, s.gridOpacity)) : 55;
@@ -1451,6 +1544,11 @@ function ensureScene() {
   syncSceneToActiveArtboard(s);
   const activeBoard = s.artboards.find((b) => b.id === s.activeArtboardId) || s.artboards[0];
   applyArtboardToScene(s, activeBoard);
+  if (!s.bgUrl && getSceneLayerList(s).length === 0) {
+    s.bgUrl = TEMP_GLOBAL_MAP_BG;
+    s.bgScale = 100;
+    s.bgOpacity = 88;
+  }
   normalizeSceneLayers(s);
 
   data.scenes[room] = s;
@@ -4847,7 +4945,7 @@ function toggleMasterMode() {
   isSceneDockOpen = isMaster;
   panel.classList.toggle("on", isSceneDockOpen);
   if (bar) bar.classList.toggle("on", isMaster);
-  if (dockBtn) dockBtn.textContent = isSceneDockOpen ? "🎬 Cena: ON" : "🎬 Cena: OFF";
+  if (dockBtn) dockBtn.textContent = isSceneDockOpen ? "🎬 Mestre 1: ON" : "🎬 Mestre 1: OFF";
 
   if (isMaster) {
     setSceneSection(sceneSection);
@@ -4868,8 +4966,92 @@ function toggleSceneDock() {
   const panel = document.getElementById("scenePanel");
   const dockBtn = document.getElementById("sceneDockToggle");
   if (panel) panel.classList.toggle("on", isSceneDockOpen);
-  if (dockBtn) dockBtn.textContent = isSceneDockOpen ? "🎬 Cena: ON" : "🎬 Cena: OFF";
+  if (dockBtn) dockBtn.textContent = isSceneDockOpen ? "🎬 Mestre 1: ON" : "🎬 Mestre 1: OFF";
 }
+
+
+function closeSceneDock() {
+  isSceneDockOpen = false;
+  const panel = document.getElementById("scenePanel");
+  const dockBtn = document.getElementById("sceneDockToggle");
+  if (panel) panel.classList.remove("on");
+  if (dockBtn) dockBtn.textContent = "🎬 Mestre 1: OFF";
+}
+window.closeSceneDock = closeSceneDock;
+
+function importSceneLayer() {
+  const fileInput = document.getElementById("sceneLayerFile");
+  const kindInput = document.getElementById("sceneLayerKind");
+  const snapInput = document.getElementById("sceneLayerSnap");
+  if (!fileInput || !fileInput.files?.length) {
+    alert("Selecione uma imagem para importar.");
+    return;
+  }
+  const file = fileInput.files[0];
+  if (!file.type || !file.type.startsWith("image/")) {
+    alert("Arquivo inválido. Envie uma imagem.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const src = String(reader.result || "");
+    if (!src) return;
+
+    const preview = new Image();
+    preview.onload = () => {
+      let data = load();
+      const scene = data.scenes[room];
+      const kind = ["map", "objects", "foreground"].includes(kindInput?.value) ? kindInput.value : "objects";
+      const lockToGrid = !!snapInput?.checked;
+      const cols = Math.max(1, scene.cols || DEFAULT_COLS);
+      const rows = Math.max(1, scene.rows || DEFAULT_ROWS);
+      const ratio = Math.max(0.05, preview.naturalWidth / Math.max(1, preview.naturalHeight));
+
+      let width = kind === "map" ? cols : Math.max(2, Math.round(cols * 0.4));
+      let height = Math.max(1, Math.round(width / ratio));
+      if (height > rows) {
+        height = rows;
+        width = Math.max(1, Math.round(height * ratio));
+      }
+      width = Math.max(1, Math.min(cols, width));
+      height = Math.max(1, Math.min(rows, height));
+
+      const layer = normalizeSceneLayer({
+        id: `layer_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        name: file.name.replace(/\.[a-z0-9]+$/i, "") || "Camada",
+        kind,
+        src,
+        x: 0,
+        y: 0,
+        width,
+        height,
+        opacity: 100,
+        visible: true,
+        lockToGrid,
+        z: getSceneLayerList(scene).length,
+      }, getSceneLayerList(scene).length);
+
+      if (lockToGrid) clampSceneLayerToGrid(layer, scene);
+      getSceneLayerList(scene).push(layer);
+      normalizeSceneLayers(scene);
+      save(data);
+      updateArena();
+      renderSceneLayerList();
+      fileInput.value = "";
+      setSceneSection("layers");
+    };
+    preview.onerror = () => {
+      alert("Não foi possível carregar a imagem selecionada.");
+    };
+    preview.src = src;
+  };
+  reader.onerror = () => {
+    alert("Falha ao ler o arquivo de imagem.");
+  };
+  reader.readAsDataURL(file);
+}
+window.importSceneLayer = importSceneLayer;
 
 function setSceneSection(section) {
   sceneSection = section;
@@ -5105,6 +5287,70 @@ window.applyArtboardSize = function applyArtboardSize() {
   scene.rows = nextRows;
   const needed = nextCols * nextRows;
   scene.tiles = Array.from({ length: needed }, (_, i) => scene.tiles?.[i] || "floor");
+  save(data);
+  createGrid();
+  updateArena();
+  syncSceneUIFromStorage();
+};
+
+window.applyTemporaryGlobalMap = function applyTemporaryGlobalMap() {
+  let data = load();
+  const scene = data.scenes[room];
+  scene.bgUrl = TEMP_GLOBAL_MAP_BG;
+  scene.bgScale = 100;
+  scene.bgOpacity = 88;
+  scene.bgX = 0;
+  scene.bgY = 0;
+  scene.gridStyle = "square";
+  scene.gridOpacity = Math.max(60, scene.gridOpacity || 0);
+  scene.gridLine = Math.max(1, scene.gridLine || 1);
+  scene.layers = getSceneLayerList(scene).filter((layer) => layer.kind !== "map");
+  normalizeSceneLayers(scene);
+  syncSceneToActiveArtboard(scene);
+  save(data);
+  createGrid();
+  updateArena();
+  syncSceneUIFromStorage();
+  setSceneSection("grid");
+};
+
+window.importSceneBackground = function importSceneBackground() {
+  const fileInput = document.getElementById("sceneBgFile");
+  const file = fileInput?.files?.[0];
+  if (!file) return alert("Selecione uma imagem para o cenário.");
+  if (!file.type || !file.type.startsWith("image/")) return alert("Arquivo inválido. Use uma imagem.");
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const src = String(reader.result || "");
+    if (!src) return alert("Não foi possível ler a imagem.");
+    let data = load();
+    const scene = data.scenes[room];
+    scene.bgUrl = src;
+    scene.bgScale = Math.max(90, Number(scene.bgScale) || 100);
+    scene.bgOpacity = Math.max(85, Number(scene.bgOpacity) || 88);
+    scene.bgX = Number(scene.bgX) || 0;
+    scene.bgY = Number(scene.bgY) || 0;
+    scene.gridStyle = scene.gridStyle || "square";
+    scene.gridOpacity = Math.max(50, Number(scene.gridOpacity) || 55);
+    scene.gridLine = Math.max(1, Number(scene.gridLine) || 1);
+    syncSceneToActiveArtboard(scene);
+    save(data);
+    createGrid();
+    updateArena();
+    syncSceneUIFromStorage();
+    setSceneSection("grid");
+    fileInput.value = "";
+  };
+  reader.onerror = () => alert("Falha ao carregar o arquivo de imagem.");
+  reader.readAsDataURL(file);
+};
+
+window.clearSceneBackground = function clearSceneBackground() {
+  let data = load();
+  const scene = data.scenes[room];
+  scene.bgUrl = "";
+  syncSceneToActiveArtboard(scene);
   save(data);
   createGrid();
   updateArena();

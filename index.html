@@ -103,13 +103,16 @@
             class="toolBtn"
             onclick="toggleSceneDock()"
           >
-            🎬 Cena: ON
+            🎬 Mestre 1: ON
           </button>
         </div>
         <div id="scenePanel">
           <div class="scenePanelHead">
-            <div style="font-weight: 900;">🎬 Mestre</div>
-            <div class="sceneHint">Ferramentas de cenário</div>
+            <div>
+              <div style="font-weight: 900;">🎬 Mestre</div>
+              <div class="sceneHint">Ferramentas de cenário</div>
+            </div>
+            <button type="button" class="sceneCloseBtn" onclick="closeSceneDock()" title="Fechar painel mestre">✕</button>
           </div>
 
           <div class="sceneDockLayout">
@@ -136,6 +139,7 @@
                   <button class="toolBtn" type="button" onclick="createArtboard()">+ Cenário</button>
                   <button class="toolBtn" type="button" onclick="renameArtboard()">Renomear</button>
                   <button class="toolBtn" type="button" onclick="deleteArtboard()">Remover</button>
+                  <button class="toolBtn" type="button" onclick="applyTemporaryGlobalMap()">🗺️ Mapa provisório</button>
                 </div>
 
                 <div class="field full sceneSizeField">
@@ -145,6 +149,16 @@
                     <label>Linhas <input id="sceneRows" type="number" min="6" max="80" value="12" /></label>
                     <button class="toolBtn" type="button" onclick="applyArtboardSize()">Aplicar</button>
                   </div>
+                </div>
+
+                <div class="field full sceneBgImportField">
+                  <label>Criação planetária (imagem base do mapa global)</label>
+                  <div class="sceneBgImportGrid">
+                    <input id="sceneBgFile" type="file" accept="image/*" />
+                    <button class="toolBtn" type="button" onclick="importSceneBackground()">Carregar imagem do cenário</button>
+                    <button class="toolBtn" type="button" onclick="clearSceneBackground()">Remover imagem</button>
+                  </div>
+                  <div class="sceneHint">A imagem carregada aqui aparece no mapa global e o grid fica sobreposto automaticamente.</div>
                 </div>
               </section>
 
@@ -199,6 +213,8 @@
                       <option value="objects">Camada Objetos</option>
                       <option value="foreground">Camada Superior</option>
                     </select>
+                    <input id="sceneLayerFile" type="file" accept="image/*" />
+                    <button type="button" class="toolBtn" onclick="importSceneLayer()">Importar imagem</button>
                     <label class="layerSnapToggle"><input id="sceneLayerSnap" type="checkbox" checked /> Encaixar no grid</label>
                   </div>
                   <div id="sceneLayerList" class="sceneLayerList"></div>
