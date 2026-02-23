@@ -3449,19 +3449,18 @@ function bindMapInteractions() {
     e.preventDefault();
 
     const viewportRect = mapViewport?.getBoundingClientRect?.() || null;
-    const isInsideViewport = !!viewportRect
-      && e.clientX >= viewportRect.left
-      && e.clientX <= viewportRect.right
-      && e.clientY >= viewportRect.top
-      && e.clientY <= viewportRect.bottom;
+    if (!viewportRect) return;
 
-    wheelZoomDelta += e.deltaY < 0 ? 0.03 : -0.03;
-    wheelZoomAnchor = isInsideViewport ? { x: e.clientX, y: e.clientY } : null;
+    const anchorX = Math.max(viewportRect.left, Math.min(viewportRect.right, e.clientX));
+    const anchorY = Math.max(viewportRect.top, Math.min(viewportRect.bottom, e.clientY));
+
+    wheelZoomDelta += e.deltaY < 0 ? 0.028 : -0.028;
+    wheelZoomAnchor = { x: anchorX, y: anchorY };
 
     if (!wheelZoomRAF) {
       wheelZoomRAF = requestAnimationFrame(() => {
         setMapZoom(getSceneZoom() + wheelZoomDelta, {
-          keepCenter: !wheelZoomAnchor,
+          keepCenter: false,
           anchorClientX: wheelZoomAnchor?.x ?? null,
           anchorClientY: wheelZoomAnchor?.y ?? null,
           persist: false,
