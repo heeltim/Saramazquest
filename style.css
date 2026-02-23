@@ -261,7 +261,7 @@ body {
 #arena {
   position: relative;
   display: grid;
-  gap: 1px;
+  gap: 0;
   justify-content: center;
   align-content: center;
   --cols: 20;
@@ -628,14 +628,51 @@ body {
   background: transparent;
   overflow: visible;
 }
+
 .cell.tile-floor {
   background: transparent;
 }
-.cell.tile-wall {
-  background: linear-gradient(135deg, rgba(255, 80, 80, 0.08), rgba(255, 80, 80, 0.02));
+
+.cell.tile-wall::before,
+.cell.tile-void::before {
+  content: "";
+  position: absolute;
+  inset: 0;
 }
-.cell.tile-void {
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.06));
+
+#arena[data-grid-style="square"] .cell.tile-wall::before {
+  background: linear-gradient(135deg, rgba(255, 80, 80, 0.2), rgba(255, 80, 80, 0.08));
+}
+
+#arena[data-grid-style="square"] .cell.tile-void::before {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.34), rgba(0, 0, 0, 0.14));
+}
+
+#arena[data-grid-style="dots"] .cell.tile-wall::before,
+#arena[data-grid-style="dots"] .cell.tile-void::before {
+  inset: 14%;
+  border-radius: 50%;
+}
+
+#arena[data-grid-style="dots"] .cell.tile-wall::before {
+  background: radial-gradient(circle at 35% 30%, rgba(255, 132, 132, 0.35), rgba(255, 80, 80, 0.15));
+}
+
+#arena[data-grid-style="dots"] .cell.tile-void::before {
+  background: radial-gradient(circle at 35% 30%, rgba(40, 40, 40, 0.42), rgba(8, 8, 8, 0.25));
+}
+
+#arena[data-grid-style="hex"] .cell.tile-wall::before,
+#arena[data-grid-style="hex"] .cell.tile-void::before {
+  clip-path: polygon(25% 6%, 75% 6%, 96% 50%, 75% 94%, 25% 94%, 4% 50%);
+}
+
+#arena[data-grid-style="hex"] .cell.tile-wall::before {
+  background: linear-gradient(135deg, rgba(255, 80, 80, 0.25), rgba(255, 80, 80, 0.1));
+}
+
+#arena[data-grid-style="hex"] .cell.tile-void::before {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.36), rgba(0, 0, 0, 0.16));
 }
 
 /* highlight do editor */
