@@ -3,6 +3,15 @@ const STORAGE_KEY = "rpgquest_v2_scene";
 const LAST_LOGIN_KEY = "rpgquest_last_login";
 const LAST_AVATAR_KEY = "rpgquest_last_avatar";
 const AUTH_STORAGE_KEY = "rpgquest_auth_v1";
+const DEV_AUTH_BYPASS_ENABLED = true;
+const DEV_AUTH_USER = {
+  email: "teste@saramaz.local",
+  token: "dev-token-saramazquest",
+  playerName: "Mestre 1",
+  race: "Humano",
+  className: "Mago",
+  avatar: createIconAvatar("assets/characters/arqueira-drow.svg", "🧝", "Mestre 1"),
+};
 let room = "arena";
 let currentUser = "Jogador";
 let currentAvatar = "🧙";
@@ -35,6 +44,83 @@ function getLoggedAccount() {
   const acc = auth.accounts[accountKeyByEmail(email)];
   if (!acc) return null;
   return { email, account: acc };
+}
+
+function ensureDevSpellbook(player) {
+  if (!player || !Array.isArray(player.customSpells) || player.customSpells.length > 0) return;
+  player.customSpells = [
+    {
+      id: "dev_arcane_burst",
+      icon: "✨",
+      name: "Rajada Arcana",
+      level: 1,
+      creatorLevel: Math.max(1, parseInt(player.level, 10) || 1),
+      effects: [{ type: "dano", damageDice: "2d6", damageType: "arcano", area: "alvo único" }],
+      pointCost: 5,
+      castingTime: "1 ação",
+      range: "18m",
+      components: ["V", "S"],
+      description: "Uma descarga arcana rápida para testes de combate.",
+      rules: { usesSpellSlots: false, preparedType: "known" },
+    },
+    {
+      id: "dev_healing_tide",
+      icon: "💚",
+      name: "Maré de Cura",
+      level: 1,
+      creatorLevel: Math.max(1, parseInt(player.level, 10) || 1),
+      effects: [{ type: "cura", healDice: "2d8" }],
+      pointCost: 5,
+      castingTime: "1 ação bônus",
+      range: "toque",
+      components: ["V"],
+      description: "Recupera pontos de vida para facilitar os testes da interface.",
+      rules: { usesSpellSlots: false, preparedType: "known" },
+    },
+  ];
+}
+
+function seedDevBypassSession() {
+  if (!DEV_AUTH_BYPASS_ENABLED) return null;
+
+  const email = normalizeEmail(DEV_AUTH_USER.email);
+  const auth = loadAuthState();
+  const key = accountKeyByEmail(email);
+  auth.accounts[key] = {
+    email,
+    password: DEV_AUTH_USER.token,
+    token: DEV_AUTH_USER.token,
+    displayName: "Usuário de teste",
+    playerName: DEV_AUTH_USER.playerName,
+    avatar: normalizeAvatar(DEV_AUTH_USER.avatar),
+    createdAt: auth.accounts[key]?.createdAt || Date.now(),
+  };
+  auth.lastSessionEmail = email;
+  saveAuthState(auth);
+
+  currentAccountEmail = email;
+  currentUser = DEV_AUTH_USER.playerName;
+  currentAvatar = normalizeAvatar(DEV_AUTH_USER.avatar);
+
+  ensureCurrentUserRecord({
+    race: DEV_AUTH_USER.race,
+    className: DEV_AUTH_USER.className,
+    avatar: DEV_AUTH_USER.avatar,
+    owner: email,
+  });
+
+  const state = load();
+  const player = state.rooms?.[room]?.[DEV_AUTH_USER.playerName];
+  if (player) {
+    ensurePlayerSchema(player);
+    player.owner = email;
+    player.onTable = true;
+    ensureDevSpellbook(player);
+    recalcFromSheet(player);
+    save(state);
+  }
+
+  return { email, account: auth.accounts[key] };
 }
 
 function findOwnedCharacterEntry(email = currentAccountEmail) {
@@ -244,7 +330,8 @@ function initAuth() {
     login(email, existing);
   };
 
-  const session = getLoggedAccount();
+  const devSession = seedDevBypassSession();
+  const session = devSession || getLoggedAccount();
   if (session) {
     login(session.email, session.account);
   } else {
@@ -4847,7 +4934,7 @@ function toggleMasterMode() {
   isSceneDockOpen = isMaster;
   panel.classList.toggle("on", isSceneDockOpen);
   if (bar) bar.classList.toggle("on", isMaster);
-  if (dockBtn) dockBtn.textContent = isSceneDockOpen ? "🎬 Cena: ON" : "🎬 Cena: OFF";
+  if (dockBtn) dockBtn.textContent = isSceneDockOpen ? "🎬 Mestre 1: ON" : "🎬 Mestre 1: OFF";
 
   if (isMaster) {
     setSceneSection(sceneSection);
@@ -4868,7 +4955,7 @@ function toggleSceneDock() {
   const panel = document.getElementById("scenePanel");
   const dockBtn = document.getElementById("sceneDockToggle");
   if (panel) panel.classList.toggle("on", isSceneDockOpen);
-  if (dockBtn) dockBtn.textContent = isSceneDockOpen ? "🎬 Cena: ON" : "🎬 Cena: OFF";
+  if (dockBtn) dockBtn.textContent = isSceneDockOpen ? "🎬 Mestre 1: ON" : "🎬 Mestre 1: OFF";
 }
 
 function setSceneSection(section) {
