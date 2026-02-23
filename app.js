@@ -444,7 +444,7 @@ const DEFAULT_SCENE = {
   bgScale: 120, // %
   bgOpacity: 65, // %
   mapZoom: 1,
-  gridStyle: "square", // square | hex
+  gridStyle: "square", // square | dots | hex
   gridOpacity: 55,
   gridLine: 1,
   layers: [], // imagens posicionáveis por camada: map | objects | foreground
@@ -1443,7 +1443,7 @@ function ensureScene() {
   s.bgScale = Number.isFinite(s.bgScale) ? s.bgScale : 120;
   s.bgOpacity = Number.isFinite(s.bgOpacity) ? s.bgOpacity : 65;
   s.mapZoom = Number.isFinite(s.mapZoom) ? Math.max(0.5, Math.min(1.6, s.mapZoom)) : 1;
-  s.gridStyle = ["square", "hex"].includes(s.gridStyle) ? s.gridStyle : "square";
+  s.gridStyle = ["square", "dots", "hex"].includes(s.gridStyle) ? s.gridStyle : "square";
   s.gridOpacity = Number.isFinite(s.gridOpacity) ? Math.max(0, Math.min(100, s.gridOpacity)) : 55;
   s.gridLine = Number.isFinite(s.gridLine) ? Math.max(1, Math.min(4, s.gridLine)) : 1;
   normalizeSceneLayers(s);
@@ -4865,10 +4865,6 @@ function syncSceneUIFromStorage() {
   document.getElementById("bgX").value = s.bgX;
   document.getElementById("bgY").value = s.bgY;
   document.getElementById("gridStyle").value = s.gridStyle || "square";
-  const gridStyleSelect = document.getElementById("gridStyle");
-  if (gridStyleSelect) {
-    gridStyleSelect.querySelectorAll('option[value="dots"]').forEach((opt) => opt.remove());
-  }
   document.getElementById("gridOpacity").value = s.gridOpacity ?? 55;
   document.getElementById("gridLine").value = s.gridLine ?? 1;
   const kindInput = document.getElementById("sceneLayerKind");
@@ -5105,7 +5101,7 @@ function bindSceneInputs() {
     s.bgOpacity = parseInt(bgOpacity.value, 10);
     s.bgX = parseInt(bgX.value, 10);
     s.bgY = parseInt(bgY.value, 10);
-    s.gridStyle = gridStyle.value === "hex" ? "hex" : "square";
+    s.gridStyle = ["square", "dots", "hex"].includes(gridStyle.value) ? gridStyle.value : "square";
     s.gridOpacity = parseInt(gridOpacity.value, 10);
     s.gridLine = parseInt(gridLine.value, 10);
     save(data);
