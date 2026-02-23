@@ -1797,8 +1797,8 @@ function ensureScene() {
 }
 ensureScene();
 
-function applySceneCSS() {
-  const s = load().scenes[room];
+function applySceneCSS(sceneOverride = null) {
+  const s = sceneOverride || load().scenes[room];
   arena.style.setProperty("--cols", s.cols);
   arena.style.setProperty("--rows", s.rows);
 
@@ -3335,15 +3335,36 @@ const mapZoomInput = document.getElementById("mapZoom");
 const artboardSelect = document.getElementById("artboardSelect");
 let mapDragState = { active: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 };
 let isSceneDockOpen = false;
+let mapZoomPersistTimer = null;
+let wheelZoomRAF = 0;
+let wheelZoomDelta = 0;
+let wheelZoomAnchor = null;
+
+function clampMapZoom(value) {
+  return Math.max(0.5, Math.min(3, Number(value) || 1));
+}
+
+function persistMapZoom(zoomValue) {
+  if (mapZoomPersistTimer) clearTimeout(mapZoomPersistTimer);
+  mapZoomPersistTimer = setTimeout(() => {
+    const data = load();
+    if (!data.scenes[room]) data.scenes[room] = structuredClone(DEFAULT_SCENE);
+    data.scenes[room].mapZoom = clampMapZoom(zoomValue);
+    save(data);
+    mapZoomPersistTimer = null;
+  }, 130);
+}
 
 function getSceneZoom() {
+  const cssZoom = Number.parseFloat(getComputedStyle(arena).getPropertyValue("--map-zoom"));
+  if (Number.isFinite(cssZoom) && cssZoom > 0) return clampMapZoom(cssZoom);
   const scene = load().scenes[room];
-  return Number.isFinite(scene?.mapZoom) ? Math.max(0.5, Math.min(3, scene.mapZoom)) : 1;
+  return Number.isFinite(scene?.mapZoom) ? clampMapZoom(scene.mapZoom) : 1;
 }
 
 function setMapZoom(nextZoom, options = {}) {
-  const { keepCenter = true, anchorClientX = null, anchorClientY = null } = options;
-  const clamped = Math.max(0.5, Math.min(3, Number(nextZoom) || 1));
+  const { keepCenter = true, anchorClientX = null, anchorClientY = null, persist = true } = options || {};
+  const clamped = clampMapZoom(nextZoom);
   const data = load();
   if (!data.scenes[room]) data.scenes[room] = structuredClone(DEFAULT_SCENE);
   const viewportRect = mapViewport?.getBoundingClientRect?.() || null;
@@ -3363,8 +3384,9 @@ function setMapZoom(nextZoom, options = {}) {
   }
 
   data.scenes[room].mapZoom = clamped;
-  save(data);
-  applySceneCSS();
+  applySceneCSS(data.scenes[room]);
+  if (persist) save(data);
+  else persistMapZoom(clamped);
 
   if (mapZoomInput) mapZoomInput.value = String(Math.round(clamped * 100));
 
@@ -3390,7 +3412,7 @@ function bindMapInteractions() {
   if (mapZoomInput) {
     mapZoomInput.value = String(Math.round(getSceneZoom() * 100));
     mapZoomInput.addEventListener("input", () => {
-      setMapZoom(parseInt(mapZoomInput.value, 10) / 100);
+      setMapZoom(parseInt(mapZoomInput.value, 10) / 100, { persist: false });
     });
   }
 
@@ -3423,12 +3445,23 @@ function bindMapInteractions() {
   mapViewport.addEventListener("wheel", (e) => {
     if (e.target.closest("#sidebar")) return;
     e.preventDefault();
-    const delta = e.deltaY < 0 ? 0.06 : -0.06;
-    setMapZoom(getSceneZoom() + delta, {
-      keepCenter: false,
-      anchorClientX: e.clientX,
-      anchorClientY: e.clientY,
-    });
+
+    wheelZoomDelta += e.deltaY < 0 ? 0.035 : -0.035;
+    wheelZoomAnchor = { x: e.clientX, y: e.clientY };
+
+    if (!wheelZoomRAF) {
+      wheelZoomRAF = requestAnimationFrame(() => {
+        setMapZoom(getSceneZoom() + wheelZoomDelta, {
+          keepCenter: false,
+          anchorClientX: wheelZoomAnchor?.x ?? null,
+          anchorClientY: wheelZoomAnchor?.y ?? null,
+          persist: false,
+        });
+        wheelZoomDelta = 0;
+        wheelZoomAnchor = null;
+        wheelZoomRAF = 0;
+      });
+    }
   }, { passive: false });
 }
 function createGrid() {
@@ -7356,7 +7389,7 @@ if (logoutBtn) {
 createGrid();
 applySceneCSS();
 bindMapInteractions();
-setMapZoom(getSceneZoom(), false);
+setMapZoom(getSceneZoom(), { persist: false });
 updateArena();
 loadWorldBiomeTileLibrary().finally(() => renderTileLibrary());
 setDiceTrayOpen(false);

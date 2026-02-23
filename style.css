@@ -296,21 +296,21 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 8px 6px;
-  border-radius: 14px;
+  gap: 6px;
+  padding: 6px 5px;
+  border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(12, 14, 22, 0.74);
+  background: rgba(12, 14, 22, 0.68);
 }
 
 .zoomBtn {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   border: 1px solid rgba(111, 189, 255, 0.45);
   background: linear-gradient(180deg, rgba(37, 60, 102, 0.9), rgba(21, 37, 68, 0.95));
   color: #e8f4ff;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 900;
   cursor: pointer;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 6px 12px rgba(3, 8, 20, 0.45);
@@ -324,8 +324,8 @@ body {
 #mapZoom {
   writing-mode: vertical-lr;
   direction: rtl;
-  width: 28px;
-  height: 180px;
+  width: 22px;
+  height: 140px;
   accent-color: #66c4ff;
 }
 
@@ -1007,13 +1007,15 @@ body {
 }
 
 .token {
-  width: 30px;
-  height: 30px;
+  width: calc(var(--cell-size) * var(--map-zoom) * 0.78);
+  height: calc(var(--cell-size) * var(--map-zoom) * 0.78);
+  min-width: 30px;
+  min-height: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: calc(var(--cell-size) * var(--map-zoom) * 0.3);
   font-weight: 800;
   color: #fff;
   position: relative;
