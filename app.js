@@ -4,6 +4,7 @@ const LAST_LOGIN_KEY = "rpgquest_last_login";
 const LAST_AVATAR_KEY = "rpgquest_last_avatar";
 const AUTH_STORAGE_KEY = "rpgquest_auth_v1";
 const TILE_LIBRARY_FILTER_KEY = "rpgquest_tile_library_filter_v1";
+const TILE_QUICK_SLOTS_KEY = "rpgquest_tile_quick_slots_v1";
 const DEV_AUTH_BYPASS_ENABLED = true;
 const DEV_AUTH_USER = {
   email: "teste@saramaz.local",
@@ -5612,6 +5613,9 @@ let worldBiomeTileLibraryPromise = null;
 let isMaster = false;
 let paintTool = "floor";
 let brushSize = 1;
+let tileQuickSlots = [];
+const TILE_QUICK_SLOT_COUNT = 6;
+let draggedTileLibraryId = "";
 let isPainting = false;
 let sceneSection = "report";
 
@@ -5985,10 +5989,94 @@ async function renderTileLibrary() {
   saveTileLibraryFilter({ text: searchFilter.value });
 }
 
+function normalizeTileQuickSlots(slots = []) {
+  const normalized = Array.from({ length: TILE_QUICK_SLOT_COUNT }, (_, idx) => String(slots?.[idx] || "").trim());
+  return normalized.map((tileId) => (tileMetadataById.has(tileId) ? tileId : ""));
+}
+
+function loadTileQuickSlots() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(TILE_QUICK_SLOTS_KEY) || "[]");
+    return normalizeTileQuickSlots(Array.isArray(parsed) ? parsed : []);
+  } catch {
+    return normalizeTileQuickSlots([]);
+  }
+}
+
+function saveTileQuickSlots(slots = tileQuickSlots) {
+  tileQuickSlots = normalizeTileQuickSlots(slots);
+  localStorage.setItem(TILE_QUICK_SLOTS_KEY, JSON.stringify(tileQuickSlots));
+}
+
+function assignTileToQuickSlot(slotIndex, tileId) {
+  if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= TILE_QUICK_SLOT_COUNT) return;
+  const normalizedTileId = String(tileId || "").trim();
+  const next = normalizeTileQuickSlots(tileQuickSlots);
+  next[slotIndex] = tileMetadataById.has(normalizedTileId) ? normalizedTileId : "";
+  saveTileQuickSlots(next);
+  renderTileQuickSlots();
+}
+
+function handleTileLibraryDragStart(event, tileId) {
+  const normalizedTileId = String(tileId || "").trim();
+  if (!tileMetadataById.has(normalizedTileId)) {
+    event.preventDefault();
+    return;
+  }
+  draggedTileLibraryId = normalizedTileId;
+  event.dataTransfer.effectAllowed = "copy";
+  event.dataTransfer.setData("text/plain", normalizedTileId);
+}
+
+function handleTileSlotDragOver(event) {
+  event.preventDefault();
+  event.dataTransfer.dropEffect = "copy";
+}
+
+function handleTileSlotDrop(event, slotIndex) {
+  event.preventDefault();
+  const tileId = String(event.dataTransfer.getData("text/plain") || draggedTileLibraryId || "").trim();
+  if (!tileMetadataById.has(tileId)) return;
+  assignTileToQuickSlot(slotIndex, tileId);
+}
+
+function handleTileSlotClick(slotIndex) {
+  const tileId = tileQuickSlots[slotIndex];
+  if (!tileMetadataById.has(tileId)) return;
+  setTool(tileId);
+}
+
+function renderTileQuickSlots() {
+  const wrap = document.getElementById("tileQuickSlots");
+  if (!wrap) return;
+
+  tileQuickSlots = normalizeTileQuickSlots(tileQuickSlots);
+  wrap.innerHTML = tileQuickSlots.map((tileId, idx) => {
+    const entry = tileMetadataById.get(tileId);
+    const label = entry?.label || `Slot ${idx + 1}`;
+    const icon = entry?.icon || "＋";
+    const activeClass = tileId && paintTool === tileId ? " active" : "";
+    const emptyClass = entry ? "" : " empty";
+    const title = entry
+      ? `Slot ${idx + 1}: ${label}. Clique para selecionar.`
+      : `Slot ${idx + 1} vazio. Arraste um tile da biblioteca para cá.`;
+    return `<button type="button" class="tileQuickSlot${activeClass}${emptyClass}" title="${escapeHtml(title)}" ondragover="handleTileSlotDragOver(event)" ondrop="handleTileSlotDrop(event, ${idx})" onclick="handleTileSlotClick(${idx})">
+      <span class="tileQuickSlotIcon">${escapeHtml(icon)}</span>
+      <span class="tileQuickSlotIndex">${idx + 1}</span>
+      <span class="tileQuickSlotLabel">${escapeHtml(label)}</span>
+    </button>`;
+  }).join("");
+}
+
 function setTool(tool) {
   paintTool = TILE_TYPES.includes(tool) ? tool : "floor";
   document.querySelectorAll(".tileCard").forEach((btn) => {
-    btn.classList.toggle("active", (btn.dataset.tileType || "") === paintTool);
+    const tileId = btn.dataset.tileId || btn.dataset.tileType || "";
+    btn.classList.toggle("active", tileId === paintTool);
+  });
+  document.querySelectorAll(".tileQuickSlot").forEach((btn, idx) => {
+    const slotTileId = tileQuickSlots[idx] || "";
+    btn.classList.toggle("active", slotTileId === paintTool && !!slotTileId);
   });
 }
 
@@ -6000,6 +6088,10 @@ function setBrushSize(size) {
   });
 }
 window.setBrushSize = setBrushSize;
+window.handleTileLibraryDragStart = handleTileLibraryDragStart;
+window.handleTileSlotDragOver = handleTileSlotDragOver;
+window.handleTileSlotDrop = handleTileSlotDrop;
+window.handleTileSlotClick = handleTileSlotClick;
 
 function syncSceneUIFromStorage() {
   ensureScene();
@@ -6565,7 +6657,7 @@ function renderTileLibrary() {
             .map((color) => `<span class="tileSwatch" style="background:${escapeHtml(color)}" title="${escapeHtml(color)}"></span>`)
             .join("");
           const cardMeta = `${TILE_BIOME_LABELS[biome] || biome} · ${entry.sourceTag || biome}`;
-          return `<button type="button" class="toolBtn tileCard${activeClass}" data-tile-id="${escapeHtml(entry.id)}">
+          return `<button type="button" class="toolBtn tileCard${activeClass}" data-tile-id="${escapeHtml(entry.id)}" draggable="true" ondragstart="handleTileLibraryDragStart(event, '${escapeHtml(entry.id)}')">
             <span class="tileCardMain">${escapeHtml(entry.icon)} ${escapeHtml(entry.label)}</span>
             <span class="tileCardMeta">${escapeHtml(cardMeta)}</span>
             ${colorSwatches ? `<span class="tileCardSwatches">${colorSwatches}</span>` : ""}
@@ -6586,6 +6678,7 @@ function renderTileLibrary() {
   if (emptyState) emptyState.hidden = groups.size > 0;
   saveTileLibraryFilter({ text: searchFilter?.value || "" });
   setTool(paintTool);
+  renderTileQuickSlots();
 }
 
 async function loadWorldBiomeTileLibrary() {
@@ -7249,7 +7342,9 @@ function bindSceneInputs() {
       tileSearchFilter.addEventListener("search", renderTileLibrary);
     }
   }
+  tileQuickSlots = loadTileQuickSlots();
   renderTileLibrary();
+  renderTileQuickSlots();
 
 }
 bindSceneInputs();
