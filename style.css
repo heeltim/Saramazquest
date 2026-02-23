@@ -565,12 +565,28 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    1200px 700px at 30% 10%,
-    rgba(255, 255, 255, 0.05),
-    transparent 60%
-  );
   pointer-events: none;
+  opacity: var(--grid-opacity, 0.55);
+  background-repeat: repeat;
+  background-position: 0 0;
+  z-index: 5;
+}
+
+#arena[data-grid-style="square"]::after {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.95) var(--grid-line, 1px), transparent var(--grid-line, 1px)),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.95) var(--grid-line, 1px), transparent var(--grid-line, 1px));
+  background-size: 40px 40px;
+}
+
+#arena[data-grid-style="dots"]::after {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.92) 1.3px, transparent 1.4px);
+  background-size: 40px 40px;
+}
+
+#arena[data-grid-style="hex"]::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='69' height='80' viewBox='0 0 69 80'%3E%3Cg fill='none' stroke='white' stroke-opacity='0.95' stroke-width='1.2'%3E%3Cpath d='M17.25 1L51.75 1L69 30L51.75 59L17.25 59L0 30Z'/%3E%3Cpath d='M17.25 59L51.75 59L69 88L51.75 117L17.25 117L0 88Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 69px 80px;
 }
 
 .sceneLayerSprite {
@@ -610,30 +626,19 @@ body {
 
 .cell {
   position: relative;
-  border-radius: 2px;
-  outline: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.08), transparent 60%),
-    var(--tile-floor);
+  border-radius: 0;
+  outline: none;
+  background: transparent;
   overflow: visible;
 }
 .cell.tile-floor {
-  background:
-    radial-gradient(circle at 28% 20%, rgba(255, 255, 255, 0.08), transparent 58%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.08)),
-    var(--tile-floor);
+  background: transparent;
 }
 .cell.tile-wall {
-  background:
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.08) 0 6px, rgba(255, 255, 255, 0.02) 6px 12px),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 60%),
-    var(--tile-wall);
+  background: rgba(255, 80, 80, 0.1);
 }
 .cell.tile-void {
-  background:
-    radial-gradient(circle at 50% 50%, rgba(10, 12, 18, 0.35), rgba(0, 0, 0, 0.75)),
-    var(--tile-void);
-  outline: 1px solid rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.22);
 }
 
 /* highlight do editor */

@@ -444,6 +444,9 @@ const DEFAULT_SCENE = {
   bgScale: 120, // %
   bgOpacity: 65, // %
   mapZoom: 1,
+  gridStyle: "square", // square | hex | dots
+  gridOpacity: 55,
+  gridLine: 1,
   layers: [], // imagens posicionáveis por camada: map | objects | foreground
   tiles: [], // string array: "floor" | "wall" | "void"
 };
@@ -1374,6 +1377,9 @@ function ensureScene() {
   s.bgScale = Number.isFinite(s.bgScale) ? s.bgScale : 120;
   s.bgOpacity = Number.isFinite(s.bgOpacity) ? s.bgOpacity : 65;
   s.mapZoom = Number.isFinite(s.mapZoom) ? Math.max(0.5, Math.min(1.6, s.mapZoom)) : 1;
+  s.gridStyle = ["square", "hex", "dots"].includes(s.gridStyle) ? s.gridStyle : "square";
+  s.gridOpacity = Number.isFinite(s.gridOpacity) ? Math.max(0, Math.min(100, s.gridOpacity)) : 55;
+  s.gridLine = Number.isFinite(s.gridLine) ? Math.max(1, Math.min(4, s.gridLine)) : 1;
   normalizeSceneLayers(s);
 
   data.scenes[room] = s;
@@ -1393,6 +1399,9 @@ function applySceneCSS() {
   arena.style.setProperty("--scene-y", `${s.bgY}px`);
   arena.style.setProperty("--scene-opacity", (s.bgOpacity / 100).toString());
   arena.style.setProperty("--map-zoom", (s.mapZoom || 1).toString());
+  arena.dataset.gridStyle = s.gridStyle || "square";
+  arena.style.setProperty("--grid-opacity", ((s.gridOpacity ?? 55) / 100).toString());
+  arena.style.setProperty("--grid-line", `${s.gridLine || 1}px`);
 }
 
 function tileIndex(x, y) {
@@ -4758,6 +4767,9 @@ function syncSceneUIFromStorage() {
   document.getElementById("bgOpacity").value = s.bgOpacity;
   document.getElementById("bgX").value = s.bgX;
   document.getElementById("bgY").value = s.bgY;
+  document.getElementById("gridStyle").value = s.gridStyle || "square";
+  document.getElementById("gridOpacity").value = s.gridOpacity ?? 55;
+  document.getElementById("gridLine").value = s.gridLine ?? 1;
   const kindInput = document.getElementById("sceneLayerKind");
   if (kindInput && !kindInput.value) kindInput.value = "map";
   if (mapZoomInput) mapZoomInput.value = String(Math.round((s.mapZoom || 1) * 100));
@@ -4914,6 +4926,9 @@ function bindSceneInputs() {
   const bgOpacity = document.getElementById("bgOpacity");
   const bgX = document.getElementById("bgX");
   const bgY = document.getElementById("bgY");
+  const gridStyle = document.getElementById("gridStyle");
+  const gridOpacity = document.getElementById("gridOpacity");
+  const gridLine = document.getElementById("gridLine");
   const bgFile = document.getElementById("bgFile");
   const layerFile = document.getElementById("sceneLayerFile");
 
@@ -4931,6 +4946,9 @@ function bindSceneInputs() {
     s.bgOpacity = parseInt(bgOpacity.value, 10);
     s.bgX = parseInt(bgX.value, 10);
     s.bgY = parseInt(bgY.value, 10);
+    s.gridStyle = gridStyle.value;
+    s.gridOpacity = parseInt(gridOpacity.value, 10);
+    s.gridLine = parseInt(gridLine.value, 10);
     save(data);
     applySceneCSS();
   }
@@ -4938,6 +4956,9 @@ function bindSceneInputs() {
   bgOpacity.addEventListener("input", upd);
   bgX.addEventListener("input", upd);
   bgY.addEventListener("input", upd);
+  gridStyle.addEventListener("change", upd);
+  gridOpacity.addEventListener("input", upd);
+  gridLine.addEventListener("input", upd);
 
   bgFile.addEventListener("change", () => {
     const file = bgFile.files && bgFile.files[0];
