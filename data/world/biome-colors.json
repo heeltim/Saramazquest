@@ -1,18 +1,114 @@
 {
-  "version": 2,
-  "updatedAt": "2026-02-23T00:00:00Z",
+  "version": 3,
+  "updatedAt": "2026-02-23T12:00:00Z",
   "biomes": [
-    { "biome": "ocean", "color": [36, 92, 140], "tolerance": 90 },
-    { "biome": "coast", "color": [201, 168, 106], "tolerance": 84 },
-    { "biome": "plains", "color": [140, 176, 96], "tolerance": 80 },
-    { "biome": "forest", "color": [62, 122, 82], "tolerance": 80 },
-    { "biome": "desert", "color": [184, 139, 58], "tolerance": 84 },
-    { "biome": "mountains", "color": [138, 143, 149], "tolerance": 74 },
-    { "biome": "tundra", "color": [188, 204, 214], "tolerance": 70 },
-    { "biome": "volcanic", "color": [58, 58, 58], "tolerance": 70 },
-    { "biome": "mystic", "color": [94, 76, 138], "tolerance": 76 },
-    { "biome": "islands", "color": [62, 143, 87], "tolerance": 78 },
-    { "biome": "ruins", "color": [92, 90, 87], "tolerance": 72 },
-    { "biome": "structures", "color": [85, 90, 97], "tolerance": 72 }
+    {
+      "biome": "ocean",
+      "color": [
+        29,
+        75,
+        145
+      ],
+      "tolerance": 90
+    },
+    {
+      "biome": "coast",
+      "color": [
+        230,
+        195,
+        119
+      ],
+      "tolerance": 84
+    },
+    {
+      "biome": "plains",
+      "color": [
+        182,
+        217,
+        82
+      ],
+      "tolerance": 80
+    },
+    {
+      "biome": "forest",
+      "color": [
+        47,
+        125,
+        45
+      ],
+      "tolerance": 80
+    },
+    {
+      "biome": "desert",
+      "color": [
+        224,
+        177,
+        58
+      ],
+      "tolerance": 84
+    },
+    {
+      "biome": "mountains",
+      "color": [
+        180,
+        154,
+        103
+      ],
+      "tolerance": 74
+    },
+    {
+      "biome": "tundra",
+      "color": [
+        230,
+        215,
+        184
+      ],
+      "tolerance": 70
+    },
+    {
+      "biome": "volcanic",
+      "color": [
+        107,
+        45,
+        23
+      ],
+      "tolerance": 70
+    },
+    {
+      "biome": "mystic",
+      "color": [
+        106,
+        61,
+        140
+      ],
+      "tolerance": 76
+    },
+    {
+      "biome": "islands",
+      "color": [
+        60,
+        203,
+        103
+      ],
+      "tolerance": 78
+    },
+    {
+      "biome": "ruins",
+      "color": [
+        163,
+        143,
+        122
+      ],
+      "tolerance": 72
+    },
+    {
+      "biome": "structures",
+      "color": [
+        138,
+        143,
+        156
+      ],
+      "tolerance": 72
+    }
   ]
 }
