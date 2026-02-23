@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "data/items.schema.json",
+  "title": "Contrato mínimo para itens de lojas",
+  "type": "object",
+  "required": ["shopId", "shopName", "items"],
+  "properties": {
+    "shopId": { "type": "string" },
+    "shopName": { "type": "string" },
+    "items": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/item" }
+    }
+  },
+  "$defs": {
+    "item": {
+      "type": "object",
+      "required": ["id", "type", "tags"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "type": { "type": "string", "minLength": 1 },
+        "tags": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "tier": { "type": "number" },
+        "material": { "type": "string", "minLength": 1 },
+        "weight": { "type": "number" },
+        "displayWeight": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": { "enum": ["weapon", "armor"] }
+            }
+          },
+          "then": {
+            "required": ["tier", "material", "weight"]
+          }
+        }
+      ]
+    }
+  }
+}

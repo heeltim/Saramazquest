@@ -3,151 +3,1071 @@
   "shopName": "Arsenal",
   "items": [
     {
-      "itemId": "lamina_curta"
+      "id": "lamina_curta",
+      "name": "Lâmina Curta",
+      "priceGold": 2,
+      "type": "weapon",
+      "weaponCategory": "simple",
+      "damage": "1d4",
+      "crit": "19-20",
+      "range": null,
+      "weight": 0.5,
+      "damageType": "Perfuração",
+      "proficiency": "simple",
+      "description": "Arma de arsenal.",
+      "displayWeight": "0.5kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
-      "itemId": "punhal_de_combate"
+      "id": "punhal_de_combate",
+      "name": "Punhal de Combate",
+      "priceGold": 10,
+      "type": "weapon",
+      "weaponCategory": "simple",
+      "damage": "1d6",
+      "crit": "19-20",
+      "range": null,
+      "weight": 1,
+      "damageType": "Perfuração",
+      "proficiency": "simple",
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
-      "itemId": "foice_curta"
+      "id": "foice_curta",
+      "name": "Foice Curta",
+      "priceGold": 4,
+      "type": "weapon",
+      "weaponCategory": "simple",
+      "damage": "1d6",
+      "crit": "x3",
+      "range": null,
+      "weight": 1,
+      "damageType": "Corte",
+      "proficiency": "simple",
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
-      "itemId": "manopla_de_ferro"
+      "id": "manopla_de_ferro",
+      "name": "Manopla de Ferro",
+      "priceGold": 5,
+      "type": "weapon",
+      "weaponCategory": "simple",
+      "damage": "1d4",
+      "crit": "x2",
+      "range": null,
+      "weight": 1,
+      "damageType": "Impacto",
+      "proficiency": "simple",
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
-      "itemId": "lanca_leve"
+      "id": "lanca_leve",
+      "name": "Lança Leve",
+      "priceGold": 2,
+      "type": "weapon",
+      "weaponCategory": "simple",
+      "damage": "1d6",
+      "crit": "x2",
+      "range": "Curto",
+      "weight": 1.5,
+      "damageType": "Perfuração",
+      "proficiency": "simple",
+      "description": "Arma de arsenal.",
+      "displayWeight": "1.5kg",
+      "tags": [
+        "wood",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "wood"
     },
     {
-      "itemId": "maca_leve"
+      "id": "maca_leve",
+      "name": "Maça Leve",
+      "priceGold": 12,
+      "type": "weapon",
+      "weaponCategory": "simple",
+      "damage": "1d8",
+      "crit": "x2",
+      "range": null,
+      "weight": 6,
+      "damageType": "Impacto",
+      "proficiency": "simple",
+      "description": "Arma de arsenal.",
+      "displayWeight": "6kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
-      "itemId": "pique_simples"
+      "id": "pique_simples",
+      "name": "Pique Simples",
+      "priceGold": 2,
+      "type": "weapon",
+      "weaponCategory": "simple",
+      "damage": "1d8",
+      "crit": "x2",
+      "range": null,
+      "weight": 5,
+      "damageType": "Perfuração",
+      "proficiency": "simple",
+      "description": "Arma de arsenal.",
+      "displayWeight": "5kg",
+      "tags": [
+        "wood",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "wood"
     },
     {
-      "itemId": "arco_curto"
+      "id": "arco_curto",
+      "name": "Arco Curto",
+      "priceGold": 30,
+      "type": "weapon",
+      "weaponCategory": "simple",
+      "damage": "1d6",
+      "crit": "x3",
+      "range": "Médio",
+      "weight": 1,
+      "damageType": "Perfuração",
+      "proficiency": "simple",
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "wood",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "wood"
     },
     {
-      "itemId": "dardo_de_guerra"
+      "id": "dardo_de_guerra",
+      "name": "Dardo de Guerra",
+      "priceGold": 1,
+      "type": "weapon",
+      "weaponCategory": "simple",
+      "damage": "1d6",
+      "crit": "x2",
+      "range": "Médio",
+      "weight": 1,
+      "damageType": "Perfuração",
+      "proficiency": "simple",
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
-      "itemId": "besta_leve"
+      "id": "besta_leve",
+      "name": "Besta Leve",
+      "priceGold": 35,
+      "type": "weapon",
+      "weaponCategory": "simple",
+      "damage": "1d8",
+      "crit": "19-20",
+      "range": "Médio",
+      "weight": 3,
+      "damageType": "Perfuração",
+      "proficiency": "simple",
+      "description": "Arma de arsenal.",
+      "displayWeight": "3kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
-      "itemId": "flechas_20"
+      "id": "flechas_20",
+      "name": "Flechas (20)",
+      "priceGold": 1,
+      "type": "weapon",
+      "weaponCategory": "ammo",
+      "damage": null,
+      "crit": null,
+      "range": null,
+      "weight": 1.5,
+      "damageType": null,
+      "proficiency": "ammo",
+      "description": "Arma de arsenal.",
+      "displayWeight": "1.5kg",
+      "tags": [
+        "wood",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "wood"
     },
     {
-      "itemId": "virotes_10"
+      "id": "virotes_10",
+      "name": "Virotes (10)",
+      "priceGold": 2,
+      "type": "weapon",
+      "weaponCategory": "ammo",
+      "damage": null,
+      "crit": null,
+      "range": null,
+      "weight": 1,
+      "damageType": null,
+      "proficiency": "ammo",
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "wood",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "wood"
     },
     {
-      "itemId": "machado_de_guerra"
+      "id": "machado_de_guerra",
+      "name": "Machado de Guerra",
+      "priceGold": 10,
+      "type": "weapon",
+      "weaponCategory": "martial",
+      "damage": "1d8",
+      "crit": "x3",
+      "range": null,
+      "weight": 3,
+      "damageType": "Corte",
+      "proficiency": "martial",
+      "description": "Arma de arsenal.",
+      "displayWeight": "3kg",
+      "tags": [
+        "herb",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "herb"
     },
     {
-      "itemId": "espada_longa"
+      "id": "espada_longa",
+      "name": "Espada Longa",
+      "priceGold": 15,
+      "type": "weapon",
+      "weaponCategory": "martial",
+      "damage": "1d8",
+      "crit": "19-20",
+      "range": null,
+      "weight": 2,
+      "damageType": "Corte",
+      "proficiency": "martial",
+      "description": "Arma de arsenal.",
+      "displayWeight": "2kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
-      "itemId": "sabre_curvo"
+      "id": "sabre_curvo",
+      "name": "Sabre Curvo",
+      "priceGold": 15,
+      "type": "weapon",
+      "weaponCategory": "martial",
+      "damage": "1d6",
+      "crit": "18-20",
+      "range": null,
+      "weight": 2,
+      "damageType": "Corte",
+      "proficiency": "martial",
+      "description": "Arma de arsenal.",
+      "displayWeight": "2kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
-      "itemId": "florete_fino"
+      "id": "florete_fino",
+      "name": "Florete Fino",
+      "priceGold": 20,
+      "type": "weapon",
+      "weaponCategory": "martial",
+      "damage": "1d6",
+      "crit": "18-20",
+      "range": null,
+      "weight": 1,
+      "damageType": "Perfuração",
+      "proficiency": "martial",
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
-      "itemId": "martelo_de_batalha"
+      "id": "martelo_de_batalha",
+      "name": "Martelo de Batalha",
+      "priceGold": 12,
+      "type": "weapon",
+      "weaponCategory": "martial",
+      "damage": "1d8",
+      "crit": "x3",
+      "range": null,
+      "weight": 2.5,
+      "damageType": "Impacto",
+      "proficiency": "martial",
+      "description": "Arma de arsenal.",
+      "displayWeight": "2.5kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
-      "itemId": "mangual_de_ferro"
+      "id": "mangual_de_ferro",
+      "name": "Mangual de Ferro",
+      "priceGold": 8,
+      "type": "weapon",
+      "weaponCategory": "martial",
+      "damage": "1d8",
+      "crit": "x2",
+      "range": null,
+      "weight": 2.5,
+      "damageType": "Impacto",
+      "proficiency": "martial",
+      "description": "Arma de arsenal.",
+      "displayWeight": "2.5kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
-      "itemId": "alabarda_pesada"
+      "id": "alabarda_pesada",
+      "name": "Alabarda Pesada",
+      "priceGold": 10,
+      "type": "weapon",
+      "weaponCategory": "martial",
+      "damage": "1d10",
+      "crit": "x3",
+      "range": null,
+      "weight": 6,
+      "damageType": "Corte",
+      "proficiency": "martial",
+      "description": "Arma de arsenal.",
+      "displayWeight": "6kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
-      "itemId": "lanca_de_cavalaria"
+      "id": "lanca_de_cavalaria",
+      "name": "Lança de Cavalaria",
+      "priceGold": 10,
+      "type": "weapon",
+      "weaponCategory": "martial",
+      "damage": "1d8",
+      "crit": "x3",
+      "range": null,
+      "weight": 5,
+      "damageType": "Perfuração",
+      "proficiency": "martial",
+      "description": "Arma de arsenal.",
+      "displayWeight": "5kg",
+      "tags": [
+        "wood",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "wood"
     },
     {
-      "itemId": "espada_grande"
+      "id": "espada_grande",
+      "name": "Espada Grande",
+      "priceGold": 50,
+      "type": "weapon",
+      "weaponCategory": "martial",
+      "damage": "2d6",
+      "crit": "19-20",
+      "range": null,
+      "weight": 4,
+      "damageType": "Corte",
+      "proficiency": "martial",
+      "description": "Arma de arsenal.",
+      "displayWeight": "4kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
-      "itemId": "arco_longo"
+      "id": "arco_longo",
+      "name": "Arco Longo",
+      "priceGold": 100,
+      "type": "weapon",
+      "weaponCategory": "martial",
+      "damage": "1d8",
+      "crit": "x3",
+      "range": "Longo",
+      "weight": 1.5,
+      "damageType": "Perfuração",
+      "proficiency": "martial",
+      "description": "Arma de arsenal.",
+      "displayWeight": "1.5kg",
+      "tags": [
+        "wood",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 3,
+      "material": "wood"
     },
     {
-      "itemId": "besta_pesada"
+      "id": "besta_pesada",
+      "name": "Besta Pesada",
+      "priceGold": 50,
+      "type": "weapon",
+      "weaponCategory": "martial",
+      "damage": "1d12",
+      "crit": "19-20",
+      "range": "Longo",
+      "weight": 4,
+      "damageType": "Perfuração",
+      "proficiency": "martial",
+      "description": "Arma de arsenal.",
+      "displayWeight": "4kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
-      "itemId": "chicote_de_aco"
+      "id": "chicote_de_aco",
+      "name": "Chicote de Aço",
+      "priceGold": 2,
+      "type": "weapon",
+      "weaponCategory": "exotic",
+      "damage": "1d3",
+      "crit": "x2",
+      "range": null,
+      "weight": 1,
+      "damageType": "Corte",
+      "proficiency": "exotic",
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
-      "itemId": "lamina_bastarda"
+      "id": "lamina_bastarda",
+      "name": "Lâmina Bastarda",
+      "priceGold": 35,
+      "type": "weapon",
+      "weaponCategory": "exotic",
+      "damage": "1d10/1d12",
+      "crit": "19-20",
+      "range": null,
+      "weight": 3,
+      "damageType": "Corte",
+      "proficiency": "exotic",
+      "description": "Arma de arsenal.",
+      "displayWeight": "3kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
-      "itemId": "katara"
+      "id": "katara",
+      "name": "Katara",
+      "priceGold": 30,
+      "type": "weapon",
+      "weaponCategory": "exotic",
+      "damage": "1d10",
+      "crit": "x3",
+      "range": null,
+      "weight": 4,
+      "damageType": "Corte",
+      "proficiency": "exotic",
+      "description": "Arma de arsenal.",
+      "displayWeight": "4kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
-      "itemId": "corrente_espinhada"
+      "id": "corrente_espinhada",
+      "name": "Corrente Espinhada",
+      "priceGold": 25,
+      "type": "weapon",
+      "weaponCategory": "exotic",
+      "damage": "2d4",
+      "crit": "19-20",
+      "range": null,
+      "weight": 5,
+      "damageType": "Corte",
+      "proficiency": "exotic",
+      "description": "Arma de arsenal.",
+      "displayWeight": "5kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
-      "itemId": "machado_titanico"
+      "id": "machado_titanico",
+      "name": "Machado Titânico",
+      "priceGold": 50,
+      "type": "weapon",
+      "weaponCategory": "exotic",
+      "damage": "2d8",
+      "crit": "x3",
+      "range": null,
+      "weight": 12,
+      "damageType": "Corte",
+      "proficiency": "exotic",
+      "description": "Arma de arsenal.",
+      "displayWeight": "12kg",
+      "tags": [
+        "herb",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "herb"
     },
     {
-      "itemId": "rede_de_caca"
+      "id": "rede_de_caca",
+      "name": "Rede de Caça",
+      "priceGold": 20,
+      "type": "weapon",
+      "weaponCategory": "exotic",
+      "damage": null,
+      "crit": null,
+      "range": "Curto",
+      "weight": 3,
+      "damageType": "Controle",
+      "proficiency": "exotic",
+      "description": "Arma de arsenal.",
+      "displayWeight": "3kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
-      "itemId": "pistola_de_polvora"
+      "id": "pistola_de_polvora",
+      "name": "Pistola de Pólvora",
+      "priceGold": 250,
+      "type": "weapon",
+      "weaponCategory": "firearm",
+      "damage": "2d6",
+      "crit": "19/x3",
+      "range": "Curto",
+      "weight": 1,
+      "damageType": "Perfuração",
+      "proficiency": "firearm",
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 3,
+      "material": "metal"
     },
     {
-      "itemId": "mosquete_longo"
+      "id": "mosquete_longo",
+      "name": "Mosquete Longo",
+      "priceGold": 500,
+      "type": "weapon",
+      "weaponCategory": "firearm",
+      "damage": "2d8",
+      "crit": "19/x3",
+      "range": "Médio",
+      "weight": 4,
+      "damageType": "Perfuração",
+      "proficiency": "firearm",
+      "description": "Arma de arsenal.",
+      "displayWeight": "4kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 4,
+      "material": "metal"
     },
     {
-      "itemId": "municao_20"
+      "id": "municao_20",
+      "name": "Munição (20)",
+      "priceGold": 20,
+      "type": "weapon",
+      "weaponCategory": "ammo",
+      "damage": null,
+      "crit": null,
+      "range": null,
+      "weight": 0.5,
+      "damageType": null,
+      "proficiency": "ammo",
+      "description": "Arma de arsenal.",
+      "displayWeight": "0.5kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
-      "itemId": "gibao_acolchoado"
+      "id": "gibao_acolchoado",
+      "name": "Gibão Acolchoado",
+      "priceGold": 5,
+      "type": "armor",
+      "defenseBonus": 1,
+      "penalty": 0,
+      "category": "light",
+      "weight": 5,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "5kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
-      "itemId": "couro_flexivel"
+      "id": "couro_flexivel",
+      "name": "Couro Flexível",
+      "priceGold": 10,
+      "type": "armor",
+      "defenseBonus": 2,
+      "penalty": 0,
+      "category": "light",
+      "weight": 7,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "7kg",
+      "tags": [
+        "leather",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "leather"
     },
     {
-      "itemId": "couro_reforcado"
+      "id": "couro_reforcado",
+      "name": "Couro Reforçado",
+      "priceGold": 25,
+      "type": "armor",
+      "defenseBonus": 3,
+      "penalty": -1,
+      "category": "light",
+      "weight": 10,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "10kg",
+      "tags": [
+        "leather",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "leather"
     },
     {
-      "itemId": "malha_leve"
+      "id": "malha_leve",
+      "name": "Malha Leve",
+      "priceGold": 100,
+      "type": "armor",
+      "defenseBonus": 4,
+      "penalty": -2,
+      "category": "light",
+      "weight": 12,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "12kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 3,
+      "material": "metal"
     },
     {
-      "itemId": "couraca_de_peles"
+      "id": "couraca_de_peles",
+      "name": "Couraça de Peles",
+      "priceGold": 15,
+      "type": "armor",
+      "defenseBonus": 3,
+      "penalty": -2,
+      "category": "medium",
+      "weight": 12,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "12kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
-      "itemId": "brunea_reforcada"
+      "id": "brunea_reforcada",
+      "name": "Brunea Reforçada",
+      "priceGold": 50,
+      "type": "armor",
+      "defenseBonus": 4,
+      "penalty": -3,
+      "category": "medium",
+      "weight": 15,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "15kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
-      "itemId": "cota_metalica"
+      "id": "cota_metalica",
+      "name": "Cota Metálica",
+      "priceGold": 150,
+      "type": "armor",
+      "defenseBonus": 5,
+      "penalty": -3,
+      "category": "medium",
+      "weight": 20,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "20kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 3,
+      "material": "metal"
     },
     {
-      "itemId": "couraca_rigida"
+      "id": "couraca_rigida",
+      "name": "Couraça Rígida",
+      "priceGold": 200,
+      "type": "armor",
+      "defenseBonus": 5,
+      "penalty": -4,
+      "category": "medium",
+      "weight": 15,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "15kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 3,
+      "material": "metal"
     },
     {
-      "itemId": "couraca_de_bronze"
+      "id": "couraca_de_bronze",
+      "name": "Couraça de Bronze",
+      "priceGold": 500,
+      "type": "armor",
+      "defenseBonus": 4,
+      "penalty": -4,
+      "category": "medium",
+      "weight": 12,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "12kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 4,
+      "material": "metal"
     },
     {
-      "itemId": "armadura_segmentada"
+      "id": "armadura_segmentada",
+      "name": "Armadura Segmentada",
+      "priceGold": 250,
+      "type": "armor",
+      "defenseBonus": 6,
+      "penalty": -5,
+      "category": "heavy",
+      "weight": 17,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "17kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 3,
+      "material": "metal"
     },
     {
-      "itemId": "meia_armadura"
+      "id": "meia_armadura",
+      "name": "Meia-Armadura",
+      "priceGold": 600,
+      "type": "armor",
+      "defenseBonus": 7,
+      "penalty": -4,
+      "category": "heavy",
+      "weight": 22,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "22kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 4,
+      "material": "metal"
     },
     {
-      "itemId": "armadura_completa"
+      "id": "armadura_completa",
+      "name": "Armadura Completa",
+      "priceGold": 1500,
+      "type": "armor",
+      "defenseBonus": 8,
+      "penalty": -5,
+      "category": "heavy",
+      "weight": 25,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "25kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 5,
+      "material": "metal"
     },
     {
-      "itemId": "armadura_profunda"
+      "id": "armadura_profunda",
+      "name": "Armadura Profunda",
+      "priceGold": 5000,
+      "type": "armor",
+      "defenseBonus": 8,
+      "penalty": -5,
+      "category": "heavy",
+      "weight": 30,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "30kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 5,
+      "material": "metal"
     },
     {
-      "itemId": "armadura_draconica"
+      "id": "armadura_draconica",
+      "name": "Armadura Dracônica",
+      "priceGold": 90000,
+      "type": "armor",
+      "defenseBonus": 9,
+      "penalty": -2,
+      "category": "heavy",
+      "weight": 25,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "25kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 5,
+      "material": "metal"
     },
     {
-      "itemId": "escudo_leve"
+      "id": "escudo_leve",
+      "name": "Escudo Leve",
+      "priceGold": 5,
+      "type": "shield",
+      "defenseBonus": 1,
+      "penalty": -1,
+      "weight": 3,
+      "description": "Escudo de arsenal.",
+      "displayWeight": "3kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ]
     },
     {
-      "itemId": "escudo_pesado"
+      "id": "escudo_pesado",
+      "name": "Escudo Pesado",
+      "priceGold": 15,
+      "type": "shield",
+      "defenseBonus": 2,
+      "penalty": -2,
+      "weight": 7,
+      "description": "Escudo de arsenal.",
+      "displayWeight": "7kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ]
     },
     {
-      "itemId": "escudo_de_torre"
+      "id": "escudo_de_torre",
+      "name": "Escudo de Torre",
+      "priceGold": 50,
+      "type": "shield",
+      "defenseBonus": 4,
+      "penalty": -5,
+      "weight": 15,
+      "description": "Escudo de arsenal.",
+      "displayWeight": "15kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ]
     }
   ]
 }
