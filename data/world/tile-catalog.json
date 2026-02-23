@@ -11,9 +11,9 @@
           "paintType": "stone",
           "sourceTag": "ocean",
           "colors": {
-            "base": "#18324A",
-            "highlight": "#245C8C",
-            "shadow": "#0E1E2C"
+            "base": "#1D4B91",
+            "highlight": "#2F74D6",
+            "shadow": "#0B2B63"
           }
         },
         {
@@ -22,9 +22,9 @@
           "paintType": "stone",
           "sourceTag": "ocean",
           "colors": {
-            "base": "#245C8C",
-            "highlight": "#3E86B5",
-            "shadow": "#173A55"
+            "base": "#4BAAE0",
+            "highlight": "#79C7F7",
+            "shadow": "#2B78A8"
           }
         },
         {
@@ -33,9 +33,9 @@
           "paintType": "stone",
           "sourceTag": "ocean",
           "colors": {
-            "base": "#2C6B78",
-            "highlight": "#49A6B5",
-            "shadow": "#1E4D56"
+            "base": "#2EC4B8",
+            "highlight": "#63E6D9",
+            "shadow": "#137B73"
           }
         },
         {
@@ -44,9 +44,9 @@
           "paintType": "floor",
           "sourceTag": "coast",
           "colors": {
-            "base": "#C9A86A",
-            "highlight": "#E1C58C",
-            "shadow": "#9F824D"
+            "base": "#E6C377",
+            "highlight": "#FFE1A6",
+            "shadow": "#B98E45"
           }
         },
         {
@@ -55,9 +55,9 @@
           "paintType": "stone",
           "sourceTag": "coast",
           "colors": {
-            "base": "#5F6A73",
-            "highlight": "#7B8892",
-            "shadow": "#3E474E"
+            "base": "#7A6B57",
+            "highlight": "#A49380",
+            "shadow": "#4F453B"
           }
         }
       ]
@@ -72,9 +72,9 @@
           "paintType": "grass",
           "sourceTag": "forest",
           "colors": {
-            "base": "#244C32",
-            "highlight": "#3E7A52",
-            "shadow": "#162D1E"
+            "base": "#2F7D2D",
+            "highlight": "#57A84A",
+            "shadow": "#1B4A1A"
           },
           "kind": "ground"
         },
@@ -84,9 +84,9 @@
           "paintType": "grass",
           "sourceTag": "forest",
           "colors": {
-            "base": "#3F6F48",
-            "highlight": "#5E9B66",
-            "shadow": "#27452D"
+            "base": "#5AAE47",
+            "highlight": "#86D467",
+            "shadow": "#32702A"
           },
           "kind": "ground"
         },
@@ -96,9 +96,9 @@
           "paintType": "grass",
           "sourceTag": "meadow",
           "colors": {
-            "base": "#5C8F4E",
-            "highlight": "#8CCF6A",
-            "shadow": "#3D6134"
+            "base": "#B6D952",
+            "highlight": "#DFF38B",
+            "shadow": "#7E9F2D"
           },
           "kind": "ground"
         },
@@ -108,9 +108,9 @@
           "paintType": "grass",
           "sourceTag": "moss",
           "colors": {
-            "base": "#4B6A3A",
-            "highlight": "#6C8F50",
-            "shadow": "#2E4224"
+            "base": "#6FAF3C",
+            "highlight": "#98D95D",
+            "shadow": "#3F6F22"
           },
           "kind": "ground"
         },
@@ -120,9 +120,9 @@
           "paintType": "stone",
           "sourceTag": "river",
           "colors": {
-            "base": "#2A5C8A",
-            "highlight": "#4C8BC2",
-            "shadow": "#1B3B5C"
+            "base": "#4EA3C7",
+            "highlight": "#79C7E6",
+            "shadow": "#2B6E8A"
           }
         }
       ]
@@ -137,9 +137,9 @@
           "paintType": "stone",
           "sourceTag": "crystal",
           "colors": {
-            "base": "#5E4C8A",
-            "highlight": "#8C7CE6",
-            "shadow": "#3A2D5C"
+            "base": "#8C5CE8",
+            "highlight": "#B08CFF",
+            "shadow": "#5A33A8"
           }
         },
         {
@@ -148,9 +148,9 @@
           "paintType": "floor",
           "sourceTag": "mystic",
           "colors": {
-            "base": "#40305F",
-            "highlight": "#6B5DA8",
-            "shadow": "#2A1F3C"
+            "base": "#6A3D8C",
+            "highlight": "#9A63C7",
+            "shadow": "#3E2459"
           }
         },
         {
@@ -159,9 +159,9 @@
           "paintType": "stone",
           "sourceTag": "mystic",
           "colors": {
-            "base": "#5A5C73",
-            "highlight": "#8A8DAA",
-            "shadow": "#3A3C4C"
+            "base": "#7A6FA8",
+            "highlight": "#A79AE0",
+            "shadow": "#4F4575"
           }
         },
         {
@@ -170,9 +170,9 @@
           "paintType": "stone",
           "sourceTag": "mystic",
           "colors": {
-            "base": "#4B4E63",
-            "highlight": "#7A7D96",
-            "shadow": "#2E3040"
+            "base": "#6B5A7C",
+            "highlight": "#9A86B0",
+            "shadow": "#40354D"
           }
         },
         {
@@ -181,10 +181,9 @@
           "paintType": "void",
           "sourceTag": "arcane",
           "colors": {
-            "base": "#3C2C6A",
-            "highlight": "#9A82FF",
-            "shadow": "#2A1E4F",
-            "glow": "#BDA8FF"
+            "base": "#B35CFF",
+            "highlight": "#E6B3FF",
+            "shadow": "#6A2FB8"
           }
         }
       ]
@@ -199,9 +198,9 @@
           "paintType": "grass",
           "sourceTag": "saramaz",
           "colors": {
-            "base": "#B88B3A",
-            "highlight": "#D6B060",
-            "shadow": "#8C6A2A"
+            "base": "#E0B13A",
+            "highlight": "#FFD36B",
+            "shadow": "#A0771E"
           },
           "kind": "ground"
         },
@@ -211,9 +210,9 @@
           "paintType": "floor",
           "sourceTag": "saramaz",
           "colors": {
-            "base": "#8A5E2B",
-            "highlight": "#B17C3E",
-            "shadow": "#5C3C1A"
+            "base": "#C0712B",
+            "highlight": "#E49A54",
+            "shadow": "#7A3E12"
           }
         },
         {
@@ -222,9 +221,9 @@
           "paintType": "floor",
           "sourceTag": "road",
           "colors": {
-            "base": "#9F7740",
-            "highlight": "#C89C5E",
-            "shadow": "#6F532C"
+            "base": "#D28C3C",
+            "highlight": "#F0B16C",
+            "shadow": "#8A521E"
           }
         },
         {
@@ -233,9 +232,9 @@
           "paintType": "grass",
           "sourceTag": "oasis",
           "colors": {
-            "base": "#2E7F74",
-            "highlight": "#4FB3A5",
-            "shadow": "#1D5049"
+            "base": "#36BFA8",
+            "highlight": "#72E0D0",
+            "shadow": "#1E7A6C"
           }
         }
       ]
@@ -250,9 +249,9 @@
           "paintType": "stone",
           "sourceTag": "mountain",
           "colors": {
-            "base": "#6E7075",
-            "highlight": "#9A9CA2",
-            "shadow": "#4A4C50"
+            "base": "#B49A67",
+            "highlight": "#E0C595",
+            "shadow": "#7A633D"
           }
         },
         {
@@ -261,9 +260,9 @@
           "paintType": "stone",
           "sourceTag": "mountain",
           "colors": {
-            "base": "#4E5157",
-            "highlight": "#74777D",
-            "shadow": "#2E3035"
+            "base": "#8B5A39",
+            "highlight": "#C07A52",
+            "shadow": "#4F2D1D"
           }
         },
         {
@@ -272,9 +271,9 @@
           "paintType": "stone",
           "sourceTag": "mountain",
           "colors": {
-            "base": "#8C8F95",
-            "highlight": "#B2B5BB",
-            "shadow": "#64676C"
+            "base": "#E6D7B8",
+            "highlight": "#FFF0D6",
+            "shadow": "#B8A47C"
           }
         },
         {
@@ -283,9 +282,9 @@
           "paintType": "stone",
           "sourceTag": "mineral",
           "colors": {
-            "base": "#3D475C",
-            "highlight": "#6A85B6",
-            "shadow": "#2A3240"
+            "base": "#5D7BD6",
+            "highlight": "#8FA8FF",
+            "shadow": "#334B9C"
           }
         }
       ]
@@ -300,9 +299,9 @@
           "paintType": "grass",
           "sourceTag": "island",
           "colors": {
-            "base": "#3E8F57",
-            "highlight": "#6BCF89",
-            "shadow": "#285C38"
+            "base": "#3CCB67",
+            "highlight": "#76F59B",
+            "shadow": "#1B7A3A"
           },
           "kind": "ground"
         },
@@ -312,9 +311,9 @@
           "paintType": "woodwall",
           "sourceTag": "flora",
           "colors": {
-            "base": "#2F6A3E",
-            "highlight": "#4FA65C",
-            "shadow": "#1C3F26"
+            "base": "#2FAF4B",
+            "highlight": "#63D96A",
+            "shadow": "#1B6B2D"
           },
           "icon": "🌴",
           "visualMode": "icon",
@@ -326,9 +325,9 @@
           "paintType": "stone",
           "sourceTag": "volcanic",
           "colors": {
-            "base": "#3A3A3A",
-            "highlight": "#6A6A6A",
-            "shadow": "#1E1E1E"
+            "base": "#6B2D17",
+            "highlight": "#A84C2C",
+            "shadow": "#3D160D"
           }
         }
       ]
@@ -343,9 +342,9 @@
           "paintType": "stone",
           "sourceTag": "road",
           "colors": {
-            "base": "#6C6F73",
-            "highlight": "#94989C",
-            "shadow": "#474A4E"
+            "base": "#8A8F9C",
+            "highlight": "#B8BDC9",
+            "shadow": "#5A5F6B"
           }
         },
         {
@@ -354,9 +353,9 @@
           "paintType": "floor",
           "sourceTag": "farmland",
           "colors": {
-            "base": "#7A5A2B",
-            "highlight": "#A97A3E",
-            "shadow": "#523A1B"
+            "base": "#C08A36",
+            "highlight": "#E6B063",
+            "shadow": "#7A541E"
           }
         }
       ]
@@ -404,9 +403,9 @@
           "paintType": "stonewall",
           "sourceTag": "ruins",
           "colors": {
-            "base": "#5C5A57",
-            "highlight": "#807E7B",
-            "shadow": "#3A3836"
+            "base": "#A38F7A",
+            "highlight": "#D0BBA0",
+            "shadow": "#6B5B4B"
           }
         }
       ]
