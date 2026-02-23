@@ -239,6 +239,7 @@ body {
   flex: 1;
   position: relative;
   overflow: auto;
+  scrollbar-width: none;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: linear-gradient(180deg, #171d2c 0%, #111724 100%);
@@ -249,6 +250,11 @@ body {
 
 #mapViewport.dragging {
   cursor: grabbing;
+}
+
+#mapViewport::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 #mapSurface {
@@ -294,20 +300,21 @@ body {
 }
 
 .zoomBtn {
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  font-size: 19px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(111, 189, 255, 0.45);
+  background: linear-gradient(180deg, rgba(37, 60, 102, 0.9), rgba(21, 37, 68, 0.95));
+  color: #e8f4ff;
+  font-size: 20px;
   font-weight: 900;
   cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 6px 12px rgba(3, 8, 20, 0.45);
 }
 
 .zoomBtn:hover {
-  border-color: rgba(255, 215, 94, 0.85);
-  background: rgba(255, 215, 94, 0.2);
+  border-color: rgba(136, 219, 255, 0.95);
+  background: linear-gradient(180deg, rgba(54, 92, 151, 0.95), rgba(30, 54, 96, 0.98));
 }
 
 #mapZoom {
@@ -315,7 +322,7 @@ body {
   direction: rtl;
   width: 28px;
   height: 180px;
-  accent-color: #ff5cb8;
+  accent-color: #66c4ff;
 }
 
 #combatSpellSlots {
@@ -1944,12 +1951,12 @@ select option {
 /* ================= SCENE PANEL ================= */
 #scenePanel {
   display: none;
-  position: absolute;
-  top: 144px;
-  left: 12px;
-  z-index: 5;
-  width: min(360px, calc(100% - 24px));
-  max-height: calc(100% - 156px);
+  position: fixed;
+  top: 118px;
+  left: 14px;
+  z-index: 40;
+  width: min(380px, calc(100vw - 28px));
+  max-height: calc(100dvh - 132px);
   background: linear-gradient(180deg, rgba(28, 33, 48, 0.95), rgba(18, 22, 33, 0.92));
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
@@ -1963,6 +1970,26 @@ select option {
 
 .scenePanelHead {
   margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.sceneCloseBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.sceneCloseBtn:hover {
+  border-color: rgba(255, 120, 120, 0.8);
+  background: rgba(255, 120, 120, 0.16);
 }
 
 .sceneDockLayout {
@@ -2455,8 +2482,13 @@ kbd {
 }
 
 .layerImportGrid input[type="file"],
-.layerImportGrid select {
+.layerImportGrid select,
+.layerImportGrid .toolBtn {
   grid-column: span 2;
+}
+
+.layerImportGrid input[type="file"] {
+  font-size: 12px;
 }
 
 .layerSnapToggle {

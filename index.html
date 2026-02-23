@@ -103,13 +103,16 @@
             class="toolBtn"
             onclick="toggleSceneDock()"
           >
-            🎬 Cena: ON
+            🎬 Mestre 1: ON
           </button>
         </div>
         <div id="scenePanel">
           <div class="scenePanelHead">
-            <div style="font-weight: 900;">🎬 Mestre</div>
-            <div class="sceneHint">Ferramentas de cenário</div>
+            <div>
+              <div style="font-weight: 900;">🎬 Mestre</div>
+              <div class="sceneHint">Ferramentas de cenário</div>
+            </div>
+            <button type="button" class="sceneCloseBtn" onclick="closeSceneDock()" title="Fechar painel mestre">✕</button>
           </div>
 
           <div class="sceneDockLayout">
@@ -199,6 +202,8 @@
                       <option value="objects">Camada Objetos</option>
                       <option value="foreground">Camada Superior</option>
                     </select>
+                    <input id="sceneLayerFile" type="file" accept="image/*" />
+                    <button type="button" class="toolBtn" onclick="importSceneLayer()">Importar imagem</button>
                     <label class="layerSnapToggle"><input id="sceneLayerSnap" type="checkbox" checked /> Encaixar no grid</label>
                   </div>
                   <div id="sceneLayerList" class="sceneLayerList"></div>

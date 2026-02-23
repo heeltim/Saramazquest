@@ -3,6 +3,15 @@ const STORAGE_KEY = "rpgquest_v2_scene";
 const LAST_LOGIN_KEY = "rpgquest_last_login";
 const LAST_AVATAR_KEY = "rpgquest_last_avatar";
 const AUTH_STORAGE_KEY = "rpgquest_auth_v1";
+const DEV_AUTH_BYPASS_ENABLED = true;
+const DEV_AUTH_USER = {
+  email: "teste@saramaz.local",
+  token: "dev-token-saramazquest",
+  playerName: "Mestre 1",
+  race: "Humano",
+  className: "Mago",
+  avatar: createIconAvatar("assets/characters/arqueira-drow.svg", "🧝", "Mestre 1"),
+};
 let room = "arena";
 let currentUser = "Jogador";
 let currentAvatar = "🧙";
@@ -35,6 +44,83 @@ function getLoggedAccount() {
   const acc = auth.accounts[accountKeyByEmail(email)];
   if (!acc) return null;
   return { email, account: acc };
+}
+
+function ensureDevSpellbook(player) {
+  if (!player || !Array.isArray(player.customSpells) || player.customSpells.length > 0) return;
+  player.customSpells = [
+    {
+      id: "dev_arcane_burst",
+      icon: "✨",
+      name: "Rajada Arcana",
+      level: 1,
+      creatorLevel: Math.max(1, parseInt(player.level, 10) || 1),
+      effects: [{ type: "dano", damageDice: "2d6", damageType: "arcano", area: "alvo único" }],
+      pointCost: 5,
+      castingTime: "1 ação",
+      range: "18m",
+      components: ["V", "S"],
+      description: "Uma descarga arcana rápida para testes de combate.",
+      rules: { usesSpellSlots: false, preparedType: "known" },
+    },
+    {
+      id: "dev_healing_tide",
+      icon: "💚",
+      name: "Maré de Cura",
+      level: 1,
+      creatorLevel: Math.max(1, parseInt(player.level, 10) || 1),
+      effects: [{ type: "cura", healDice: "2d8" }],
+      pointCost: 5,
+      castingTime: "1 ação bônus",
+      range: "toque",
+      components: ["V"],
+      description: "Recupera pontos de vida para facilitar os testes da interface.",
+      rules: { usesSpellSlots: false, preparedType: "known" },
+    },
+  ];
+}
+
+function seedDevBypassSession() {
+  if (!DEV_AUTH_BYPASS_ENABLED) return null;
+
+  const email = normalizeEmail(DEV_AUTH_USER.email);
+  const auth = loadAuthState();
+  const key = accountKeyByEmail(email);
+  auth.accounts[key] = {
+    email,
+    password: DEV_AUTH_USER.token,
+    token: DEV_AUTH_USER.token,
+    displayName: "Usuário de teste",
+    playerName: DEV_AUTH_USER.playerName,
+    avatar: normalizeAvatar(DEV_AUTH_USER.avatar),
+    createdAt: auth.accounts[key]?.createdAt || Date.now(),
+  };
+  auth.lastSessionEmail = email;
+  saveAuthState(auth);
+
+  currentAccountEmail = email;
+  currentUser = DEV_AUTH_USER.playerName;
+  currentAvatar = normalizeAvatar(DEV_AUTH_USER.avatar);
+
+  ensureCurrentUserRecord({
+    race: DEV_AUTH_USER.race,
+    className: DEV_AUTH_USER.className,
+    avatar: DEV_AUTH_USER.avatar,
+    owner: email,
+  });
+
+  const state = load();
+  const player = state.rooms?.[room]?.[DEV_AUTH_USER.playerName];
+  if (player) {
+    ensurePlayerSchema(player);
+    player.owner = email;
+    player.onTable = true;
+    ensureDevSpellbook(player);
+    recalcFromSheet(player);
+    save(state);
+  }
+
+  return { email, account: auth.accounts[key] };
 }
 
 function findOwnedCharacterEntry(email = currentAccountEmail) {
@@ -244,7 +330,8 @@ function initAuth() {
     login(email, existing);
   };
 
-  const session = getLoggedAccount();
+  const devSession = seedDevBypassSession();
+  const session = devSession || getLoggedAccount();
   if (session) {
     login(session.email, session.account);
   } else {
@@ -4847,7 +4934,7 @@ function toggleMasterMode() {
   isSceneDockOpen = isMaster;
   panel.classList.toggle("on", isSceneDockOpen);
   if (bar) bar.classList.toggle("on", isMaster);
-  if (dockBtn) dockBtn.textContent = isSceneDockOpen ? "🎬 Cena: ON" : "🎬 Cena: OFF";
+  if (dockBtn) dockBtn.textContent = isSceneDockOpen ? "🎬 Mestre 1: ON" : "🎬 Mestre 1: OFF";
 
   if (isMaster) {
     setSceneSection(sceneSection);
@@ -4868,8 +4955,92 @@ function toggleSceneDock() {
   const panel = document.getElementById("scenePanel");
   const dockBtn = document.getElementById("sceneDockToggle");
   if (panel) panel.classList.toggle("on", isSceneDockOpen);
-  if (dockBtn) dockBtn.textContent = isSceneDockOpen ? "🎬 Cena: ON" : "🎬 Cena: OFF";
+  if (dockBtn) dockBtn.textContent = isSceneDockOpen ? "🎬 Mestre 1: ON" : "🎬 Mestre 1: OFF";
 }
+
+
+function closeSceneDock() {
+  isSceneDockOpen = false;
+  const panel = document.getElementById("scenePanel");
+  const dockBtn = document.getElementById("sceneDockToggle");
+  if (panel) panel.classList.remove("on");
+  if (dockBtn) dockBtn.textContent = "🎬 Mestre 1: OFF";
+}
+window.closeSceneDock = closeSceneDock;
+
+function importSceneLayer() {
+  const fileInput = document.getElementById("sceneLayerFile");
+  const kindInput = document.getElementById("sceneLayerKind");
+  const snapInput = document.getElementById("sceneLayerSnap");
+  if (!fileInput || !fileInput.files?.length) {
+    alert("Selecione uma imagem para importar.");
+    return;
+  }
+  const file = fileInput.files[0];
+  if (!file.type || !file.type.startsWith("image/")) {
+    alert("Arquivo inválido. Envie uma imagem.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const src = String(reader.result || "");
+    if (!src) return;
+
+    const preview = new Image();
+    preview.onload = () => {
+      let data = load();
+      const scene = data.scenes[room];
+      const kind = ["map", "objects", "foreground"].includes(kindInput?.value) ? kindInput.value : "objects";
+      const lockToGrid = !!snapInput?.checked;
+      const cols = Math.max(1, scene.cols || DEFAULT_COLS);
+      const rows = Math.max(1, scene.rows || DEFAULT_ROWS);
+      const ratio = Math.max(0.05, preview.naturalWidth / Math.max(1, preview.naturalHeight));
+
+      let width = kind === "map" ? cols : Math.max(2, Math.round(cols * 0.4));
+      let height = Math.max(1, Math.round(width / ratio));
+      if (height > rows) {
+        height = rows;
+        width = Math.max(1, Math.round(height * ratio));
+      }
+      width = Math.max(1, Math.min(cols, width));
+      height = Math.max(1, Math.min(rows, height));
+
+      const layer = normalizeSceneLayer({
+        id: `layer_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        name: file.name.replace(/\.[a-z0-9]+$/i, "") || "Camada",
+        kind,
+        src,
+        x: 0,
+        y: 0,
+        width,
+        height,
+        opacity: 100,
+        visible: true,
+        lockToGrid,
+        z: getSceneLayerList(scene).length,
+      }, getSceneLayerList(scene).length);
+
+      if (lockToGrid) clampSceneLayerToGrid(layer, scene);
+      getSceneLayerList(scene).push(layer);
+      normalizeSceneLayers(scene);
+      save(data);
+      updateArena();
+      renderSceneLayerList();
+      fileInput.value = "";
+      setSceneSection("layers");
+    };
+    preview.onerror = () => {
+      alert("Não foi possível carregar a imagem selecionada.");
+    };
+    preview.src = src;
+  };
+  reader.onerror = () => {
+    alert("Falha ao ler o arquivo de imagem.");
+  };
+  reader.readAsDataURL(file);
+}
+window.importSceneLayer = importSceneLayer;
 
 function setSceneSection(section) {
   sceneSection = section;
