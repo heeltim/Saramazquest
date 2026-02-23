@@ -4840,10 +4840,14 @@ function toggleMasterMode() {
   isMaster = !isMaster;
   const btn = document.getElementById("masterToggle");
   const panel = document.getElementById("scenePanel");
+  const bar = document.getElementById("masterSceneBar");
+  const dockBtn = document.getElementById("sceneDockToggle");
   btn.classList.toggle("on", isMaster);
   btn.textContent = isMaster ? "🛠️ Mestre: ON" : "🛠️ Mestre: OFF";
   isSceneDockOpen = isMaster;
-  panel.classList.toggle("on", isMaster);
+  panel.classList.toggle("on", isSceneDockOpen);
+  if (bar) bar.classList.toggle("on", isMaster);
+  if (dockBtn) dockBtn.textContent = isSceneDockOpen ? "🎬 Cena: ON" : "🎬 Cena: OFF";
 
   if (isMaster) {
     setSceneSection(sceneSection);
@@ -4862,7 +4866,9 @@ function toggleSceneDock() {
   }
   isSceneDockOpen = !isSceneDockOpen;
   const panel = document.getElementById("scenePanel");
+  const dockBtn = document.getElementById("sceneDockToggle");
   if (panel) panel.classList.toggle("on", isSceneDockOpen);
+  if (dockBtn) dockBtn.textContent = isSceneDockOpen ? "🎬 Cena: ON" : "🎬 Cena: OFF";
 }
 
 function setSceneSection(section) {
