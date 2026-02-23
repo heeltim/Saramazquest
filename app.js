@@ -5414,6 +5414,63 @@ function menuSend(idx) {
 
 /* ================= MASTER MODE / SCENE UI ================= */
 const TILE_TYPES = ["floor", "grass", "stone", "wall", "woodwall", "stonewall", "void"];
+const DEFAULT_BIOME_TILE_LIBRARY = {
+  version: 1,
+  biomes: {
+    ocean: [
+      { id: "floor", label: "Água rasa", icon: "🟦", cssClass: "tile-floor", spawnWeight: 4 },
+      { id: "void", label: "Abismo", icon: "⬛", cssClass: "tile-void", spawnWeight: 1 },
+    ],
+    coast: [
+      { id: "floor", label: "Areia úmida", icon: "🟦", cssClass: "tile-floor", spawnWeight: 3 },
+      { id: "stone", label: "Cascalho", icon: "🪨", cssClass: "tile-stone", spawnWeight: 2 },
+      { id: "grass", label: "Vegetação costeira", icon: "🌿", cssClass: "tile-grass", spawnWeight: 1 },
+    ],
+    plains: [
+      { id: "grass", label: "Campo", icon: "🌿", cssClass: "tile-grass", spawnWeight: 4 },
+      { id: "floor", label: "Trilha", icon: "🟦", cssClass: "tile-floor", spawnWeight: 2 },
+      { id: "stone", label: "Pedregulho", icon: "🪨", cssClass: "tile-stone", spawnWeight: 1 },
+    ],
+    forest: [
+      { id: "grass", label: "Mato", icon: "🌿", cssClass: "tile-grass", spawnWeight: 4 },
+      { id: "woodwall", label: "Troncos", icon: "🪵", cssClass: "tile-woodwall", spawnWeight: 2 },
+      { id: "floor", label: "Solo batido", icon: "🟦", cssClass: "tile-floor", spawnWeight: 1 },
+    ],
+    desert: [
+      { id: "floor", label: "Areia", icon: "🟦", cssClass: "tile-floor", spawnWeight: 4 },
+      { id: "stone", label: "Rocha quente", icon: "🪨", cssClass: "tile-stone", spawnWeight: 2 },
+      { id: "void", label: "Duna profunda", icon: "⬛", cssClass: "tile-void", spawnWeight: 1 },
+    ],
+    mountains: [
+      { id: "stone", label: "Escarpa", icon: "🪨", cssClass: "tile-stone", spawnWeight: 4 },
+      { id: "wall", label: "Penhasco", icon: "🧱", cssClass: "tile-wall", spawnWeight: 2 },
+      { id: "stonewall", label: "Muro rochoso", icon: "🧱", cssClass: "tile-stonewall", spawnWeight: 1 },
+    ],
+    tundra: [
+      { id: "floor", label: "Neve compacta", icon: "🟦", cssClass: "tile-floor", spawnWeight: 3 },
+      { id: "stone", label: "Gelo duro", icon: "🪨", cssClass: "tile-stone", spawnWeight: 2 },
+      { id: "void", label: "Fenda", icon: "⬛", cssClass: "tile-void", spawnWeight: 1 },
+    ],
+    volcanic: [
+      { id: "stone", label: "Basalto", icon: "🪨", cssClass: "tile-stone", spawnWeight: 3 },
+      { id: "wall", label: "Rocha vulcânica", icon: "🧱", cssClass: "tile-wall", spawnWeight: 2 },
+      { id: "void", label: "Lava", icon: "⬛", cssClass: "tile-void", spawnWeight: 1 },
+    ],
+  },
+};
+const DEFAULT_TILE_LIBRARY = [
+  { id: "floor", label: "Chão", icon: "🟦", cssClass: "tile-floor" },
+  { id: "grass", label: "Grama", icon: "🌿", cssClass: "tile-grass" },
+  { id: "stone", label: "Pedra", icon: "🪨", cssClass: "tile-stone" },
+  { id: "wall", label: "Parede", icon: "🧱", cssClass: "tile-wall" },
+  { id: "woodwall", label: "Muro Madeira", icon: "🪵", cssClass: "tile-woodwall" },
+  { id: "stonewall", label: "Muro Pedra", icon: "🧱", cssClass: "tile-stonewall" },
+  { id: "void", label: "Vazio", icon: "⬛", cssClass: "tile-void" },
+];
+const BIOME_TILE_LIBRARY_ORDER = ["ocean", "coast", "plains", "forest", "desert", "mountains", "tundra", "volcanic"];
+let worldBiomeTileLibraryCache = null;
+let worldBiomeTileLibraryPromise = null;
+let tileLibraryForRender = DEFAULT_TILE_LIBRARY;
 let isMaster = false;
 let paintTool = "floor";
 let brushSize = 1;
@@ -5653,6 +5710,7 @@ window.setBrushSize = setBrushSize;
 
 function syncSceneUIFromStorage() {
   ensureScene();
+  renderTileLibrary();
   const s = load().scenes[room];
   document.getElementById("bgScale").value = s.bgScale;
   document.getElementById("bgOpacity").value = s.bgOpacity;
@@ -5965,6 +6023,82 @@ function rgbToHex(rgb = [0, 0, 0]) {
   return `#${rgb
     .map((value) => Math.max(0, Math.min(255, Math.round(value) || 0)).toString(16).padStart(2, "0"))
     .join("")}`;
+}
+
+function sanitizeTileEntry(entry, fallback = null) {
+  const tileId = String(entry?.id || "").trim();
+  if (!TILE_TYPES.includes(tileId)) return null;
+  const label = String(entry?.label || fallback?.label || tileId).trim();
+  const icon = String(entry?.emoji || entry?.icon || fallback?.icon || "🧱").trim() || "🧱";
+  const cssClass = String(entry?.cssClass || fallback?.cssClass || `tile-${tileId}`).trim();
+  const spawnWeightRaw = entry?.spawnWeight;
+  const spawnWeight = spawnWeightRaw === undefined || spawnWeightRaw === null ? undefined : Math.max(1, parseFloat(spawnWeightRaw) || 1);
+  return {
+    id: tileId,
+    label: label || tileId,
+    icon,
+    cssClass,
+    ...(spawnWeight === undefined ? {} : { spawnWeight }),
+  };
+}
+
+function normalizeTileLibraryList(list = []) {
+  const seen = new Set();
+  return list
+    .map((entry) => sanitizeTileEntry(entry, DEFAULT_TILE_LIBRARY.find((item) => item.id === String(entry?.id || "").trim())))
+    .filter((entry) => entry && !seen.has(entry.id) && seen.add(entry.id));
+}
+
+function normalizeBiomeTileLibrary(raw) {
+  const normalized = {
+    version: parseInt(raw?.version, 10) || 1,
+    biomes: {},
+  };
+  BIOME_TILE_LIBRARY_ORDER.forEach((biome) => {
+    const entries = normalizeTileLibraryList(raw?.biomes?.[biome] || []);
+    normalized.biomes[biome] = entries.length ? entries : [];
+  });
+  return normalized;
+}
+
+function buildTileLibraryFromBiomeConfig(config = DEFAULT_BIOME_TILE_LIBRARY) {
+  const merged = [];
+  const seen = new Set();
+  BIOME_TILE_LIBRARY_ORDER.forEach((biome) => {
+    (config?.biomes?.[biome] || []).forEach((entry) => {
+      if (!entry || seen.has(entry.id)) return;
+      seen.add(entry.id);
+      merged.push(entry);
+    });
+  });
+  return merged.length ? merged : DEFAULT_TILE_LIBRARY;
+}
+
+function renderTileLibrary() {
+  const wrap = document.getElementById("tileLibraryButtons");
+  if (!wrap) return;
+  const tools = Array.isArray(tileLibraryForRender) && tileLibraryForRender.length ? tileLibraryForRender : DEFAULT_TILE_LIBRARY;
+  wrap.innerHTML = tools
+    .map((entry) => `<button class="toolBtn" id="tool${entry.id.charAt(0).toUpperCase()}${entry.id.slice(1)}" onclick="setTool('${entry.id}')">${entry.icon} ${escapeHtml(entry.label)}</button>`)
+    .join("");
+  setTool(paintTool);
+}
+
+async function loadWorldBiomeTileLibrary() {
+  if (worldBiomeTileLibraryCache) return worldBiomeTileLibraryCache;
+  if (!worldBiomeTileLibraryPromise) {
+    worldBiomeTileLibraryPromise = fetch("data/world/biome-tiles.json", { cache: "no-store" })
+      .then((resp) => (resp.ok ? resp.json() : null))
+      .catch(() => null)
+      .then((raw) => {
+        const normalized = normalizeBiomeTileLibrary(raw || DEFAULT_BIOME_TILE_LIBRARY);
+        const mergedLibrary = buildTileLibraryFromBiomeConfig(normalized);
+        tileLibraryForRender = mergedLibrary.length ? mergedLibrary : DEFAULT_TILE_LIBRARY;
+        worldBiomeTileLibraryCache = normalized;
+        return worldBiomeTileLibraryCache;
+      });
+  }
+  return worldBiomeTileLibraryPromise;
 }
 
 async function loadWorldBiomeColorTable() {
@@ -6676,6 +6810,7 @@ applySceneCSS();
 bindMapInteractions();
 setMapZoom(getSceneZoom(), false);
 updateArena();
+loadWorldBiomeTileLibrary().finally(() => renderTileLibrary());
 setDiceTrayOpen(false);
 initChatComposer();
 updateChat();
