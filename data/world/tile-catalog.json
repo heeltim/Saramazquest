@@ -183,6 +183,7 @@
           "colors": {
             "base": "#3C2C6A",
             "highlight": "#9A82FF",
+            "shadow": "#2A1E4F",
             "glow": "#BDA8FF"
           }
         }
