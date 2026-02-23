@@ -444,7 +444,7 @@ const DEFAULT_SCENE = {
   bgScale: 120, // %
   bgOpacity: 65, // %
   mapZoom: 1,
-  gridStyle: "square", // square | hex | dots
+  gridStyle: "square", // square | hex
   gridOpacity: 55,
   gridLine: 1,
   layers: [], // imagens posicionáveis por camada: map | objects | foreground
@@ -1348,6 +1348,72 @@ function clampSceneLayerToGrid(layer, scene) {
   layer.height = Math.max(1, Math.min(s.rows, Math.round(layer.height)));
 }
 
+
+function extractArtboardFromScene(s, fallbackName = "Artboard") {
+  return {
+    id: `board_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    name: fallbackName,
+    cols: s.cols,
+    rows: s.rows,
+    bgUrl: s.bgUrl || "",
+    bgX: Number(s.bgX) || 0,
+    bgY: Number(s.bgY) || 0,
+    bgScale: Number(s.bgScale) || 120,
+    bgOpacity: Number(s.bgOpacity) || 65,
+    mapZoom: Number(s.mapZoom) || 1,
+    gridStyle: s.gridStyle || "square",
+    gridOpacity: Number(s.gridOpacity) || 55,
+    gridLine: Number(s.gridLine) || 1,
+    layers: structuredClone(Array.isArray(s.layers) ? s.layers : []),
+    tiles: structuredClone(Array.isArray(s.tiles) ? s.tiles : []),
+  };
+}
+
+function applyArtboardToScene(s, board) {
+  if (!board) return;
+  s.cols = board.cols;
+  s.rows = board.rows;
+  s.bgUrl = board.bgUrl || "";
+  s.bgX = board.bgX || 0;
+  s.bgY = board.bgY || 0;
+  s.bgScale = board.bgScale || 120;
+  s.bgOpacity = board.bgOpacity || 65;
+  s.mapZoom = board.mapZoom || 1;
+  s.gridStyle = board.gridStyle || "square";
+  s.gridOpacity = board.gridOpacity || 55;
+  s.gridLine = board.gridLine || 1;
+  s.layers = structuredClone(Array.isArray(board.layers) ? board.layers : []);
+  s.tiles = structuredClone(Array.isArray(board.tiles) ? board.tiles : []);
+}
+
+function ensureSceneArtboards(s) {
+  if (!Array.isArray(s.artboards) || s.artboards.length === 0) {
+    const first = extractArtboardFromScene(s, "Artboard 1");
+    s.artboards = [first];
+    s.activeArtboardId = first.id;
+    return;
+  }
+  s.artboards = s.artboards.map((board, idx) => {
+    const base = extractArtboardFromScene({ ...DEFAULT_SCENE, ...board }, board?.name || `Artboard ${idx + 1}`);
+    base.id = board?.id || `board_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    base.name = board?.name || `Artboard ${idx + 1}`;
+    return base;
+  });
+  if (!s.activeArtboardId || !s.artboards.some((b) => b.id === s.activeArtboardId)) {
+    s.activeArtboardId = s.artboards[0].id;
+  }
+}
+
+function syncSceneToActiveArtboard(s) {
+  ensureSceneArtboards(s);
+  const idx = s.artboards.findIndex((b) => b.id === s.activeArtboardId);
+  if (idx < 0) return;
+  const next = extractArtboardFromScene(s, s.artboards[idx].name || `Artboard ${idx + 1}`);
+  next.id = s.artboards[idx].id;
+  next.name = s.artboards[idx].name || next.name;
+  s.artboards[idx] = next;
+}
+
 function ensureScene() {
   let data = load();
   if (!data.scenes) data.scenes = {};
@@ -1377,9 +1443,14 @@ function ensureScene() {
   s.bgScale = Number.isFinite(s.bgScale) ? s.bgScale : 120;
   s.bgOpacity = Number.isFinite(s.bgOpacity) ? s.bgOpacity : 65;
   s.mapZoom = Number.isFinite(s.mapZoom) ? Math.max(0.5, Math.min(1.6, s.mapZoom)) : 1;
-  s.gridStyle = ["square", "hex", "dots"].includes(s.gridStyle) ? s.gridStyle : "square";
+  s.gridStyle = ["square", "hex"].includes(s.gridStyle) ? s.gridStyle : "square";
   s.gridOpacity = Number.isFinite(s.gridOpacity) ? Math.max(0, Math.min(100, s.gridOpacity)) : 55;
   s.gridLine = Number.isFinite(s.gridLine) ? Math.max(1, Math.min(4, s.gridLine)) : 1;
+  normalizeSceneLayers(s);
+  ensureSceneArtboards(s);
+  syncSceneToActiveArtboard(s);
+  const activeBoard = s.artboards.find((b) => b.id === s.activeArtboardId) || s.artboards[0];
+  applyArtboardToScene(s, activeBoard);
   normalizeSceneLayers(s);
 
   data.scenes[room] = s;
@@ -2610,6 +2681,7 @@ loadRpgDatabases().finally(() => {
 const arena = document.getElementById("arena");
 const mapViewport = document.getElementById("mapViewport");
 const mapZoomInput = document.getElementById("mapZoom");
+const artboardSelect = document.getElementById("artboardSelect");
 let mapDragState = { active: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 };
 
 function getSceneZoom() {
@@ -2617,13 +2689,27 @@ function getSceneZoom() {
   return Number.isFinite(scene?.mapZoom) ? Math.max(0.5, Math.min(1.6, scene.mapZoom)) : 1;
 }
 
-function setMapZoom(nextZoom, keepCenter = true) {
+function setMapZoom(nextZoom, options = {}) {
+  const { keepCenter = true, anchorClientX = null, anchorClientY = null } = options;
   const clamped = Math.max(0.5, Math.min(1.6, Number(nextZoom) || 1));
   const data = load();
   if (!data.scenes[room]) data.scenes[room] = structuredClone(DEFAULT_SCENE);
   const viewportRect = mapViewport?.getBoundingClientRect?.() || null;
-  const centerRatioX = keepCenter && mapViewport && arena.offsetWidth ? (mapViewport.scrollLeft + mapViewport.clientWidth / 2) / (arena.offsetWidth * getSceneZoom()) : 0.5;
-  const centerRatioY = keepCenter && mapViewport && arena.offsetHeight ? (mapViewport.scrollTop + mapViewport.clientHeight / 2) / (arena.offsetHeight * getSceneZoom()) : 0.5;
+  const prevZoom = getSceneZoom();
+  let centerRatioX = 0.5;
+  let centerRatioY = 0.5;
+
+  if (mapViewport && arena.offsetWidth && arena.offsetHeight) {
+    if (anchorClientX != null && anchorClientY != null && viewportRect) {
+      const anchorX = (mapViewport.scrollLeft + (anchorClientX - viewportRect.left)) / (arena.offsetWidth * prevZoom);
+      const anchorY = (mapViewport.scrollTop + (anchorClientY - viewportRect.top)) / (arena.offsetHeight * prevZoom);
+      centerRatioX = anchorX;
+      centerRatioY = anchorY;
+    } else if (keepCenter) {
+      centerRatioX = (mapViewport.scrollLeft + mapViewport.clientWidth / 2) / (arena.offsetWidth * prevZoom);
+      centerRatioY = (mapViewport.scrollTop + mapViewport.clientHeight / 2) / (arena.offsetHeight * prevZoom);
+    }
+  }
 
   data.scenes[room].mapZoom = clamped;
   save(data);
@@ -2631,11 +2717,16 @@ function setMapZoom(nextZoom, keepCenter = true) {
 
   if (mapZoomInput) mapZoomInput.value = String(Math.round(clamped * 100));
 
-  if (mapViewport && viewportRect) {
+  if (mapViewport) {
     const w = arena.offsetWidth * clamped;
     const h = arena.offsetHeight * clamped;
-    mapViewport.scrollLeft = Math.max(0, w * centerRatioX - mapViewport.clientWidth / 2);
-    mapViewport.scrollTop = Math.max(0, h * centerRatioY - mapViewport.clientHeight / 2);
+    if (anchorClientX != null && anchorClientY != null && viewportRect) {
+      mapViewport.scrollLeft = Math.max(0, w * centerRatioX - (anchorClientX - viewportRect.left));
+      mapViewport.scrollTop = Math.max(0, h * centerRatioY - (anchorClientY - viewportRect.top));
+    } else {
+      mapViewport.scrollLeft = Math.max(0, w * centerRatioX - mapViewport.clientWidth / 2);
+      mapViewport.scrollTop = Math.max(0, h * centerRatioY - mapViewport.clientHeight / 2);
+    }
   }
 }
 
@@ -2679,10 +2770,14 @@ function bindMapInteractions() {
   });
 
   mapViewport.addEventListener("wheel", (e) => {
-    if (!e.ctrlKey) return;
+    if (e.target.closest("#sidebar")) return;
     e.preventDefault();
-    const delta = e.deltaY < 0 ? 0.05 : -0.05;
-    setMapZoom(getSceneZoom() + delta);
+    const delta = e.deltaY < 0 ? 0.06 : -0.06;
+    setMapZoom(getSceneZoom() + delta, {
+      keepCenter: false,
+      anchorClientX: e.clientX,
+      anchorClientY: e.clientY,
+    });
   }, { passive: false });
 }
 function createGrid() {
@@ -2747,6 +2842,9 @@ function updateArena() {
     let p = players[name];
     ensurePlayerSchema(p);
     recalcFromSheet(p);
+
+    p.x = Math.max(0, Math.min(s.cols - 1, Math.round(Number(p.x) || 0)));
+    p.y = Math.max(0, Math.min(s.rows - 1, Math.round(Number(p.y) || 0)));
 
     if (!p.onTable) return;
 
@@ -4762,17 +4860,21 @@ function setTool(tool) {
 function syncSceneUIFromStorage() {
   ensureScene();
   const s = load().scenes[room];
-  document.getElementById("bgUrl").value = s.bgUrl || "";
   document.getElementById("bgScale").value = s.bgScale;
   document.getElementById("bgOpacity").value = s.bgOpacity;
   document.getElementById("bgX").value = s.bgX;
   document.getElementById("bgY").value = s.bgY;
   document.getElementById("gridStyle").value = s.gridStyle || "square";
+  const gridStyleSelect = document.getElementById("gridStyle");
+  if (gridStyleSelect) {
+    gridStyleSelect.querySelectorAll('option[value="dots"]').forEach((opt) => opt.remove());
+  }
   document.getElementById("gridOpacity").value = s.gridOpacity ?? 55;
   document.getElementById("gridLine").value = s.gridLine ?? 1;
   const kindInput = document.getElementById("sceneLayerKind");
   if (kindInput && !kindInput.value) kindInput.value = "map";
   if (mapZoomInput) mapZoomInput.value = String(Math.round((s.mapZoom || 1) * 100));
+  renderArtboardControls();
   renderSceneLayerList();
   applySceneCSS();
 }
@@ -4889,39 +4991,87 @@ function renderSceneLayerList() {
   });
 }
 
-window.addSceneLayerFromUrl = function addSceneLayerFromUrl() {
-  const input = document.getElementById("sceneLayerUrl");
-  if (!input) return;
-  const src = String(input.value || "").trim();
-  if (!src) return alert("Informe a URL da imagem da camada.");
 
+function renderArtboardControls() {
+  const select = artboardSelect;
+  const colsInput = document.getElementById("sceneCols");
+  const rowsInput = document.getElementById("sceneRows");
+  if (!select || !colsInput || !rowsInput) return;
+  ensureScene();
+  const scene = load().scenes[room];
+  ensureSceneArtboards(scene);
+  const boards = scene.artboards || [];
+  select.innerHTML = boards.map((board, idx) => `<option value="${board.id}">${escapeHtml(board.name || `Artboard ${idx + 1}`)}</option>`).join("");
+  select.value = scene.activeArtboardId || boards[0]?.id || "";
+  colsInput.value = String(scene.cols || DEFAULT_COLS);
+  rowsInput.value = String(scene.rows || DEFAULT_ROWS);
+}
+
+window.createArtboard = function createArtboard() {
   let data = load();
   const scene = data.scenes[room];
-  const kind = document.getElementById("sceneLayerKind")?.value || "map";
-  const lockToGrid = document.getElementById("sceneLayerSnap")?.checked !== false;
-
-  scene.layers.push(normalizeSceneLayer({
-    name: src.split('/').pop()?.slice(0, 40) || `Camada ${scene.layers.length + 1}`,
-    src,
-    kind,
-    lockToGrid,
-    x: 0,
-    y: 0,
-    width: Math.min(scene.cols, 10),
-    height: Math.min(scene.rows, 10),
-    opacity: 100,
-    visible: true,
-    z: scene.layers.length,
-  }, scene.layers.length));
-  normalizeSceneLayers(scene);
+  ensureSceneArtboards(scene);
+  syncSceneToActiveArtboard(scene);
+  const next = extractArtboardFromScene(scene, `Artboard ${scene.artboards.length + 1}`);
+  next.id = `board_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+  scene.artboards.push(next);
+  scene.activeArtboardId = next.id;
+  applyArtboardToScene(scene, next);
   save(data);
-  input.value = "";
+  createGrid();
   updateArena();
-  renderSceneLayerList();
+  syncSceneUIFromStorage();
+};
+
+window.renameArtboard = function renameArtboard() {
+  let data = load();
+  const scene = data.scenes[room];
+  ensureSceneArtboards(scene);
+  const active = scene.artboards.find((board) => board.id === scene.activeArtboardId);
+  if (!active) return;
+  const nextName = prompt("Nome do artboard:", active.name || "Artboard");
+  if (!nextName) return;
+  active.name = String(nextName).trim().slice(0, 40) || active.name;
+  save(data);
+  renderArtboardControls();
+};
+
+window.deleteArtboard = function deleteArtboard() {
+  let data = load();
+  const scene = data.scenes[room];
+  ensureSceneArtboards(scene);
+  if (scene.artboards.length <= 1) return alert("Você precisa manter ao menos 1 artboard.");
+  const idx = scene.artboards.findIndex((board) => board.id === scene.activeArtboardId);
+  if (idx < 0) return;
+  scene.artboards.splice(idx, 1);
+  const next = scene.artboards[Math.max(0, idx - 1)] || scene.artboards[0];
+  scene.activeArtboardId = next.id;
+  applyArtboardToScene(scene, next);
+  save(data);
+  createGrid();
+  updateArena();
+  syncSceneUIFromStorage();
+};
+
+window.applyArtboardSize = function applyArtboardSize() {
+  const colsInput = document.getElementById("sceneCols");
+  const rowsInput = document.getElementById("sceneRows");
+  if (!colsInput || !rowsInput) return;
+  const nextCols = Math.max(6, Math.min(120, parseInt(colsInput.value, 10) || DEFAULT_COLS));
+  const nextRows = Math.max(6, Math.min(120, parseInt(rowsInput.value, 10) || DEFAULT_ROWS));
+  let data = load();
+  const scene = data.scenes[room];
+  scene.cols = nextCols;
+  scene.rows = nextRows;
+  const needed = nextCols * nextRows;
+  scene.tiles = Array.from({ length: needed }, (_, i) => scene.tiles?.[i] || "floor");
+  save(data);
+  createGrid();
+  updateArena();
+  syncSceneUIFromStorage();
 };
 
 function bindSceneInputs() {
-  const bgUrl = document.getElementById("bgUrl");
   const bgScale = document.getElementById("bgScale");
   const bgOpacity = document.getElementById("bgOpacity");
   const bgX = document.getElementById("bgX");
@@ -4929,15 +5079,24 @@ function bindSceneInputs() {
   const gridStyle = document.getElementById("gridStyle");
   const gridOpacity = document.getElementById("gridOpacity");
   const gridLine = document.getElementById("gridLine");
-  const bgFile = document.getElementById("bgFile");
-  const layerFile = document.getElementById("sceneLayerFile");
 
-  bgUrl.addEventListener("change", () => {
-    let data = load();
-    data.scenes[room].bgUrl = bgUrl.value.trim();
-    save(data);
-    applySceneCSS();
-  });
+  if (artboardSelect && !artboardSelect.dataset.bound) {
+    artboardSelect.dataset.bound = "1";
+    artboardSelect.addEventListener("change", () => {
+      let data = load();
+      const scene = data.scenes[room];
+      ensureSceneArtboards(scene);
+      syncSceneToActiveArtboard(scene);
+      const next = scene.artboards.find((board) => board.id === artboardSelect.value);
+      if (!next) return;
+      scene.activeArtboardId = next.id;
+      applyArtboardToScene(scene, next);
+      save(data);
+      createGrid();
+      updateArena();
+      syncSceneUIFromStorage();
+    });
+  }
 
   function upd() {
     let data = load();
@@ -4946,7 +5105,7 @@ function bindSceneInputs() {
     s.bgOpacity = parseInt(bgOpacity.value, 10);
     s.bgX = parseInt(bgX.value, 10);
     s.bgY = parseInt(bgY.value, 10);
-    s.gridStyle = gridStyle.value;
+    s.gridStyle = gridStyle.value === "hex" ? "hex" : "square";
     s.gridOpacity = parseInt(gridOpacity.value, 10);
     s.gridLine = parseInt(gridLine.value, 10);
     save(data);
@@ -4960,52 +5119,6 @@ function bindSceneInputs() {
   gridOpacity.addEventListener("input", upd);
   gridLine.addEventListener("input", upd);
 
-  bgFile.addEventListener("change", () => {
-    const file = bgFile.files && bgFile.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      let data = load();
-      data.scenes[room].bgUrl = reader.result; // dataURL
-      save(data);
-      document.getElementById("bgUrl").value = "";
-      applySceneCSS();
-    };
-    reader.readAsDataURL(file);
-  });
-
-  if (layerFile) {
-    layerFile.addEventListener("change", () => {
-      const file = layerFile.files && layerFile.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        let data = load();
-        const scene = data.scenes[room];
-        const kind = document.getElementById("sceneLayerKind")?.value || "map";
-        const lockToGrid = document.getElementById("sceneLayerSnap")?.checked !== false;
-        scene.layers.push(normalizeSceneLayer({
-          name: file.name,
-          src: String(reader.result || ""),
-          kind,
-          lockToGrid,
-          x: 0,
-          y: 0,
-          width: Math.min(scene.cols, 10),
-          height: Math.min(scene.rows, 10),
-          opacity: 100,
-          visible: true,
-          z: scene.layers.length,
-        }, scene.layers.length));
-        normalizeSceneLayers(scene);
-        save(data);
-        layerFile.value = "";
-        updateArena();
-        renderSceneLayerList();
-      };
-      reader.readAsDataURL(file);
-    });
-  }
 }
 bindSceneInputs();
 
