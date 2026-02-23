@@ -444,7 +444,7 @@ const DEFAULT_SCENE = {
   bgScale: 120, // %
   bgOpacity: 65, // %
   mapZoom: 1,
-  gridStyle: "square", // square | hex | dots
+  gridStyle: "square", // square | hex
   gridOpacity: 55,
   gridLine: 1,
   layers: [], // imagens posicionáveis por camada: map | objects | foreground
@@ -1377,7 +1377,7 @@ function ensureScene() {
   s.bgScale = Number.isFinite(s.bgScale) ? s.bgScale : 120;
   s.bgOpacity = Number.isFinite(s.bgOpacity) ? s.bgOpacity : 65;
   s.mapZoom = Number.isFinite(s.mapZoom) ? Math.max(0.5, Math.min(1.6, s.mapZoom)) : 1;
-  s.gridStyle = ["square", "hex", "dots"].includes(s.gridStyle) ? s.gridStyle : "square";
+  s.gridStyle = ["square", "hex"].includes(s.gridStyle) ? s.gridStyle : "square";
   s.gridOpacity = Number.isFinite(s.gridOpacity) ? Math.max(0, Math.min(100, s.gridOpacity)) : 55;
   s.gridLine = Number.isFinite(s.gridLine) ? Math.max(1, Math.min(4, s.gridLine)) : 1;
   normalizeSceneLayers(s);
@@ -2747,6 +2747,9 @@ function updateArena() {
     let p = players[name];
     ensurePlayerSchema(p);
     recalcFromSheet(p);
+
+    p.x = Math.max(0, Math.min(s.cols - 1, Math.round(Number(p.x) || 0)));
+    p.y = Math.max(0, Math.min(s.rows - 1, Math.round(Number(p.y) || 0)));
 
     if (!p.onTable) return;
 
@@ -4762,12 +4765,15 @@ function setTool(tool) {
 function syncSceneUIFromStorage() {
   ensureScene();
   const s = load().scenes[room];
-  document.getElementById("bgUrl").value = s.bgUrl || "";
   document.getElementById("bgScale").value = s.bgScale;
   document.getElementById("bgOpacity").value = s.bgOpacity;
   document.getElementById("bgX").value = s.bgX;
   document.getElementById("bgY").value = s.bgY;
   document.getElementById("gridStyle").value = s.gridStyle || "square";
+  const gridStyleSelect = document.getElementById("gridStyle");
+  if (gridStyleSelect) {
+    gridStyleSelect.querySelectorAll('option[value="dots"]').forEach((opt) => opt.remove());
+  }
   document.getElementById("gridOpacity").value = s.gridOpacity ?? 55;
   document.getElementById("gridLine").value = s.gridLine ?? 1;
   const kindInput = document.getElementById("sceneLayerKind");
@@ -4889,39 +4895,7 @@ function renderSceneLayerList() {
   });
 }
 
-window.addSceneLayerFromUrl = function addSceneLayerFromUrl() {
-  const input = document.getElementById("sceneLayerUrl");
-  if (!input) return;
-  const src = String(input.value || "").trim();
-  if (!src) return alert("Informe a URL da imagem da camada.");
-
-  let data = load();
-  const scene = data.scenes[room];
-  const kind = document.getElementById("sceneLayerKind")?.value || "map";
-  const lockToGrid = document.getElementById("sceneLayerSnap")?.checked !== false;
-
-  scene.layers.push(normalizeSceneLayer({
-    name: src.split('/').pop()?.slice(0, 40) || `Camada ${scene.layers.length + 1}`,
-    src,
-    kind,
-    lockToGrid,
-    x: 0,
-    y: 0,
-    width: Math.min(scene.cols, 10),
-    height: Math.min(scene.rows, 10),
-    opacity: 100,
-    visible: true,
-    z: scene.layers.length,
-  }, scene.layers.length));
-  normalizeSceneLayers(scene);
-  save(data);
-  input.value = "";
-  updateArena();
-  renderSceneLayerList();
-};
-
 function bindSceneInputs() {
-  const bgUrl = document.getElementById("bgUrl");
   const bgScale = document.getElementById("bgScale");
   const bgOpacity = document.getElementById("bgOpacity");
   const bgX = document.getElementById("bgX");
@@ -4929,15 +4903,6 @@ function bindSceneInputs() {
   const gridStyle = document.getElementById("gridStyle");
   const gridOpacity = document.getElementById("gridOpacity");
   const gridLine = document.getElementById("gridLine");
-  const bgFile = document.getElementById("bgFile");
-  const layerFile = document.getElementById("sceneLayerFile");
-
-  bgUrl.addEventListener("change", () => {
-    let data = load();
-    data.scenes[room].bgUrl = bgUrl.value.trim();
-    save(data);
-    applySceneCSS();
-  });
 
   function upd() {
     let data = load();
@@ -4946,7 +4911,7 @@ function bindSceneInputs() {
     s.bgOpacity = parseInt(bgOpacity.value, 10);
     s.bgX = parseInt(bgX.value, 10);
     s.bgY = parseInt(bgY.value, 10);
-    s.gridStyle = gridStyle.value;
+    s.gridStyle = gridStyle.value === "hex" ? "hex" : "square";
     s.gridOpacity = parseInt(gridOpacity.value, 10);
     s.gridLine = parseInt(gridLine.value, 10);
     save(data);
@@ -4960,52 +4925,6 @@ function bindSceneInputs() {
   gridOpacity.addEventListener("input", upd);
   gridLine.addEventListener("input", upd);
 
-  bgFile.addEventListener("change", () => {
-    const file = bgFile.files && bgFile.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      let data = load();
-      data.scenes[room].bgUrl = reader.result; // dataURL
-      save(data);
-      document.getElementById("bgUrl").value = "";
-      applySceneCSS();
-    };
-    reader.readAsDataURL(file);
-  });
-
-  if (layerFile) {
-    layerFile.addEventListener("change", () => {
-      const file = layerFile.files && layerFile.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        let data = load();
-        const scene = data.scenes[room];
-        const kind = document.getElementById("sceneLayerKind")?.value || "map";
-        const lockToGrid = document.getElementById("sceneLayerSnap")?.checked !== false;
-        scene.layers.push(normalizeSceneLayer({
-          name: file.name,
-          src: String(reader.result || ""),
-          kind,
-          lockToGrid,
-          x: 0,
-          y: 0,
-          width: Math.min(scene.cols, 10),
-          height: Math.min(scene.rows, 10),
-          opacity: 100,
-          visible: true,
-          z: scene.layers.length,
-        }, scene.layers.length));
-        normalizeSceneLayers(scene);
-        save(data);
-        layerFile.value = "";
-        updateArena();
-        renderSceneLayerList();
-      };
-      reader.readAsDataURL(file);
-    });
-  }
 }
 bindSceneInputs();
 
