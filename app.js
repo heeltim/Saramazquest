@@ -535,6 +535,14 @@ const DEFAULT_SCENE = {
   gridStyle: "square", // square | dots
   gridOpacity: 55,
   gridLine: 1,
+  worldMap: {
+    imageUrl: "",
+    gridCols: 8,
+    gridRows: 6,
+    selectedCell: null,
+    markers: [],
+    cellLinks: {},
+  },
   layers: [], // imagens posicionáveis por camada: map | objects | foreground
   tiles: [], // string array: "floor" | "wall" | "void"
 };
@@ -1502,6 +1510,83 @@ function syncSceneToActiveArtboard(s) {
   s.artboards[idx] = next;
 }
 
+
+function normalizeWorldMarker(marker, idx = 0) {
+  return {
+    id: String(marker?.id || `wm_${Date.now()}_${idx}_${Math.random().toString(36).slice(2, 6)}`),
+    name: String(marker?.name || `Marcador ${idx + 1}`).slice(0, 32),
+    note: String(marker?.note || "").slice(0, 120),
+    col: Math.max(1, parseInt(marker?.col, 10) || 1),
+    row: Math.max(1, parseInt(marker?.row, 10) || 1),
+  };
+}
+
+function normalizeWorldMap(scene) {
+  if (!scene.worldMap || typeof scene.worldMap !== "object") {
+    scene.worldMap = structuredClone(DEFAULT_SCENE.worldMap);
+  }
+  const wm = scene.worldMap;
+  wm.imageUrl = String(wm.imageUrl || "");
+  wm.gridCols = Math.max(2, Math.min(64, parseInt(wm.gridCols, 10) || 8));
+  wm.gridRows = Math.max(2, Math.min(64, parseInt(wm.gridRows, 10) || 6));
+  if (!wm.selectedCell || typeof wm.selectedCell !== "object") {
+    wm.selectedCell = null;
+  } else {
+    wm.selectedCell = {
+      col: Math.max(1, Math.min(wm.gridCols, parseInt(wm.selectedCell.col, 10) || 1)),
+      row: Math.max(1, Math.min(wm.gridRows, parseInt(wm.selectedCell.row, 10) || 1)),
+    };
+  }
+  const rawMarkers = Array.isArray(wm.markers) ? wm.markers : [];
+  wm.markers = rawMarkers.map((marker, idx) => normalizeWorldMarker(marker, idx)).map((marker) => ({
+    ...marker,
+    col: Math.max(1, Math.min(wm.gridCols, marker.col)),
+    row: Math.max(1, Math.min(wm.gridRows, marker.row)),
+  }));
+  if (!wm.cellLinks || typeof wm.cellLinks !== "object") wm.cellLinks = {};
+  const safeLinks = {};
+  Object.entries(wm.cellLinks).forEach(([key, value]) => {
+    if (!/^\d+-\d+$/.test(key)) return;
+    if (typeof value !== "string" || !value) return;
+    safeLinks[key] = value;
+  });
+  wm.cellLinks = safeLinks;
+}
+
+function getWorldCellKey(col, row) {
+  return `${col}-${row}`;
+}
+
+function getSelectedWorldCell(scene) {
+  const wm = scene.worldMap;
+  if (!wm?.selectedCell) return null;
+  const col = Math.max(1, Math.min(wm.gridCols, parseInt(wm.selectedCell.col, 10) || 1));
+  const row = Math.max(1, Math.min(wm.gridRows, parseInt(wm.selectedCell.row, 10) || 1));
+  return { col, row };
+}
+
+function getWorldMapElements() {
+  return {
+    upload: document.getElementById("worldMapUpload"),
+    status: document.getElementById("worldMapStatus"),
+    cols: document.getElementById("worldGridCols"),
+    rows: document.getElementById("worldGridRows"),
+    cellStatus: document.getElementById("worldCellStatus"),
+    markerName: document.getElementById("worldMarkerName"),
+    markerCol: document.getElementById("worldMarkerCol"),
+    markerRow: document.getElementById("worldMarkerRow"),
+    markerNote: document.getElementById("worldMarkerNote"),
+    markerList: document.getElementById("worldMarkerList"),
+    window: document.getElementById("worldMapWindow"),
+    windowHint: document.getElementById("worldMapWindowHint"),
+    image: document.getElementById("worldMapImage"),
+    overlay: document.getElementById("worldMapGridOverlay"),
+    markersLayer: document.getElementById("worldMapMarkers"),
+    highlight: document.getElementById("worldMapCellHighlight"),
+    toggleBtn: document.getElementById("worldMapToggle"),
+  };
+}
+
 function ensureScene() {
   let data = load();
   if (!data.scenes) data.scenes = {};
@@ -1539,6 +1624,7 @@ function ensureScene() {
   s.gridStyle = ["square", "dots"].includes(s.gridStyle) ? s.gridStyle : "square";
   s.gridOpacity = Number.isFinite(s.gridOpacity) ? Math.max(0, Math.min(100, s.gridOpacity)) : 55;
   s.gridLine = Number.isFinite(s.gridLine) ? Math.max(1, Math.min(4, s.gridLine)) : 1;
+  normalizeWorldMap(s);
   normalizeSceneLayers(s);
   ensureSceneArtboards(s);
   syncSceneToActiveArtboard(s);
@@ -3353,8 +3439,14 @@ function updateSidebar(players) {
 
 /* ================= MOVIMENTO (setas + colisão) ================= */
 document.addEventListener("keydown", (e) => {
-  if (document.activeElement && document.activeElement.id === "messageInput")
+  const activeTag = document.activeElement?.tagName || "";
+  const isTyping = ["INPUT", "TEXTAREA", "SELECT"].includes(activeTag) || document.activeElement?.id === "messageInput";
+  if (!isTyping && (e.key === "m" || e.key === "M")) {
+    e.preventDefault();
+    toggleWorldMapWindow();
     return;
+  }
+  if (isTyping) return;
 
   let data = load();
   let p = data.rooms[room][currentUser];
@@ -5053,6 +5145,90 @@ function importSceneLayer() {
 }
 window.importSceneLayer = importSceneLayer;
 
+
+function closeSceneDock() {
+  isSceneDockOpen = false;
+  const panel = document.getElementById("scenePanel");
+  const dockBtn = document.getElementById("sceneDockToggle");
+  if (panel) panel.classList.remove("on");
+  if (dockBtn) dockBtn.textContent = "🎬 Mestre 1: OFF";
+}
+window.closeSceneDock = closeSceneDock;
+
+function importSceneLayer() {
+  const fileInput = document.getElementById("sceneLayerFile");
+  const kindInput = document.getElementById("sceneLayerKind");
+  const snapInput = document.getElementById("sceneLayerSnap");
+  if (!fileInput || !fileInput.files?.length) {
+    alert("Selecione uma imagem para importar.");
+    return;
+  }
+  const file = fileInput.files[0];
+  if (!file.type || !file.type.startsWith("image/")) {
+    alert("Arquivo inválido. Envie uma imagem.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const src = String(reader.result || "");
+    if (!src) return;
+
+    const preview = new Image();
+    preview.onload = () => {
+      let data = load();
+      const scene = data.scenes[room];
+      const kind = ["map", "objects", "foreground"].includes(kindInput?.value) ? kindInput.value : "objects";
+      const lockToGrid = !!snapInput?.checked;
+      const cols = Math.max(1, scene.cols || DEFAULT_COLS);
+      const rows = Math.max(1, scene.rows || DEFAULT_ROWS);
+      const ratio = Math.max(0.05, preview.naturalWidth / Math.max(1, preview.naturalHeight));
+
+      let width = kind === "map" ? cols : Math.max(2, Math.round(cols * 0.4));
+      let height = Math.max(1, Math.round(width / ratio));
+      if (height > rows) {
+        height = rows;
+        width = Math.max(1, Math.round(height * ratio));
+      }
+      width = Math.max(1, Math.min(cols, width));
+      height = Math.max(1, Math.min(rows, height));
+
+      const layer = normalizeSceneLayer({
+        id: `layer_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        name: file.name.replace(/\.[a-z0-9]+$/i, "") || "Camada",
+        kind,
+        src,
+        x: 0,
+        y: 0,
+        width,
+        height,
+        opacity: 100,
+        visible: true,
+        lockToGrid,
+        z: getSceneLayerList(scene).length,
+      }, getSceneLayerList(scene).length);
+
+      if (lockToGrid) clampSceneLayerToGrid(layer, scene);
+      getSceneLayerList(scene).push(layer);
+      normalizeSceneLayers(scene);
+      save(data);
+      updateArena();
+      renderSceneLayerList();
+      fileInput.value = "";
+      setSceneSection("layers");
+    };
+    preview.onerror = () => {
+      alert("Não foi possível carregar a imagem selecionada.");
+    };
+    preview.src = src;
+  };
+  reader.onerror = () => {
+    alert("Falha ao ler o arquivo de imagem.");
+  };
+  reader.readAsDataURL(file);
+}
+window.importSceneLayer = importSceneLayer;
+
 function setSceneSection(section) {
   sceneSection = section;
   document.querySelectorAll(".sceneSection").forEach((el) => {
@@ -5102,6 +5278,8 @@ function syncSceneUIFromStorage() {
   }
   renderArtboardControls();
   renderSceneLayerList();
+  syncWorldBuilderUI();
+  if (isWorldMapWindowOpen) renderWorldMapWindow();
   setTool(paintTool);
   setBrushSize(brushSize);
   applySceneCSS();
@@ -5466,6 +5644,7 @@ function bindSceneInputs() {
 
 }
 bindSceneInputs();
+bindWorldBuilderInputs();
 
 function fillAll(type) {
   const fillType = TILE_TYPES.includes(type) ? type : "floor";

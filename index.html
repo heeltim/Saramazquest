@@ -96,6 +96,14 @@
         >
           📖 Grimório
         </button>
+        <button
+          id="worldMapToggle"
+          type="button"
+          title="Abrir mapa global"
+          onclick="toggleWorldMapWindow()"
+        >
+          🧭 Mapa
+        </button>
         <div id="masterSceneBar" aria-label="Barra fixa de mestre">
           <button
             id="sceneDockToggle"
@@ -272,6 +280,22 @@
           <div class="sceneHint">
             Movimento: setas do teclado. Agora o token
             <strong>não entra</strong> em Parede/Vazio.
+          </div>
+        </div>
+
+        <div id="worldMapWindow" class="collapsed" aria-hidden="true">
+          <div class="worldMapTopRow">
+            <div>
+              <div class="diceHeader">🧭 Mapa global</div>
+              <div id="worldMapWindowHint" class="sceneHint">Clique numa célula para entrar/criar região.</div>
+            </div>
+            <button class="diceCloseBtn" type="button" onclick="closeWorldMapWindow()" title="Fechar mapa global">✕</button>
+          </div>
+          <div id="worldMapStage">
+            <img id="worldMapImage" alt="Mapa global" />
+            <div id="worldMapGridOverlay"></div>
+            <div id="worldMapMarkers"></div>
+            <div id="worldMapCellHighlight"></div>
           </div>
         </div>
         <div id="diceTray" class="collapsed" aria-hidden="true">

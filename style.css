@@ -428,6 +428,26 @@ body {
   border-color: rgba(76, 92, 255, 0.75);
 }
 
+#worldMapToggle {
+  position: absolute;
+  left: 12px;
+  top: 100px;
+  z-index: 5;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(15, 18, 27, 0.9);
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+#worldMapToggle:hover,
+#worldMapToggle.active {
+  background: rgba(76, 92, 255, 0.3);
+  border-color: rgba(76, 92, 255, 0.75);
+}
+
 
 #masterSceneBar {
   position: absolute;
@@ -476,6 +496,93 @@ body {
   opacity: 0;
   transform: translateX(-10px);
   pointer-events: none;
+}
+
+
+#worldMapWindow {
+  position: absolute;
+  left: 12px;
+  top: 144px;
+  width: min(860px, calc(100% - 24px));
+  height: min(620px, calc(100% - 156px));
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(28, 33, 48, 0.95), rgba(18, 22, 33, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  z-index: 6;
+  padding: 10px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 8px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#worldMapWindow.collapsed {
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+}
+
+.worldMapTopRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+#worldMapStage {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(5, 8, 14, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#worldMapImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+#worldMapGridOverlay,
+#worldMapMarkers,
+#worldMapCellHighlight {
+  position: absolute;
+  inset: 0;
+}
+
+#worldMapGridOverlay {
+  display: grid;
+}
+
+.worldGridCell {
+  border: 1px solid rgba(130, 214, 255, 0.24);
+  background: rgba(120, 160, 255, 0.03);
+  cursor: pointer;
+}
+
+.worldGridCell:hover {
+  background: rgba(120, 160, 255, 0.12);
+}
+
+.worldMarkerPin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 19px;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.55));
+}
+
+#worldMapCellHighlight {
+  border: 2px solid rgba(255, 207, 92, 0.92);
+  box-shadow: inset 0 0 0 1px rgba(10, 10, 10, 0.45);
+  pointer-events: none;
+  display: none;
 }
 .diceTopRow {
   display: flex;
@@ -2337,7 +2444,8 @@ kbd {
   }
 
   #diceTrayToggle,
-  #grimoireQuickToggle {
+  #grimoireQuickToggle,
+  #worldMapToggle {
     left: 8px;
     padding: 7px 8px;
     font-size: 12px;
@@ -2345,6 +2453,10 @@ kbd {
 
   #grimoireQuickToggle {
     top: 48px;
+  }
+
+  #worldMapToggle {
+    top: 84px;
   }
 
   #masterSceneBar {
@@ -2359,6 +2471,13 @@ kbd {
     max-height: calc(100% - 132px);
   }
 
+
+  #worldMapWindow {
+    top: 124px;
+    left: 8px;
+    width: calc(100% - 16px);
+    height: calc(100% - 132px);
+  }
   #combatSpellSlots {
     width: calc(100% - 16px);
     left: 8px;
