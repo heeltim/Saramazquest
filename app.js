@@ -554,6 +554,8 @@ const DEFAULT_SCENE = {
   gridLine: 1,
   worldMap: {
     imageUrl: "",
+    sourceImageUrl: "",
+    pixelationBlockSize: 6,
     gridCols: 40,
     gridRows: 25,
     selectedCell: null,
@@ -1634,6 +1636,8 @@ function normalizeWorldMap(scene) {
   }
   const wm = scene.worldMap;
   wm.imageUrl = String(wm.imageUrl || "");
+  wm.sourceImageUrl = String(wm.sourceImageUrl || "");
+  wm.pixelationBlockSize = Math.max(1, Math.min(64, parseInt(wm.pixelationBlockSize, 10) || 6));
   wm.gridCols = Math.max(2, Math.min(64, parseInt(wm.gridCols, 10) || 40));
   wm.gridRows = Math.max(2, Math.min(64, parseInt(wm.gridRows, 10) || 25));
   if (!wm.selectedCell || typeof wm.selectedCell !== "object") {
@@ -1658,6 +1662,49 @@ function normalizeWorldMap(scene) {
     safeLinks[key] = value;
   });
   wm.cellLinks = safeLinks;
+}
+
+async function pixelateImageDataUrl(src = "", blockSize = 6) {
+  if (!src) return "";
+  const img = new Image();
+  img.decoding = "async";
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = reject;
+    img.src = src;
+  });
+
+  const width = Math.max(1, img.naturalWidth || img.width || 1);
+  const height = Math.max(1, img.naturalHeight || img.height || 1);
+  const safeBlock = Math.max(1, Math.min(64, parseInt(blockSize, 10) || 1));
+  if (safeBlock === 1) return src;
+
+  const sourceCanvas = document.createElement("canvas");
+  sourceCanvas.width = width;
+  sourceCanvas.height = height;
+  const sourceCtx = sourceCanvas.getContext("2d", { willReadFrequently: true });
+  if (!sourceCtx) return src;
+  sourceCtx.drawImage(img, 0, 0, width, height);
+
+  const reducedWidth = Math.max(1, Math.round(width / safeBlock));
+  const reducedHeight = Math.max(1, Math.round(height / safeBlock));
+  const reducedCanvas = document.createElement("canvas");
+  reducedCanvas.width = reducedWidth;
+  reducedCanvas.height = reducedHeight;
+  const reducedCtx = reducedCanvas.getContext("2d");
+  if (!reducedCtx) return src;
+  reducedCtx.imageSmoothingEnabled = true;
+  reducedCtx.drawImage(sourceCanvas, 0, 0, reducedWidth, reducedHeight);
+
+  const pixelCanvas = document.createElement("canvas");
+  pixelCanvas.width = width;
+  pixelCanvas.height = height;
+  const pixelCtx = pixelCanvas.getContext("2d");
+  if (!pixelCtx) return src;
+  pixelCtx.imageSmoothingEnabled = false;
+  pixelCtx.drawImage(reducedCanvas, 0, 0, width, height);
+
+  return pixelCanvas.toDataURL("image/png", 0.92);
 }
 
 function getWorldCellKey(col, row) {
@@ -6814,40 +6861,49 @@ window.importWorldMapImage = function importWorldMapImage() {
 
   setWorldMapUploadStatus(`Carregando ${file.name}...`, "loading");
   const reader = new FileReader();
-  reader.onload = () => {
+  reader.onload = async () => {
     const src = String(reader.result || "");
     if (!src) {
       setWorldMapUploadStatus("Não foi possível ler a imagem.", "error");
       return;
     }
-    let data = load();
-    const scene = data.scenes[room];
-    const colsInput = document.getElementById("worldGridCols");
-    const rowsInput = document.getElementById("worldGridRows");
-    scene.worldMap.imageUrl = src;
-    scene.worldMap.gridCols = Math.max(2, Math.min(64, parseInt(colsInput?.value, 10) || scene.worldMap.gridCols || 40));
-    scene.worldMap.gridRows = Math.max(2, Math.min(64, parseInt(rowsInput?.value, 10) || scene.worldMap.gridRows || 25));
-    save(data);
-    const meta = normalizeWorldMapMetaWithScene(scene);
-    meta.cols = scene.worldMap.gridCols;
-    meta.rows = scene.worldMap.gridRows;
-    meta.classification = null;
-    saveGlobalMapMeta(meta);
-    setSceneBackgroundPreview(src);
-    setWorldMapUploadStatus(`Mapa global carregado: ${file.name}`, "success");
-    syncWorldMapToggleVisibility(scene);
-    classifyWorldMapBiomes(scene, { force: true }).finally(() => {
-      let terrainData = load();
-      const terrainScene = terrainData.scenes[room];
-      const terrainSummary = generateTerrainFromWorldBiomes(terrainScene);
-      save(terrainData);
-      updateArena();
-      setWorldMapUploadStatus(`Mapa global carregado: ${file.name} · terreno gerado (${terrainSummary.updated}/${terrainSummary.total})`, "success");
-      renderWorldMapWindow();
-      const selected = getSelectedWorldCell(terrainScene);
-      updateWorldMapDrawer(selected ? { x: selected.col - 1, y: selected.row - 1 } : null);
-    });
-    fileInput.value = "";
+    try {
+      let data = load();
+      const scene = data.scenes[room];
+      const colsInput = document.getElementById("worldGridCols");
+      const rowsInput = document.getElementById("worldGridRows");
+      const pixelInput = document.getElementById("worldPixelationBlockSize");
+      const blockSize = Math.max(1, Math.min(64, parseInt(pixelInput?.value, 10) || scene.worldMap.pixelationBlockSize || 6));
+      const pixelatedSrc = await pixelateImageDataUrl(src, blockSize);
+      scene.worldMap.sourceImageUrl = src;
+      scene.worldMap.imageUrl = pixelatedSrc || src;
+      scene.worldMap.pixelationBlockSize = blockSize;
+      scene.worldMap.gridCols = Math.max(2, Math.min(64, parseInt(colsInput?.value, 10) || scene.worldMap.gridCols || 40));
+      scene.worldMap.gridRows = Math.max(2, Math.min(64, parseInt(rowsInput?.value, 10) || scene.worldMap.gridRows || 25));
+      save(data);
+      const meta = normalizeWorldMapMetaWithScene(scene);
+      meta.cols = scene.worldMap.gridCols;
+      meta.rows = scene.worldMap.gridRows;
+      meta.classification = null;
+      saveGlobalMapMeta(meta);
+      setSceneBackgroundPreview(scene.worldMap.imageUrl);
+      setWorldMapUploadStatus(`Mapa global carregado: ${file.name} · pixelização ${blockSize}px`, "success");
+      syncWorldMapToggleVisibility(scene);
+      classifyWorldMapBiomes(scene, { force: true }).finally(() => {
+        let terrainData = load();
+        const terrainScene = terrainData.scenes[room];
+        const terrainSummary = generateTerrainFromWorldBiomes(terrainScene);
+        save(terrainData);
+        updateArena();
+        setWorldMapUploadStatus(`Mapa global carregado: ${file.name} · pixelização ${blockSize}px · terreno gerado (${terrainSummary.updated}/${terrainSummary.total})`, "success");
+        renderWorldMapWindow();
+        const selected = getSelectedWorldCell(terrainScene);
+        updateWorldMapDrawer(selected ? { x: selected.col - 1, y: selected.row - 1 } : null);
+      });
+      fileInput.value = "";
+    } catch {
+      setWorldMapUploadStatus("Falha ao processar a pixelização do mapa global.", "error");
+    }
   };
   reader.onerror = () => setWorldMapUploadStatus("Falha ao carregar o arquivo de imagem.", "error");
   reader.readAsDataURL(file);
@@ -6873,6 +6929,7 @@ window.clearWorldMapImage = function clearWorldMapImage() {
   let data = load();
   const scene = data.scenes[room];
   scene.worldMap.imageUrl = "";
+  scene.worldMap.sourceImageUrl = "";
   scene.worldMap.selectedCell = null;
   save(data);
   setSceneBackgroundPreview("");
@@ -6886,8 +6943,10 @@ function syncWorldBuilderUI() {
   const wm = scene.worldMap;
   const cols = document.getElementById("worldGridCols");
   const rows = document.getElementById("worldGridRows");
+  const pixel = document.getElementById("worldPixelationBlockSize");
   if (cols) cols.value = String(wm.gridCols || 40);
   if (rows) rows.value = String(wm.gridRows || 25);
+  if (pixel) pixel.value = String(wm.pixelationBlockSize || 6);
   setSceneBackgroundPreview(wm.imageUrl || "");
   setWorldMapUploadStatus(wm.imageUrl ? "Mapa global ativo." : "Nenhum mapa global carregado.", wm.imageUrl ? "success" : "idle");
   syncWorldMapToggleVisibility(scene);
@@ -6897,6 +6956,7 @@ function bindWorldBuilderInputs() {
   const upload = document.getElementById("worldMapUpload");
   const cols = document.getElementById("worldGridCols");
   const rows = document.getElementById("worldGridRows");
+  const pixel = document.getElementById("worldPixelationBlockSize");
   const showGrid = document.getElementById("worldMapShowGrid");
   const setNameBtn = document.getElementById("worldCellSetNameBtn");
   const saveBtn = document.getElementById("worldCellSaveBtn");
@@ -6942,6 +7002,17 @@ function bindWorldBuilderInputs() {
   if (rows && !rows.dataset.bound) {
     rows.dataset.bound = "1";
     rows.addEventListener("input", updateGridSize);
+  }
+  if (pixel && !pixel.dataset.bound) {
+    pixel.dataset.bound = "1";
+    pixel.addEventListener("input", () => {
+      const blockSize = Math.max(1, Math.min(64, parseInt(pixel.value, 10) || 6));
+      let data = load();
+      const scene = data.scenes[room];
+      scene.worldMap.pixelationBlockSize = blockSize;
+      save(data);
+      setWorldMapUploadStatus(`Pixelização configurada: ${blockSize}px por bloco. Recarregue o mapa para aplicar.`, "idle");
+    });
   }
   if (showGrid && !showGrid.dataset.bound) {
     showGrid.dataset.bound = "1";
