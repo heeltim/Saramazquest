@@ -421,7 +421,27 @@ body {
   border-color: rgba(76, 92, 255, 0.75);
 }
 
+#sceneQuickToggle {
+  position: absolute;
+  left: 12px;
+  top: 144px;
+  z-index: 5;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(15, 18, 27, 0.9);
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+#sceneQuickToggle:hover,
+#sceneQuickToggle.on {
+  background: rgba(76, 92, 255, 0.3);
+  border-color: rgba(76, 92, 255, 0.75);
+}
+
 #diceTray {
+
   position: absolute;
   left: 12px;
   top: 100px;
@@ -1871,12 +1891,18 @@ select option {
 /* ================= SCENE PANEL ================= */
 #scenePanel {
   display: none;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  position: absolute;
+  top: 144px;
+  left: 12px;
+  z-index: 5;
+  width: min(430px, calc(100% - 24px));
+  max-height: calc(100% - 156px);
+  background: linear-gradient(180deg, rgba(28, 33, 48, 0.95), rgba(18, 22, 33, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
   padding: 12px;
-  max-height: 38vh;
   overflow-y: auto;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
 }
 #scenePanel.on {
   display: block;
@@ -2127,7 +2153,8 @@ kbd {
   }
 
   #diceTrayToggle,
-  #grimoireQuickToggle {
+  #grimoireQuickToggle,
+  #sceneQuickToggle {
     left: 8px;
     padding: 7px 8px;
     font-size: 12px;
@@ -2372,4 +2399,27 @@ kbd {
 .layerRange,
 .layerKind {
   width: 100%;
+}
+
+
+/* ================= CUSTOM SCROLLBARS ================= */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(95, 111, 255, 0.55) rgba(255, 255, 255, 0.08);
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(95, 111, 255, 0.75), rgba(76, 92, 255, 0.45));
+  border-radius: 999px;
+  border: 2px solid rgba(18, 22, 33, 0.7);
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(123, 136, 255, 0.85), rgba(89, 105, 255, 0.65));
 }

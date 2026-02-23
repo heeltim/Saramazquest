@@ -1422,8 +1422,8 @@ function ensureScene() {
   const s = data.scenes[room];
 
   // cols/rows
-  s.cols = s.cols || DEFAULT_COLS;
-  s.rows = s.rows || DEFAULT_ROWS;
+  s.cols = Math.max(6, Math.min(80, s.cols || DEFAULT_COLS));
+  s.rows = Math.max(6, Math.min(80, s.rows || DEFAULT_ROWS));
 
   // tiles size
   const needed = s.cols * s.rows;
@@ -2683,6 +2683,7 @@ const mapViewport = document.getElementById("mapViewport");
 const mapZoomInput = document.getElementById("mapZoom");
 const artboardSelect = document.getElementById("artboardSelect");
 let mapDragState = { active: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 };
+let isSceneDockOpen = false;
 
 function getSceneZoom() {
   const scene = load().scenes[room];
@@ -2863,6 +2864,7 @@ function updateArena() {
 
     let tokenStack = document.createElement("div");
     tokenStack.className = "tokenStack";
+    tokenStack.dataset.player = name;
 
     let token = document.createElement("div");
     token.className = "token";
@@ -4831,9 +4833,14 @@ function toggleMasterMode() {
   isMaster = !isMaster;
   const btn = document.getElementById("masterToggle");
   const panel = document.getElementById("scenePanel");
+  const quickBtn = document.getElementById("sceneQuickToggle");
   btn.classList.toggle("on", isMaster);
   btn.textContent = isMaster ? "🛠️ Mestre: ON" : "🛠️ Mestre: OFF";
-  panel.classList.toggle("on", isMaster);
+  if (!isMaster) {
+    isSceneDockOpen = false;
+  }
+  panel.classList.toggle("on", isMaster && isSceneDockOpen);
+  if (quickBtn) quickBtn.classList.toggle("on", isMaster && isSceneDockOpen);
 
   if (isMaster) {
     syncSceneUIFromStorage();
@@ -4842,6 +4849,18 @@ function toggleMasterMode() {
     detachPaintHandlers();
     clearPaintHighlights();
   }
+}
+
+function toggleSceneDock() {
+  if (!isMaster) {
+    alert("Ative o modo Mestre para abrir o painel de cena.");
+    return;
+  }
+  isSceneDockOpen = !isSceneDockOpen;
+  const panel = document.getElementById("scenePanel");
+  const quickBtn = document.getElementById("sceneQuickToggle");
+  if (panel) panel.classList.toggle("on", isSceneDockOpen);
+  if (quickBtn) quickBtn.classList.toggle("on", isSceneDockOpen);
 }
 
 function setTool(tool) {
@@ -5053,8 +5072,8 @@ window.applyArtboardSize = function applyArtboardSize() {
   const colsInput = document.getElementById("sceneCols");
   const rowsInput = document.getElementById("sceneRows");
   if (!colsInput || !rowsInput) return;
-  const nextCols = Math.max(6, Math.min(120, parseInt(colsInput.value, 10) || DEFAULT_COLS));
-  const nextRows = Math.max(6, Math.min(120, parseInt(rowsInput.value, 10) || DEFAULT_ROWS));
+  const nextCols = Math.max(6, Math.min(80, parseInt(colsInput.value, 10) || DEFAULT_COLS));
+  const nextRows = Math.max(6, Math.min(80, parseInt(rowsInput.value, 10) || DEFAULT_ROWS));
   let data = load();
   const scene = data.scenes[room];
   scene.cols = nextCols;
@@ -5123,7 +5142,38 @@ function fillAll(type) {
   const s = data.scenes[room];
   s.tiles = new Array(s.cols * s.rows).fill(type);
   save(data);
-  updateArena();
+  document.querySelectorAll(".cell").forEach((cell) => {
+    cell.classList.remove("tile-floor", "tile-wall", "tile-void", "paint-floor", "paint-wall", "paint-void");
+    cell.classList.add("tile-" + type);
+  });
+  refreshTokenPlacements();
+}
+
+
+function refreshTokenPlacements() {
+  const s = load().scenes[room];
+  const cells = [...document.querySelectorAll(".cell")];
+  const data = load();
+  const players = data.rooms[room];
+  Object.keys(players).forEach((name) => {
+    const p = players[name];
+    if (!p?.onTable) return;
+    p.x = Math.max(0, Math.min(s.cols - 1, Math.round(Number(p.x) || 0)));
+    p.y = Math.max(0, Math.min(s.rows - 1, Math.round(Number(p.y) || 0)));
+    if (getTile(p.x, p.y) !== "floor") {
+      const found = findNearestFloor(p.x, p.y);
+      if (found) {
+        p.x = found.x;
+        p.y = found.y;
+      }
+    }
+    const idx = tileIndex(p.x, p.y);
+    const cell = cells[idx];
+    if (!cell) return;
+    const stack = document.querySelector(`.tokenStack[data-player="${CSS.escape(name)}"]`);
+    if (stack) cell.appendChild(stack);
+  });
+  save(data);
 }
 
 function clearScene() {
@@ -5176,14 +5226,17 @@ function paintAtEvent(e, cell) {
   const x = parseInt(cell.dataset.x, 10);
   const y = parseInt(cell.dataset.y, 10);
   const t = effectiveTool(e);
-
-  setTile(x, y, t);
+  let data = load();
+  const s = data.scenes[room];
+  const idx = y * s.cols + x;
+  if (s.tiles[idx] === t) return;
+  s.tiles[idx] = t;
+  save(data);
 
   // highlight leve
-  cell.classList.remove("paint-floor", "paint-wall", "paint-void");
+  cell.classList.remove("paint-floor", "paint-wall", "paint-void", "tile-floor", "tile-wall", "tile-void");
+  cell.classList.add("tile-" + t);
   cell.classList.add("paint-" + t);
-
-  updateArena();
 }
 
 function clearPaintHighlights() {
