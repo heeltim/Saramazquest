@@ -444,7 +444,7 @@ const DEFAULT_SCENE = {
   bgScale: 120, // %
   bgOpacity: 65, // %
   mapZoom: 1,
-  gridStyle: "square", // square | dots | hex
+  gridStyle: "square", // square | dots
   gridOpacity: 55,
   gridLine: 1,
   layers: [], // imagens posicionáveis por camada: map | objects | foreground
@@ -1394,9 +1394,9 @@ function ensureSceneArtboards(s) {
     return;
   }
   s.artboards = s.artboards.map((board, idx) => {
-    const base = extractArtboardFromScene({ ...DEFAULT_SCENE, ...board }, board?.name || `Artboard ${idx + 1}`);
+    const base = extractArtboardFromScene({ ...DEFAULT_SCENE, ...board }, board?.name || `Cenário ${idx + 1}`);
     base.id = board?.id || `board_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
-    base.name = board?.name || `Artboard ${idx + 1}`;
+    base.name = board?.name || `Cenário ${idx + 1}`;
     return base;
   });
   if (!s.activeArtboardId || !s.artboards.some((b) => b.id === s.activeArtboardId)) {
@@ -1408,7 +1408,7 @@ function syncSceneToActiveArtboard(s) {
   ensureSceneArtboards(s);
   const idx = s.artboards.findIndex((b) => b.id === s.activeArtboardId);
   if (idx < 0) return;
-  const next = extractArtboardFromScene(s, s.artboards[idx].name || `Artboard ${idx + 1}`);
+  const next = extractArtboardFromScene(s, s.artboards[idx].name || `Cenário ${idx + 1}`);
   next.id = s.artboards[idx].id;
   next.name = s.artboards[idx].name || next.name;
   s.artboards[idx] = next;
@@ -1443,7 +1443,7 @@ function ensureScene() {
   s.bgScale = Number.isFinite(s.bgScale) ? s.bgScale : 120;
   s.bgOpacity = Number.isFinite(s.bgOpacity) ? s.bgOpacity : 65;
   s.mapZoom = Number.isFinite(s.mapZoom) ? Math.max(0.5, Math.min(1.6, s.mapZoom)) : 1;
-  s.gridStyle = ["square", "dots", "hex"].includes(s.gridStyle) ? s.gridStyle : "square";
+  s.gridStyle = ["square", "dots"].includes(s.gridStyle) ? s.gridStyle : "square";
   s.gridOpacity = Number.isFinite(s.gridOpacity) ? Math.max(0, Math.min(100, s.gridOpacity)) : 55;
   s.gridLine = Number.isFinite(s.gridLine) ? Math.max(1, Math.min(4, s.gridLine)) : 1;
   normalizeSceneLayers(s);
@@ -1482,14 +1482,18 @@ function tileIndex(x, y) {
 function getTile(x, y) {
   const s = load().scenes[room];
   const idx = y * s.cols + x;
-  return s.tiles[idx] || "floor";
+  return TILE_TYPES.includes(s.tiles[idx]) ? s.tiles[idx] : "floor";
 }
 function setTile(x, y, type) {
   let data = load();
   const s = data.scenes[room];
   const idx = y * s.cols + x;
-  s.tiles[idx] = type;
+  s.tiles[idx] = TILE_TYPES.includes(type) ? type : "floor";
   save(data);
+}
+
+function clearTileClasses(cell) {
+  TILE_TYPES.forEach((type) => cell.classList.remove(`tile-${type}`));
 }
 
 /* ================= PLAYER SCHEMA ================= */
@@ -2832,8 +2836,8 @@ function updateArena() {
   for (const cell of cells) {
     const x = parseInt(cell.dataset.x, 10);
     const y = parseInt(cell.dataset.y, 10);
-    const t = s.tiles[tileIndex(x, y)] || "floor";
-    cell.classList.remove("tile-floor", "tile-wall", "tile-void");
+    const t = TILE_TYPES.includes(s.tiles[tileIndex(x, y)]) ? s.tiles[tileIndex(x, y)] : "floor";
+    clearTileClasses(cell);
     cell.classList.add("tile-" + t);
     cell.innerHTML = "";
   }
@@ -4825,24 +4829,24 @@ function menuSend(idx) {
 }
 
 /* ================= MASTER MODE / SCENE UI ================= */
+const TILE_TYPES = ["floor", "grass", "stone", "wall", "woodwall", "stonewall", "void"];
 let isMaster = false;
 let paintTool = "floor";
+let brushSize = 1;
 let isPainting = false;
+let sceneSection = "report";
 
 function toggleMasterMode() {
   isMaster = !isMaster;
   const btn = document.getElementById("masterToggle");
   const panel = document.getElementById("scenePanel");
-  const quickBtn = document.getElementById("sceneQuickToggle");
   btn.classList.toggle("on", isMaster);
   btn.textContent = isMaster ? "🛠️ Mestre: ON" : "🛠️ Mestre: OFF";
-  if (!isMaster) {
-    isSceneDockOpen = false;
-  }
-  panel.classList.toggle("on", isMaster && isSceneDockOpen);
-  if (quickBtn) quickBtn.classList.toggle("on", isMaster && isSceneDockOpen);
+  isSceneDockOpen = isMaster;
+  panel.classList.toggle("on", isMaster);
 
   if (isMaster) {
+    setSceneSection(sceneSection);
     syncSceneUIFromStorage();
     attachPaintHandlers();
   } else {
@@ -4858,23 +4862,36 @@ function toggleSceneDock() {
   }
   isSceneDockOpen = !isSceneDockOpen;
   const panel = document.getElementById("scenePanel");
-  const quickBtn = document.getElementById("sceneQuickToggle");
   if (panel) panel.classList.toggle("on", isSceneDockOpen);
-  if (quickBtn) quickBtn.classList.toggle("on", isSceneDockOpen);
 }
 
-function setTool(tool) {
-  paintTool = tool;
-  document
-    .getElementById("toolFloor")
-    .classList.toggle("active", tool === "floor");
-  document
-    .getElementById("toolWall")
-    .classList.toggle("active", tool === "wall");
-  document
-    .getElementById("toolVoid")
-    .classList.toggle("active", tool === "void");
+function setSceneSection(section) {
+  sceneSection = section;
+  document.querySelectorAll(".sceneSection").forEach((el) => {
+    el.classList.toggle("active", el.dataset.sceneSection === section);
+  });
+  document.querySelectorAll(".sceneIconBtn").forEach((btn) => {
+    btn.classList.toggle("active", btn.id === `sceneNav${section.charAt(0).toUpperCase()}${section.slice(1)}`);
+  });
 }
+window.setSceneSection = setSceneSection;
+
+function setTool(tool) {
+  paintTool = TILE_TYPES.includes(tool) ? tool : "floor";
+  TILE_TYPES.forEach((type) => {
+    const btn = document.getElementById(`tool${type.charAt(0).toUpperCase()}${type.slice(1)}`);
+    if (btn) btn.classList.toggle("active", type === paintTool);
+  });
+}
+
+function setBrushSize(size) {
+  brushSize = Math.max(1, Math.min(3, parseInt(size, 10) || 1));
+  [1, 2, 3].forEach((n) => {
+    const btn = document.getElementById(`brushSize${n}`);
+    if (btn) btn.classList.toggle("active", n === brushSize);
+  });
+}
+window.setBrushSize = setBrushSize;
 
 function syncSceneUIFromStorage() {
   ensureScene();
@@ -4891,6 +4908,8 @@ function syncSceneUIFromStorage() {
   if (mapZoomInput) mapZoomInput.value = String(Math.round((s.mapZoom || 1) * 100));
   renderArtboardControls();
   renderSceneLayerList();
+  setTool(paintTool);
+  setBrushSize(brushSize);
   applySceneCSS();
 }
 
@@ -5016,7 +5035,7 @@ function renderArtboardControls() {
   const scene = load().scenes[room];
   ensureSceneArtboards(scene);
   const boards = scene.artboards || [];
-  select.innerHTML = boards.map((board, idx) => `<option value="${board.id}">${escapeHtml(board.name || `Artboard ${idx + 1}`)}</option>`).join("");
+  select.innerHTML = boards.map((board, idx) => `<option value="${board.id}">${escapeHtml(board.name || `Cenário ${idx + 1}`)}</option>`).join("");
   select.value = scene.activeArtboardId || boards[0]?.id || "";
   colsInput.value = String(scene.cols || DEFAULT_COLS);
   rowsInput.value = String(scene.rows || DEFAULT_ROWS);
@@ -5027,7 +5046,7 @@ window.createArtboard = function createArtboard() {
   const scene = data.scenes[room];
   ensureSceneArtboards(scene);
   syncSceneToActiveArtboard(scene);
-  const next = extractArtboardFromScene(scene, `Artboard ${scene.artboards.length + 1}`);
+  const next = extractArtboardFromScene(scene, `Cenário ${scene.artboards.length + 1}`);
   next.id = `board_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
   scene.artboards.push(next);
   scene.activeArtboardId = next.id;
@@ -5044,7 +5063,7 @@ window.renameArtboard = function renameArtboard() {
   ensureSceneArtboards(scene);
   const active = scene.artboards.find((board) => board.id === scene.activeArtboardId);
   if (!active) return;
-  const nextName = prompt("Nome do artboard:", active.name || "Artboard");
+  const nextName = prompt("Nome do cenário:", active.name || "Cenário");
   if (!nextName) return;
   active.name = String(nextName).trim().slice(0, 40) || active.name;
   save(data);
@@ -5055,7 +5074,7 @@ window.deleteArtboard = function deleteArtboard() {
   let data = load();
   const scene = data.scenes[room];
   ensureSceneArtboards(scene);
-  if (scene.artboards.length <= 1) return alert("Você precisa manter ao menos 1 artboard.");
+  if (scene.artboards.length <= 1) return alert("Você precisa manter ao menos 1 cenário.");
   const idx = scene.artboards.findIndex((board) => board.id === scene.activeArtboardId);
   if (idx < 0) return;
   scene.artboards.splice(idx, 1);
@@ -5120,7 +5139,7 @@ function bindSceneInputs() {
     s.bgOpacity = parseInt(bgOpacity.value, 10);
     s.bgX = parseInt(bgX.value, 10);
     s.bgY = parseInt(bgY.value, 10);
-    s.gridStyle = ["square", "dots", "hex"].includes(gridStyle.value) ? gridStyle.value : "square";
+    s.gridStyle = ["square", "dots"].includes(gridStyle.value) ? gridStyle.value : "square";
     s.gridOpacity = parseInt(gridOpacity.value, 10);
     s.gridLine = parseInt(gridLine.value, 10);
     save(data);
@@ -5138,13 +5157,15 @@ function bindSceneInputs() {
 bindSceneInputs();
 
 function fillAll(type) {
+  const fillType = TILE_TYPES.includes(type) ? type : "floor";
   let data = load();
   const s = data.scenes[room];
-  s.tiles = new Array(s.cols * s.rows).fill(type);
+  s.tiles = new Array(s.cols * s.rows).fill(fillType);
   save(data);
   document.querySelectorAll(".cell").forEach((cell) => {
-    cell.classList.remove("tile-floor", "tile-wall", "tile-void", "paint-floor", "paint-wall", "paint-void");
-    cell.classList.add("tile-" + type);
+    clearTileClasses(cell);
+    cell.classList.remove("paint-floor", "paint-wall", "paint-void");
+    cell.classList.add("tile-" + fillType);
   });
   refreshTokenPlacements();
 }
@@ -5228,15 +5249,30 @@ function paintAtEvent(e, cell) {
   const t = effectiveTool(e);
   let data = load();
   const s = data.scenes[room];
-  const idx = y * s.cols + x;
-  if (s.tiles[idx] === t) return;
-  s.tiles[idx] = t;
-  save(data);
+  let changed = false;
 
-  // highlight leve
-  cell.classList.remove("paint-floor", "paint-wall", "paint-void", "tile-floor", "tile-wall", "tile-void");
-  cell.classList.add("tile-" + t);
-  cell.classList.add("paint-" + t);
+  for (let oy = 0; oy < brushSize; oy++) {
+    for (let ox = 0; ox < brushSize; ox++) {
+      const px = x + ox;
+      const py = y + oy;
+      if (px >= s.cols || py >= s.rows) continue;
+      const idx = py * s.cols + px;
+      if (s.tiles[idx] === t) continue;
+      s.tiles[idx] = t;
+      changed = true;
+
+      const targetCell = document.querySelector(`.cell[data-x="${px}"][data-y="${py}"]`);
+      if (!targetCell) continue;
+      targetCell.classList.remove("paint-floor", "paint-wall", "paint-void");
+      clearTileClasses(targetCell);
+      targetCell.classList.add("tile-" + t);
+      if (t === "floor" || t === "wall" || t === "void") {
+        targetCell.classList.add("paint-" + t);
+      }
+    }
+  }
+
+  if (changed) save(data);
 }
 
 function clearPaintHighlights() {

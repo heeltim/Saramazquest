@@ -96,125 +96,144 @@
         >
           📖 Grimório
         </button>
-        <button
-          id="sceneQuickToggle"
-          type="button"
-          title="Abrir painel de cena"
-          onclick="toggleSceneDock()"
-        >
-          🎬 Cena
-        </button>
         <div id="scenePanel">
-          <div style="font-weight: 900; margin-bottom: 8px">Cena</div>
-
-          <div class="sceneActions">
-            <button class="toolBtn" type="button" onclick="exportChatReportPDF()">
-              🧾 Gerar relatório da sessão (PDF)
-            </button>
+          <div class="scenePanelHead">
+            <div style="font-weight: 900;">🎬 Mestre</div>
+            <div class="sceneHint">Ferramentas de cenário</div>
           </div>
 
-          <div class="sceneActions sceneArtboardActions">
-            <select id="artboardSelect" aria-label="Selecionar artboard"></select>
-            <button class="toolBtn" type="button" onclick="createArtboard()">+ Artboard</button>
-            <button class="toolBtn" type="button" onclick="renameArtboard()">Renomear</button>
-            <button class="toolBtn" type="button" onclick="deleteArtboard()">Remover</button>
-          </div>
-
-          <div class="sceneGrid">
-            <div class="field full layerEditorField">
-              <label>Camadas de imagem</label>
-              <div class="layerImportGrid compact">
-                <select id="sceneLayerKind">
-                  <option value="map">Camada Mapa</option>
-                  <option value="objects">Camada Objetos</option>
-                  <option value="foreground">Camada Superior</option>
-                </select>
-                <label class="layerSnapToggle"><input id="sceneLayerSnap" type="checkbox" checked /> Encaixar no grid</label>
-              </div>
-              <div id="sceneLayerList" class="sceneLayerList"></div>
+          <div class="sceneDockLayout">
+            <div class="sceneDockNav" aria-label="Atalhos do painel mestre">
+              <button id="sceneNavReport" class="sceneIconBtn active" type="button" title="Relatório" onclick="setSceneSection('report')">🧾</button>
+              <button id="sceneNavScenarios" class="sceneIconBtn" type="button" title="Cenários" onclick="setSceneSection('scenarios')">🗺️</button>
+              <button id="sceneNavTiles" class="sceneIconBtn" type="button" title="Biblioteca de tiles" onclick="setSceneSection('tiles')">🧱</button>
+              <button id="sceneNavLayers" class="sceneIconBtn" type="button" title="Camadas" onclick="setSceneSection('layers')">🖼️</button>
+              <button id="sceneNavGrid" class="sceneIconBtn" type="button" title="Grid e visual" onclick="setSceneSection('grid')">📐</button>
             </div>
 
-            <div class="field">
-              <label>Zoom (Scale)</label>
-              <input id="bgScale" type="range" min="40" max="300" value="120" />
-            </div>
-            <div class="field">
-              <label>Opacidade</label>
-              <input id="bgOpacity" type="range" min="0" max="100" value="65" />
-            </div>
+            <div class="sceneDockBody">
+              <section class="sceneSection active" data-scene-section="report">
+                <div class="sceneActions">
+                  <button class="toolBtn" type="button" onclick="exportChatReportPDF()">
+                    🧾 Gerar relatório da sessão (PDF)
+                  </button>
+                </div>
+              </section>
 
-            <div class="field">
-              <label>Tipo de Grid</label>
-              <select id="gridStyle">
-                <option value="square">Linhas quadradas</option>
-                <option value="dots">Bolinhas</option>
-                <option value="hex">Linhas hexagonais</option>
-              </select>
-            </div>
+              <section class="sceneSection" data-scene-section="scenarios">
+                <div class="sceneActions sceneArtboardActions">
+                  <select id="artboardSelect" aria-label="Selecionar cenário"></select>
+                  <button class="toolBtn" type="button" onclick="createArtboard()">+ Cenário</button>
+                  <button class="toolBtn" type="button" onclick="renameArtboard()">Renomear</button>
+                  <button class="toolBtn" type="button" onclick="deleteArtboard()">Remover</button>
+                </div>
 
-            <div class="field">
-              <label>Transparência do Grid</label>
-              <input id="gridOpacity" type="range" min="0" max="100" value="55" />
-            </div>
+                <div class="field full sceneSizeField">
+                  <label>Tamanho do Cenário (cada célula = 1,5 m)</label>
+                  <div class="sceneSizeControls">
+                    <label>Colunas <input id="sceneCols" type="number" min="6" max="80" value="20" /></label>
+                    <label>Linhas <input id="sceneRows" type="number" min="6" max="80" value="12" /></label>
+                    <button class="toolBtn" type="button" onclick="applyArtboardSize()">Aplicar</button>
+                  </div>
+                </div>
+              </section>
 
-            <div class="field">
-              <label>Espessura da Linha</label>
-              <input id="gridLine" type="range" min="1" max="4" value="1" />
-            </div>
+              <section class="sceneSection" data-scene-section="tiles">
+                <div class="field full">
+                  <label>Biblioteca de Tiles</label>
+                  <div class="tileLibrary" id="tileLibraryButtons">
+                    <button class="toolBtn active" id="toolFloor" onclick="setTool('floor')">🟦 Chão</button>
+                    <button class="toolBtn" id="toolGrass" onclick="setTool('grass')">🌿 Grama</button>
+                    <button class="toolBtn" id="toolStone" onclick="setTool('stone')">🪨 Pedra</button>
+                    <button class="toolBtn" id="toolWall" onclick="setTool('wall')">🧱 Parede</button>
+                    <button class="toolBtn" id="toolWoodwall" onclick="setTool('woodwall')">🪵 Muro Madeira</button>
+                    <button class="toolBtn" id="toolStonewall" onclick="setTool('stonewall')">🧱 Muro Pedra</button>
+                    <button class="toolBtn" id="toolVoid" onclick="setTool('void')">⬛ Vazio</button>
+                  </div>
+                </div>
 
-            <div class="field">
-              <label>Offset X</label>
-              <input id="bgX" type="range" min="-600" max="600" value="0" />
-            </div>
-            <div class="field">
-              <label>Offset Y</label>
-              <input id="bgY" type="range" min="-600" max="600" value="0" />
-            </div>
+                <div class="field full">
+                  <label>Pincel</label>
+                  <div class="toolRow">
+                    <button class="toolBtn active" id="brushSize1" onclick="setBrushSize(1)">1x1</button>
+                    <button class="toolBtn" id="brushSize2" onclick="setBrushSize(2)">2x2</button>
+                    <button class="toolBtn" id="brushSize3" onclick="setBrushSize(3)">3x3</button>
+                  </div>
+                </div>
 
-            <div class="field full sceneSizeField">
-              <label>Tamanho do Artboard (cada célula = 1,5 m)</label>
-              <div class="sceneSizeControls">
-                <label>Colunas <input id="sceneCols" type="number" min="6" max="80" value="20" /></label>
-                <label>Linhas <input id="sceneRows" type="number" min="6" max="80" value="12" /></label>
-                <button class="toolBtn" type="button" onclick="applyArtboardSize()">Aplicar tamanho</button>
-              </div>
-            </div>
+                <div class="field full">
+                  <label>Preencher rápido</label>
+                  <div class="toolRow toolRowScrollable">
+                    <button class="toolBtn" onclick="fillAll('floor')">Preencher: Chão</button>
+                    <button class="toolBtn" onclick="fillAll('grass')">Preencher: Grama</button>
+                    <button class="toolBtn" onclick="fillAll('stone')">Preencher: Pedra</button>
+                    <button class="toolBtn" onclick="fillAll('wall')">Preencher: Parede</button>
+                    <button class="toolBtn" onclick="fillAll('woodwall')">Preencher: Madeira</button>
+                    <button class="toolBtn" onclick="fillAll('stonewall')">Preencher: Muro Pedra</button>
+                    <button class="toolBtn" onclick="fillAll('void')">Preencher: Vazio</button>
+                    <button class="toolBtn" onclick="clearScene()">Limpar Cena</button>
+                  </div>
+                </div>
 
-            <div class="field full">
-              <label>Ferramenta de Tiles (pintar módulos)</label>
-              <div class="toolRow toolRowScrollable">
-                <button
-                  class="toolBtn active"
-                  id="toolFloor"
-                  onclick="setTool('floor')"
-                >
-                  🟦 Chão
-                </button>
-                <button class="toolBtn" id="toolWall" onclick="setTool('wall')">
-                  🧱 Parede
-                </button>
-                <button class="toolBtn" id="toolVoid" onclick="setTool('void')">
-                  ⬛ Vazio
-                </button>
-                <button class="toolBtn" onclick="fillAll('floor')">
-                  Preencher: Chão
-                </button>
-                <button class="toolBtn" onclick="fillAll('wall')">
-                  Preencher: Parede
-                </button>
-                <button class="toolBtn" onclick="fillAll('void')">
-                  Preencher: Vazio
-                </button>
-                <button class="toolBtn" onclick="clearScene()">
-                  Limpar Cena
-                </button>
-              </div>
+                <div class="sceneHint" style="margin-top: 8px">
+                  Clique e arraste para pintar. <kbd>Shift</kbd> usa Parede, <kbd>Alt</kbd> usa Vazio.
+                </div>
+              </section>
 
-              <div class="sceneHint" style="margin-top: 8px">
-                Pintura rápida: clique e arraste.<br />
-                Atalhos: <kbd>Shift</kbd> pinta Parede, <kbd>Alt</kbd> pinta
-                Vazio, sem tecla pinta Chão.
-              </div>
+              <section class="sceneSection" data-scene-section="layers">
+                <div class="field full layerEditorField">
+                  <label>Camadas de imagem</label>
+                  <div class="layerImportGrid compact">
+                    <select id="sceneLayerKind">
+                      <option value="map">Camada Mapa</option>
+                      <option value="objects">Camada Objetos</option>
+                      <option value="foreground">Camada Superior</option>
+                    </select>
+                    <label class="layerSnapToggle"><input id="sceneLayerSnap" type="checkbox" checked /> Encaixar no grid</label>
+                  </div>
+                  <div id="sceneLayerList" class="sceneLayerList"></div>
+                </div>
+              </section>
+
+              <section class="sceneSection" data-scene-section="grid">
+                <div class="sceneGrid">
+                  <div class="field">
+                    <label>Zoom (Scale)</label>
+                    <input id="bgScale" type="range" min="40" max="300" value="120" />
+                  </div>
+                  <div class="field">
+                    <label>Opacidade</label>
+                    <input id="bgOpacity" type="range" min="0" max="100" value="65" />
+                  </div>
+
+                  <div class="field">
+                    <label>Tipo de Grid</label>
+                    <select id="gridStyle">
+                      <option value="square">Linhas quadradas</option>
+                      <option value="dots">Bolinhas</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label>Transparência do Grid</label>
+                    <input id="gridOpacity" type="range" min="0" max="100" value="55" />
+                  </div>
+
+                  <div class="field">
+                    <label>Espessura da Linha</label>
+                    <input id="gridLine" type="range" min="1" max="4" value="1" />
+                  </div>
+
+                  <div class="field">
+                    <label>Offset X</label>
+                    <input id="bgX" type="range" min="-600" max="600" value="0" />
+                  </div>
+                  <div class="field">
+                    <label>Offset Y</label>
+                    <input id="bgY" type="range" min="-600" max="600" value="0" />
+                  </div>
+                </div>
+              </section>
             </div>
           </div>
 
