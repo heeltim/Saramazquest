@@ -185,6 +185,12 @@ const CHARACTER_TEMPLATES = [
 ];
 const DEFAULT_SPRITE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif";
 const TOKEN_GRID_UNIT = 40;
+
+function getArenaCellSize() {
+  const raw = getComputedStyle(arena).getPropertyValue("--cell-size").trim();
+  const parsed = Number.parseFloat(raw);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : TOKEN_GRID_UNIT;
+}
 const TOKEN_CONDITION_LIBRARY = [
   { id: "bleeding", icon: "🩸", label: "Sangrando" },
   { id: "downed", icon: "🛌", label: "Caído" },
@@ -1973,6 +1979,7 @@ function getTokenTooltipText(player) {
 
 function renderTokenAuras(tokenStack, player, tokenScale) {
   const activeAuras = (player.tokenAuras || []).filter((aura) => aura?.enabled);
+  const gridUnit = getArenaCellSize();
   if (!activeAuras.length) return;
 
   const auraLayer = document.createElement("div");
@@ -1981,7 +1988,7 @@ function renderTokenAuras(tokenStack, player, tokenScale) {
   activeAuras.forEach((aura, auraIndex) => {
     const auraEl = document.createElement("div");
     auraEl.className = `tokenAura tokenAura-${aura.shape}`;
-    const auraDiameter = (tokenScale + aura.radius * 2) * TOKEN_GRID_UNIT;
+    const auraDiameter = (tokenScale + aura.radius * 2) * gridUnit;
     auraEl.style.width = `${auraDiameter}px`;
     auraEl.style.height = `${auraDiameter}px`;
     auraEl.style.borderColor = aura.color;
@@ -3418,16 +3425,17 @@ function updateArenaNow() {
   let didMutateSceneState = false;
 
   applySceneCSS();
+  const gridUnit = getArenaCellSize();
 
   document.querySelectorAll('.sceneLayerSprite').forEach((el) => el.remove());
   const layerList = getSceneLayerList(s).filter((layer) => layer.visible !== false && layer.src);
   layerList.forEach((layer) => {
     const layerEl = document.createElement('div');
     layerEl.className = `sceneLayerSprite sceneLayer-${layer.kind || 'objects'}`;
-    layerEl.style.left = `${layer.x * 40}px`;
-    layerEl.style.top = `${layer.y * 40}px`;
-    layerEl.style.width = `${Math.max(1, layer.width) * 40}px`;
-    layerEl.style.height = `${Math.max(1, layer.height) * 40}px`;
+    layerEl.style.left = `${layer.x * gridUnit}px`;
+    layerEl.style.top = `${layer.y * gridUnit}px`;
+    layerEl.style.width = `${Math.max(1, layer.width) * gridUnit}px`;
+    layerEl.style.height = `${Math.max(1, layer.height) * gridUnit}px`;
     layerEl.style.opacity = `${Math.max(0, Math.min(100, layer.opacity ?? 100)) / 100}`;
     layerEl.style.zIndex = String(layer.kind === 'map' ? 1 : layer.kind === 'foreground' ? 4 : 3);
 
@@ -3489,7 +3497,7 @@ function updateArenaNow() {
     token.className = "token";
     token.style.background = p.color;
     const tokenScale = Math.max(1, Math.min(4, parseInt(p.tokenScale, 10) || 1));
-    const tokenSize = tokenScale * TOKEN_GRID_UNIT;
+    const tokenSize = tokenScale * gridUnit;
     tokenStack.style.width = `${tokenSize}px`;
     tokenStack.style.height = `${tokenSize}px`;
     token.style.width = `${tokenSize - 8}px`;
