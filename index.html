@@ -157,8 +157,8 @@
                     <button class="toolBtn" type="button" onclick="clearWorldMapImage()">Remover mapa global</button>
                   </div>
                   <div class="sceneBgImportGrid">
-                    <label>Colunas do grid <input id="worldGridCols" type="number" min="2" max="64" value="8" /></label>
-                    <label>Linhas do grid <input id="worldGridRows" type="number" min="2" max="64" value="6" /></label>
+                    <label>Colunas do grid <input id="worldGridCols" type="number" min="2" max="64" value="40" /></label>
+                    <label>Linhas do grid <input id="worldGridRows" type="number" min="2" max="64" value="25" /></label>
                   </div>
                   <div id="worldMapStatus" class="sceneUploadStatus" aria-live="polite">Nenhum mapa global carregado.</div>
                   <div id="sceneBgPreviewWrap" class="sceneBgPreviewWrap" hidden>
@@ -280,16 +280,38 @@
         <div id="worldMapWindow" class="collapsed" aria-hidden="true">
           <div class="worldMapTopRow">
             <div>
-              <div class="diceHeader">🧭 Mapa global</div>
-              <div id="worldMapWindowHint" class="sceneHint">Clique numa célula para entrar/criar região.</div>
+              <div class="diceHeader">🧭 Mapa Global</div>
+              <div id="worldMapWindowHint" class="sceneHint">Clique numa célula para consultar/editar metadados da região.</div>
             </div>
-            <button class="diceCloseBtn" type="button" onclick="closeWorldMapWindow()" title="Fechar mapa global">✕</button>
+            <div class="worldMapWindowActions">
+              <label class="worldMapToggleGrid"><input id="worldMapShowGrid" type="checkbox" checked /> Mostrar grid</label>
+              <button class="diceCloseBtn" type="button" onclick="closeWorldMapWindow()" title="Fechar mapa global">✕</button>
+            </div>
           </div>
-          <div id="worldMapStage">
-            <img id="worldMapImage" alt="Mapa global" />
-            <div id="worldMapGridOverlay"></div>
-            <div id="worldMapMarkers"></div>
-            <div id="worldMapCellHighlight"></div>
+          <div class="worldMapViewportLayout">
+            <div id="worldMapStageWrap">
+              <div id="worldMapStage">
+                <img id="worldMapImage" alt="Mapa global" />
+                <div id="worldMapGridOverlay"></div>
+                <div id="worldMapMarkers"></div>
+                <div id="worldMapCellHighlight"></div>
+              </div>
+            </div>
+            <aside id="worldMapDrawer" aria-live="polite">
+              <div class="worldMapDrawerTitle">Célula selecionada</div>
+              <div id="worldMapSelectedCell" class="sceneHint">Célula: —</div>
+              <label>Nome da região
+                <input id="worldCellName" type="text" maxlength="60" placeholder="Ex: Caídos Místicos" />
+              </label>
+              <label>Notas
+                <textarea id="worldCellNotes" rows="4" maxlength="300" placeholder="Anotações da célula"></textarea>
+              </label>
+              <div class="worldMapDrawerActions">
+                <button id="worldCellSetNameBtn" class="toolBtn" type="button">Definir nome</button>
+                <button id="worldCellSaveBtn" class="toolBtn" type="button">Salvar</button>
+                <button id="worldCellClearBtn" class="toolBtn" type="button">Limpar</button>
+              </div>
+            </aside>
           </div>
         </div>
         <div id="diceTray" class="collapsed" aria-hidden="true">

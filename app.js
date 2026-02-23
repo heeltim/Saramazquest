@@ -553,8 +553,8 @@ const DEFAULT_SCENE = {
   gridLine: 1,
   worldMap: {
     imageUrl: "",
-    gridCols: 8,
-    gridRows: 6,
+    gridCols: 40,
+    gridRows: 25,
     selectedCell: null,
     markers: [],
     cellLinks: {},
@@ -1567,8 +1567,8 @@ function normalizeWorldMap(scene) {
   }
   const wm = scene.worldMap;
   wm.imageUrl = String(wm.imageUrl || "");
-  wm.gridCols = Math.max(2, Math.min(64, parseInt(wm.gridCols, 10) || 8));
-  wm.gridRows = Math.max(2, Math.min(64, parseInt(wm.gridRows, 10) || 6));
+  wm.gridCols = Math.max(2, Math.min(64, parseInt(wm.gridCols, 10) || 40));
+  wm.gridRows = Math.max(2, Math.min(64, parseInt(wm.gridRows, 10) || 25));
   if (!wm.selectedCell || typeof wm.selectedCell !== "object") {
     wm.selectedCell = null;
   } else {
@@ -5795,6 +5795,50 @@ function setSceneBackgroundPreview(src = "") {
 }
 
 let isWorldMapWindowOpen = false;
+let worldMapView = {
+  scale: 1,
+  minScale: 0.6,
+  maxScale: 4,
+  translateX: 0,
+  translateY: 0,
+  isDragging: false,
+  dragStartX: 0,
+  dragStartY: 0,
+};
+
+function getGlobalMapMetaStorageKey() {
+  return "rpgquest_global_map_meta_v1";
+}
+
+function loadGlobalMapMeta() {
+  const fallback = { cols: 40, rows: 25, cells: {}, currentCell: null };
+  try {
+    const raw = JSON.parse(localStorage.getItem(getGlobalMapMetaStorageKey()) || "{}");
+    return {
+      cols: Math.max(2, Math.min(64, parseInt(raw.cols, 10) || 40)),
+      rows: Math.max(2, Math.min(64, parseInt(raw.rows, 10) || 25)),
+      cells: raw && typeof raw.cells === "object" ? raw.cells : {},
+      currentCell: typeof raw.currentCell === "string" ? raw.currentCell : null,
+    };
+  } catch {
+    return fallback;
+  }
+}
+
+function saveGlobalMapMeta(meta) {
+  localStorage.setItem(getGlobalMapMetaStorageKey(), JSON.stringify(meta));
+}
+
+function normalizeWorldMapMetaWithScene(scene) {
+  const wm = scene.worldMap;
+  const meta = loadGlobalMapMeta();
+  if (meta.cols !== wm.gridCols || meta.rows !== wm.gridRows) {
+    meta.cols = wm.gridCols;
+    meta.rows = wm.gridRows;
+    saveGlobalMapMeta(meta);
+  }
+  return meta;
+}
 
 function syncWorldMapToggleVisibility(scene) {
   const toggle = document.getElementById("worldMapToggle");
@@ -5802,6 +5846,119 @@ function syncWorldMapToggleVisibility(scene) {
   const hasWorldMap = !!scene?.worldMap?.imageUrl;
   toggle.hidden = !hasWorldMap;
   if (!hasWorldMap && isWorldMapWindowOpen) closeWorldMapWindow();
+}
+
+function updateWorldMapTransform() {
+  const stage = document.getElementById("worldMapStage");
+  if (!stage) return;
+  stage.style.transform = `translate(${worldMapView.translateX}px, ${worldMapView.translateY}px) scale(${worldMapView.scale})`;
+}
+
+function resetWorldMapView() {
+  worldMapView.scale = 1;
+  worldMapView.translateX = 0;
+  worldMapView.translateY = 0;
+  updateWorldMapTransform();
+}
+
+function updateWorldMapDrawer(cell) {
+  const coordEl = document.getElementById("worldMapSelectedCell");
+  const nameInput = document.getElementById("worldCellName");
+  const notesInput = document.getElementById("worldCellNotes");
+  const hint = document.getElementById("worldMapWindowHint");
+  if (!coordEl || !nameInput || !notesInput || !hint) return;
+
+  if (!cell) {
+    coordEl.textContent = "Célula: —";
+    nameInput.value = "";
+    notesInput.value = "";
+    hint.textContent = "Clique numa célula para consultar/editar metadados da região.";
+    return;
+  }
+
+  const scene = load().scenes[room];
+  const meta = normalizeWorldMapMetaWithScene(scene);
+  const key = `${cell.x}_${cell.y}`;
+  const data = meta.cells[key] || {};
+  coordEl.textContent = `Célula: X=${cell.x}, Y=${cell.y}`;
+  nameInput.value = String(data.name || "");
+  notesInput.value = String(data.notes || "");
+  hint.textContent = data.name ? `Região: ${data.name}` : "Sem nome definido para esta célula.";
+}
+
+function setWorldMapSelectedCell(x, y) {
+  let data = load();
+  const scene = data.scenes[room];
+  scene.worldMap.selectedCell = { col: x + 1, row: y + 1 };
+  save(data);
+
+  const meta = normalizeWorldMapMetaWithScene(scene);
+  meta.currentCell = `${x}_${y}`;
+  saveGlobalMapMeta(meta);
+
+  renderWorldMapWindow();
+  updateWorldMapDrawer({ x, y });
+}
+
+function saveSelectedWorldCellMeta() {
+  const sceneData = load();
+  const scene = sceneData.scenes[room];
+  const selected = getSelectedWorldCell(scene);
+  if (!selected) return;
+
+  const x = selected.col - 1;
+  const y = selected.row - 1;
+  const key = `${x}_${y}`;
+  const nameInput = document.getElementById("worldCellName");
+  const notesInput = document.getElementById("worldCellNotes");
+  if (!nameInput || !notesInput) return;
+
+  const meta = normalizeWorldMapMetaWithScene(scene);
+  meta.cells[key] = {
+    name: String(nameInput.value || "").trim(),
+    biome: meta.cells[key]?.biome || "",
+    linkedSceneId: meta.cells[key]?.linkedSceneId ?? null,
+    notes: String(notesInput.value || "").trim(),
+  };
+  meta.currentCell = key;
+  saveGlobalMapMeta(meta);
+  updateWorldMapDrawer({ x, y });
+}
+
+function clearSelectedWorldCellMeta() {
+  const sceneData = load();
+  const scene = sceneData.scenes[room];
+  const selected = getSelectedWorldCell(scene);
+  if (!selected) return;
+  const x = selected.col - 1;
+  const y = selected.row - 1;
+  const key = `${x}_${y}`;
+  const meta = normalizeWorldMapMetaWithScene(scene);
+  delete meta.cells[key];
+  saveGlobalMapMeta(meta);
+  updateWorldMapDrawer({ x, y });
+}
+
+function syncWorldMapHighlight() {
+  const els = getWorldMapElements();
+  const scene = load().scenes[room];
+  const wm = scene.worldMap;
+  const selected = getSelectedWorldCell(scene);
+  if (!els.highlight) return;
+  if (!selected) {
+    els.highlight.style.display = "none";
+    return;
+  }
+
+  const colIdx = selected.col - 1;
+  const rowIdx = selected.row - 1;
+  const cellW = 100 / wm.gridCols;
+  const cellH = 100 / wm.gridRows;
+  els.highlight.style.display = "block";
+  els.highlight.style.left = `${colIdx * cellW}%`;
+  els.highlight.style.top = `${rowIdx * cellH}%`;
+  els.highlight.style.width = `${cellW}%`;
+  els.highlight.style.height = `${cellH}%`;
 }
 
 function renderWorldMapWindow() {
@@ -5822,27 +5979,71 @@ function renderWorldMapWindow() {
   els.overlay.style.setProperty("--grid-cols", String(wm.gridCols || 8));
   els.overlay.style.setProperty("--grid-rows", String(wm.gridRows || 6));
   els.overlay.innerHTML = "";
+
+  const showGrid = document.getElementById("worldMapShowGrid")?.checked !== false;
+  els.overlay.style.display = showGrid ? "grid" : "none";
+
   const total = (wm.gridCols || 8) * (wm.gridRows || 6);
   for (let i = 0; i < total; i++) {
+    const x = i % wm.gridCols;
+    const y = Math.floor(i / wm.gridCols);
     const cell = document.createElement("button");
     cell.type = "button";
-    cell.className = "worldMapCell";
-    cell.style.border = "1px solid rgba(138, 190, 255, 0.35)";
-    cell.style.background = "transparent";
-    cell.style.cursor = "pointer";
+    cell.className = "worldGridCell";
     cell.style.padding = "0";
-    cell.setAttribute("aria-label", `Célula ${i + 1}`);
+    cell.setAttribute("aria-label", `Célula X=${x}, Y=${y}`);
+    cell.addEventListener("click", () => {
+      window.dispatchEvent(new CustomEvent("MAP_CELL_SELECTED", { detail: { x, y } }));
+      setWorldMapSelectedCell(x, y);
+    });
     els.overlay.appendChild(cell);
   }
 
+  syncWorldMapHighlight();
+  const selected = getSelectedWorldCell(scene);
+  updateWorldMapDrawer(selected ? { x: selected.col - 1, y: selected.row - 1 } : null);
+
   els.window.classList.toggle("collapsed", !isWorldMapWindowOpen);
   els.window.setAttribute("aria-hidden", isWorldMapWindowOpen ? "false" : "true");
+}
+
+function bindWorldMapViewportInteractions() {
+  const wrap = document.getElementById("worldMapStageWrap");
+  if (!wrap || wrap.dataset.bound) return;
+  wrap.dataset.bound = "1";
+
+  wrap.addEventListener("pointerdown", (event) => {
+    worldMapView.isDragging = true;
+    worldMapView.dragStartX = event.clientX - worldMapView.translateX;
+    worldMapView.dragStartY = event.clientY - worldMapView.translateY;
+    wrap.classList.add("dragging");
+  });
+
+  window.addEventListener("pointerup", () => {
+    worldMapView.isDragging = false;
+    wrap.classList.remove("dragging");
+  });
+
+  window.addEventListener("pointermove", (event) => {
+    if (!worldMapView.isDragging) return;
+    worldMapView.translateX = event.clientX - worldMapView.dragStartX;
+    worldMapView.translateY = event.clientY - worldMapView.dragStartY;
+    updateWorldMapTransform();
+  });
+
+  wrap.addEventListener("wheel", (event) => {
+    event.preventDefault();
+    const next = worldMapView.scale + (event.deltaY < 0 ? 0.08 : -0.08);
+    worldMapView.scale = Math.max(worldMapView.minScale, Math.min(worldMapView.maxScale, next));
+    updateWorldMapTransform();
+  }, { passive: false });
 }
 
 window.toggleWorldMapWindow = function toggleWorldMapWindow() {
   const scene = load().scenes[room];
   if (!scene?.worldMap?.imageUrl) return;
   isWorldMapWindowOpen = !isWorldMapWindowOpen;
+  if (isWorldMapWindowOpen) resetWorldMapView();
   renderWorldMapWindow();
 };
 
@@ -5876,9 +6077,13 @@ window.importWorldMapImage = function importWorldMapImage() {
     const colsInput = document.getElementById("worldGridCols");
     const rowsInput = document.getElementById("worldGridRows");
     scene.worldMap.imageUrl = src;
-    scene.worldMap.gridCols = Math.max(2, Math.min(64, parseInt(colsInput?.value, 10) || scene.worldMap.gridCols || 8));
-    scene.worldMap.gridRows = Math.max(2, Math.min(64, parseInt(rowsInput?.value, 10) || scene.worldMap.gridRows || 6));
+    scene.worldMap.gridCols = Math.max(2, Math.min(64, parseInt(colsInput?.value, 10) || scene.worldMap.gridCols || 40));
+    scene.worldMap.gridRows = Math.max(2, Math.min(64, parseInt(rowsInput?.value, 10) || scene.worldMap.gridRows || 25));
     save(data);
+    const meta = normalizeWorldMapMetaWithScene(scene);
+    meta.cols = scene.worldMap.gridCols;
+    meta.rows = scene.worldMap.gridRows;
+    saveGlobalMapMeta(meta);
     setSceneBackgroundPreview(src);
     setWorldMapUploadStatus(`Mapa global carregado: ${file.name}`, "success");
     syncWorldMapToggleVisibility(scene);
@@ -5893,6 +6098,7 @@ window.clearWorldMapImage = function clearWorldMapImage() {
   let data = load();
   const scene = data.scenes[room];
   scene.worldMap.imageUrl = "";
+  scene.worldMap.selectedCell = null;
   save(data);
   setSceneBackgroundPreview("");
   setWorldMapUploadStatus("Nenhum mapa global carregado.");
@@ -5905,8 +6111,8 @@ function syncWorldBuilderUI() {
   const wm = scene.worldMap;
   const cols = document.getElementById("worldGridCols");
   const rows = document.getElementById("worldGridRows");
-  if (cols) cols.value = String(wm.gridCols || 8);
-  if (rows) rows.value = String(wm.gridRows || 6);
+  if (cols) cols.value = String(wm.gridCols || 40);
+  if (rows) rows.value = String(wm.gridRows || 25);
   setSceneBackgroundPreview(wm.imageUrl || "");
   setWorldMapUploadStatus(wm.imageUrl ? "Mapa global ativo." : "Nenhum mapa global carregado.", wm.imageUrl ? "success" : "idle");
   syncWorldMapToggleVisibility(scene);
@@ -5916,6 +6122,13 @@ function bindWorldBuilderInputs() {
   const upload = document.getElementById("worldMapUpload");
   const cols = document.getElementById("worldGridCols");
   const rows = document.getElementById("worldGridRows");
+  const showGrid = document.getElementById("worldMapShowGrid");
+  const setNameBtn = document.getElementById("worldCellSetNameBtn");
+  const saveBtn = document.getElementById("worldCellSaveBtn");
+  const clearBtn = document.getElementById("worldCellClearBtn");
+
+  bindWorldMapViewportInteractions();
+
   if (upload && !upload.dataset.bound) {
     upload.dataset.bound = "1";
     upload.addEventListener("change", () => {
@@ -5926,9 +6139,13 @@ function bindWorldBuilderInputs() {
   function updateGridSize() {
     let data = load();
     const scene = data.scenes[room];
-    scene.worldMap.gridCols = Math.max(2, Math.min(64, parseInt(cols?.value, 10) || scene.worldMap.gridCols || 8));
-    scene.worldMap.gridRows = Math.max(2, Math.min(64, parseInt(rows?.value, 10) || scene.worldMap.gridRows || 6));
+    scene.worldMap.gridCols = Math.max(2, Math.min(64, parseInt(cols?.value, 10) || scene.worldMap.gridCols || 40));
+    scene.worldMap.gridRows = Math.max(2, Math.min(64, parseInt(rows?.value, 10) || scene.worldMap.gridRows || 25));
     save(data);
+    const meta = normalizeWorldMapMetaWithScene(scene);
+    meta.cols = scene.worldMap.gridCols;
+    meta.rows = scene.worldMap.gridRows;
+    saveGlobalMapMeta(meta);
     if (isWorldMapWindowOpen) renderWorldMapWindow();
   }
   if (cols && !cols.dataset.bound) {
@@ -5938,6 +6155,27 @@ function bindWorldBuilderInputs() {
   if (rows && !rows.dataset.bound) {
     rows.dataset.bound = "1";
     rows.addEventListener("input", updateGridSize);
+  }
+  if (showGrid && !showGrid.dataset.bound) {
+    showGrid.dataset.bound = "1";
+    showGrid.addEventListener("change", () => {
+      if (isWorldMapWindowOpen) renderWorldMapWindow();
+    });
+  }
+  if (setNameBtn && !setNameBtn.dataset.bound) {
+    setNameBtn.dataset.bound = "1";
+    setNameBtn.addEventListener("click", () => {
+      const nameInput = document.getElementById("worldCellName");
+      if (nameInput) nameInput.value = String(nameInput.value || "").trim();
+    });
+  }
+  if (saveBtn && !saveBtn.dataset.bound) {
+    saveBtn.dataset.bound = "1";
+    saveBtn.addEventListener("click", saveSelectedWorldCellMeta);
+  }
+  if (clearBtn && !clearBtn.dataset.bound) {
+    clearBtn.dataset.bound = "1";
+    clearBtn.addEventListener("click", clearSelectedWorldCellMeta);
   }
 }
 
