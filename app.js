@@ -1117,6 +1117,19 @@ const ITEM_DB = {
   },
 
 };
+
+let ITEM_CATALOG = [];
+let ITEM_CATALOG_BY_ID = {};
+
+function getItem(itemId) {
+  if (!itemId) return null;
+  return ITEM_DB[itemId] || ITEM_CATALOG_BY_ID[itemId] || null;
+}
+
+function getReagentItems() {
+  return ITEM_CATALOG.filter((item) => Array.isArray(item.tags) && item.tags.includes("reagent"));
+}
+
 const SHOP_TABS = [
   { id: "taberna", label: "Taberna" },
   { id: "arsenal", label: "Arsenal" },
@@ -1168,19 +1181,11 @@ const PROFESSIONS_DB = {
     { id: "metal_arcano", nome: "Metal Arcano", categoria: "ferraria", raridade: "raro", stack_max: 99, valor_venda_gp_min: 1.4, valor_venda_gp_max: 1.5 },
     { id: "fragmento_draconico", nome: "Fragmento Dracônico", categoria: "ferraria", raridade: "raro", stack_max: 99, valor_venda_gp_min: 1.4, valor_venda_gp_max: 1.5 },
   ],
-  recipes: [
-    { id: "cul_ensopado", profissao_id: "culinaria", nome: "Ensopado Simples", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "carne_comum", qtd: 1 }, { id: "raiz_silvestre", qtd: 1 }], output: { type: "item", item_id: "refeicao_simples", qtd: 1 }, xp_gain: 10 },
-    { id: "cul_peixe_grelhado", profissao_id: "culinaria", nome: "Peixe Grelhado", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "peixe_rio", qtd: 1 }, { id: "sal_grosso", qtd: 1 }], output: { type: "item", item_id: "refeicao_boa", qtd: 1 }, xp_gain: 10 },
-    { id: "cul_banquete_vigoroso", profissao_id: "culinaria", nome: "Banquete Vigoroso", nivel_profissao_min: 5, tempo_dias: 1, reagentes: [{ id: "carne_bestial", qtd: 1 }, { id: "especiaria_exotica", qtd: 1 }], output: { type: "item", item_id: "banquete", qtd: 1 }, xp_gain: 40 },
-    { id: "alq_pocao_cura_fraca", profissao_id: "alquimia", nome: "Poção de Cura Fraca", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "erva_curativa", qtd: 1 }, { id: "flor_azul", qtd: 1 }], output: { type: "item", item_id: "balsamo_restaurador", qtd: 1 }, xp_gain: 10 },
-    { id: "alq_elixir_mental", profissao_id: "alquimia", nome: "Elixir Mental", nivel_profissao_min: 3, tempo_dias: 1, reagentes: [{ id: "raiz_mistica", qtd: 1 }, { id: "po_de_cristal", qtd: 1 }], output: { type: "item", item_id: "vinho_elfico", qtd: 1 }, xp_gain: 25 },
-    { id: "fer_espada_simples", profissao_id: "ferraria", nome: "Espada Simples", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "minerio_ferro", qtd: 1 }, { id: "carvao", qtd: 1 }], output: { type: "item", item_id: "punhal_de_combate", qtd: 1 }, xp_gain: 10 },
-    { id: "fer_arma_reforcada", profissao_id: "ferraria", nome: "Arma Reforçada", nivel_profissao_min: 3, tempo_dias: 1, reagentes: [{ id: "aco_refinado", qtd: 1 }, { id: "liga_rara", qtd: 1 }], output: { type: "item", item_id: "espada_longa", qtd: 1 }, xp_gain: 25 },
-    { id: "fer_armadura_resistente", profissao_id: "ferraria", nome: "Armadura Resistente", nivel_profissao_min: 5, tempo_dias: 1, reagentes: [{ id: "metal_arcano", qtd: 1 }, { id: "fragmento_draconico", qtd: 1 }], output: { type: "item", item_id: "cota_metalica", qtd: 1 }, xp_gain: 40 },
-  ],
+  recipes: [],
 };
-const REAGENT_BY_ID = Object.fromEntries(PROFESSIONS_DB.reagents.map((r) => [r.id, r]));
+let REAGENT_BY_ID = Object.fromEntries(PROFESSIONS_DB.reagents.map((r) => [r.id, r]));
 const PROFESSION_BY_ID = Object.fromEntries(PROFESSIONS_DB.professions.map((r) => [r.id, r]));
+let MANUAL_RECIPES_DB = { recipes: [] };
 let selectedProfessionId = "culinaria";
 let professionTargetName = null;
 let selectedShopId = "taberna";
@@ -1304,6 +1309,19 @@ function save(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
+async function loadItemCatalog() {
+  try {
+    const resp = await fetch("data/items.json", { cache: "no-store" });
+    if (!resp.ok) return;
+    const json = await resp.json();
+    const items = Array.isArray(json?.items) ? json.items : [];
+    ITEM_CATALOG = items;
+    ITEM_CATALOG_BY_ID = Object.fromEntries(items.map((item) => [item.id, item]));
+  } catch (_) {
+    // fallback silencioso
+  }
+}
+
 async function loadShopCatalogs() {
   const files = {
     taberna: "data/shops/shop_taberna.json",
@@ -1323,6 +1341,22 @@ async function loadShopCatalogs() {
       }
     })
   );
+
+  try {
+    const manualResp = await fetch("data/recipes.manual.json", { cache: "no-store" });
+    if (manualResp.ok) {
+      const manualJson = await manualResp.json();
+      if (manualJson && Array.isArray(manualJson.recipes)) MANUAL_RECIPES_DB = manualJson;
+    }
+  } catch (_) {
+    // fallback silencioso
+  }
+
+  const engine = window.ProceduralRecipesEngine;
+  if (engine) {
+    const craftableItems = (SHOP_DB.arsenal?.items || []).filter((item) => ["weapon", "armor", "shield"].includes(item.type));
+    engine.seedCatalog(craftableItems, MANUAL_RECIPES_DB.recipes || []);
+  }
 }
 
 function normalizeChatMessage(message) {
@@ -4886,9 +4920,24 @@ function renderInventoryModal(p) {
 
 function resolveInventoryItem(entry) {
   if (!entry) return null;
-  if (typeof entry === "string") return ITEM_DB[entry] || null;
+  if (typeof entry === "string") return getItem(entry) || null;
   if (typeof entry === "object") return entry;
   return null;
+}
+
+function resolveShopItemEntry(entry) {
+  if (!entry) return null;
+  if (entry.itemId) {
+    const base = getItem(entry.itemId);
+    if (!base) return null;
+    return { ...base, id: entry.itemId, priceGold: entry.priceGold ?? base.priceGold ?? 0 };
+  }
+  return entry.id ? { ...entry, priceGold: entry.priceGold ?? 0 } : null;
+}
+
+function getShopEntries(shopId) {
+  const shop = SHOP_DB[shopId] || { items: [] };
+  return (shop.items || []).map(resolveShopItemEntry).filter(Boolean);
 }
 
 function renderInvList(p) {
@@ -4971,8 +5020,7 @@ function renderShop(p) {
     arsenalSubTabs.innerHTML = "";
   }
 
-  const shop = SHOP_DB[selectedShopId] || { items: [] };
-  let rows = shop.items || [];
+  let rows = getShopEntries(selectedShopId);
   if (selectedShopId === "arsenal") rows = rows.filter((it) => it.type === selectedArsenalType);
 
   list.innerHTML = rows
@@ -5060,8 +5108,7 @@ function buyItem(itemId) {
   ensurePlayerSchema(p);
   recalcFromSheet(p);
 
-  const shop = SHOP_DB[selectedShopId] || { items: [] };
-  const shopEntry = (shop.items || []).find((s) => s.id === itemId);
+  const shopEntry = getShopEntries(selectedShopId).find((s) => s.id === itemId);
   if (!shopEntry) return;
 
   const price = shopEntry.priceGold ?? 0;
@@ -5101,8 +5148,7 @@ function startApplyUpgrade(upgradeId) {
 
 function renderSmithApplyBox(p) {
   const box = document.getElementById("smithApplyBox");
-  const ferreiro = SHOP_DB.ferreiro || { items: [] };
-  const upgrade = (ferreiro.items || []).find((u) => u.id === pendingUpgradeId);
+  const upgrade = getShopEntries("ferreiro").find((u) => u.id === pendingUpgradeId);
   if (!upgrade) {
     box.innerHTML = `<div class="invDesc">Escolha uma melhoria e clique em Aplicar.</div>`;
     return;
@@ -5137,8 +5183,7 @@ function confirmApplyUpgrade(upgradeId, inventoryIndex) {
   const p = data.rooms[room][invTargetName];
   if (!p) return;
 
-  const ferreiro = SHOP_DB.ferreiro || { items: [] };
-  const upgrade = (ferreiro.items || []).find((u) => u.id === upgradeId);
+  const upgrade = getShopEntries("ferreiro").find((u) => u.id === upgradeId);
   if (!upgrade) return;
 
   const price = upgrade.priceGold ?? 0;
@@ -6393,12 +6438,17 @@ updateArena();
 setDiceTrayOpen(false);
 initChatComposer();
 updateChat();
-loadShopCatalogs().then(() => {
-  if (!invTargetName) return;
-  const p = load().rooms[room][invTargetName];
-  if (!p) return;
-  renderShop(p);
-});
+loadItemCatalog()
+  .then(() => {
+    refreshReagentIndexFromItems();
+    return loadShopCatalogs();
+  })
+  .then(() => {
+    if (!invTargetName) return;
+    const p = load().rooms[room][invTargetName];
+    if (!p) return;
+    renderShop(p);
+  });
 
 /* realtime local */
 window.addEventListener("storage", () => {
@@ -6439,11 +6489,7 @@ function getProfessionLevelFromXp(xp) {
 }
 
 function getShopEntryById(itemId) {
-  for (const shop of Object.values(SHOP_DB)) {
-    const found = (shop.items || []).find((it) => it.id === itemId);
-    if (found) return found;
-  }
-  return null;
+  return getItem(itemId);
 }
 
 function addReagentToPlayer(p, reagentId, qty) {
@@ -6553,31 +6599,60 @@ function collectProfession(professionId) {
   updateArena();
 }
 
-function craftRecipe(recipeId) {
+function getProfessionRecipes(professionId) {
+  const engine = window.ProceduralRecipesEngine;
+  if (engine) return engine.listRecipesForProfession(professionId);
+  return (MANUAL_RECIPES_DB.recipes || []).filter((r) => r.profissao_id === professionId);
+}
+
+function craftRecipe(itemId) {
   if (!professionTargetName) return;
   const data = load();
   const p = data.rooms[room][professionTargetName];
   if (!p) return;
   ensurePlayerSchema(p);
-  const recipe = PROFESSIONS_DB.recipes.find((r) => r.id === recipeId);
-  if (!recipe) return;
-  const prog = p.professions_progress[recipe.profissao_id] || { level: 1, xp: 0 };
-  if (prog.level < recipe.nivel_profissao_min) return alert("Nível de profissão insuficiente.");
-  if ((p.downtime_days || 0) < (recipe.tempo_dias || 1)) return alert("Downtime insuficiente.");
-  const shopEntry = getShopEntryById(recipe.output.item_id);
-  if (!shopEntry) return alert("Item de saída não existe no banco de itens.");
-  if (!consumeReagentsFromPlayer(p, recipe.reagentes || [])) return alert("Reagentes insuficientes.");
-  p.downtime_days -= (recipe.tempo_dias || 1);
-  for (let i = 0; i < (recipe.output.qtd || 1); i += 1) {
-    const itemRuntimeId = createInventoryItemFromShopEntry(shopEntry);
-    const res = addItemToPlayer(p, itemRuntimeId);
-    if (!res.ok) break;
+
+  const professionId = selectedProfessionId;
+  const engine = window.ProceduralRecipesEngine;
+  if (!engine) return alert("Engine de receitas indisponível.");
+  const prog = p.professions_progress[professionId] || { level: 1, xp: 0 };
+  const actorState = {
+    professionId,
+    professionLevel: prog.level || 1,
+    downtimeDays: p.downtime_days || 0,
+    reagentsInventory: p.reagents_inventory,
+    produceItem: (craftedItemId) => {
+      const shopEntry = getShopEntryById(craftedItemId);
+      if (!shopEntry) throw new Error("Item de saída não existe no banco de itens.");
+      const itemRuntimeId = createInventoryItemFromShopEntry(shopEntry);
+      const res = addItemToPlayer(p, itemRuntimeId);
+      if (!res.ok) throw new Error(res.msg || "Inventário cheio.");
+    },
+  };
+
+  const check = engine.canCraft(itemId, actorState.reagentsInventory, professionId, actorState.professionLevel, actorState.downtimeDays);
+  if (!check.ok) {
+    if (check.reason === "level") return alert("Nível de profissão insuficiente.");
+    if (check.reason === "downtime") return alert("Downtime insuficiente.");
+    if (check.reason === "reagents") return alert("Reagentes insuficientes.");
+    return alert("Receita indisponível para essa profissão.");
   }
+
+  let crafted;
+  try {
+    crafted = engine.craft(itemId, actorState);
+  } catch (err) {
+    return alert(err?.message || "Falha ao craftar.");
+  }
+  if (!crafted.ok) return alert("Falha ao craftar.");
+  const recipe = crafted.recipe;
+
+  p.downtime_days = actorState.downtimeDays;
   const craftXp = (recipe.reagentes || []).reduce((sum, req) => {
     const raridade = REAGENT_BY_ID[req.id]?.raridade;
     return sum + (PROFESSION_XP_BY_RARITY[raridade] || 0) * (req.qtd || 1);
   }, 0) || recipe.xp_gain || 0;
-  gainProfessionXp(p, recipe.profissao_id, craftXp);
+  gainProfessionXp(p, professionId, craftXp);
   professionDebugLog({ reagentes_ganhos: [], xp_ganho: craftXp, downtime_gasto: recipe.tempo_dias || 1, craft_output: recipe.output.item_id, saldo_ouro: p.gold });
   save(data);
   renderProfessionsModal(p);
@@ -6625,7 +6700,7 @@ function renderProfessionsModal(p) {
   const panel = document.getElementById("professionsPanel");
   if (!panel) return;
   const profTabs = PROFESSIONS_DB.professions.map((prof) => `<button class="smallBtn ${selectedProfessionId === prof.id ? "smallBtnPrimary" : ""}" onclick="selectedProfessionId='${prof.id}'; renderProfessionsModal(load().rooms[room][professionTargetName]);">${prof.nome}</button>`).join("");
-  const recipes = PROFESSIONS_DB.recipes.filter((r) => r.profissao_id === selectedProfessionId);
+  const recipes = getProfessionRecipes(selectedProfessionId);
   const reagentsHtml = Object.entries(p.reagents_inventory || {}).map(([rid, qty]) => `<div class="reagentRow"><span>${REAGENT_BY_ID[rid]?.nome || rid}</span><strong>x${qty}</strong></div>`).join("") || '<div class="invDesc">Sem reagentes.</div>';
   const productionOptions = ["culinaria", "alquimia", "ferraria"].map((id) => `<label><input type="checkbox" ${p.production_professions.includes(id) ? "checked" : ""} onchange="toggleProductionProfession('${id}', this.checked)"> ${PROFESSION_BY_ID[id].nome}</label>`).join(" ");
   panel.innerHTML = `
@@ -6637,7 +6712,7 @@ function renderProfessionsModal(p) {
     </div>
     ${PROFESSIONS_DB.professions.map((prof) => `<div class="profSection"><div class="profHeader"><strong>${prof.nome}</strong><span class="profBadge">Nv ${p.professions_progress[prof.id]?.level || 1} • XP ${p.professions_progress[prof.id]?.xp || 0}</span></div></div>`).join("")}
     <div class="profSection"><strong>Ações</strong><div class="profActions"><button class="smallBtn smallBtnPrimary" onclick="collectProfession('${selectedProfessionId}')">Coletar</button><button class="smallBtn smallBtnPrimary" onclick="sellFirstReagent()">Vender</button></div></div>
-    <div class="profSection"><strong>Receitas (${PROFESSION_BY_ID[selectedProfessionId]?.nome || ''})</strong>${recipes.map((r) => `<div class="reagentRow"><span>${r.nome} → ${r.output.item_id}</span><button class="smallBtn" onclick="craftRecipe('${r.id}')">Craftar</button></div>`).join('') || '<div class="invDesc">Sem receitas.</div>'}</div>
+    <div class="profSection"><strong>Receitas (${PROFESSION_BY_ID[selectedProfessionId]?.nome || ''})</strong>${recipes.map((r) => `<div class="reagentRow"><span>${r.nome} → ${r.output.item_id}</span><button class="smallBtn" onclick="craftRecipe('${r.output.item_id}')">Craftar</button></div>`).join('') || '<div class="invDesc">Sem receitas.</div>'}</div>
     <div class="profSection"><strong>Inventário de reagentes</strong>${reagentsHtml}</div>
     <div class="profSection"><strong>Mercador / Loja do jogador</strong><button class="smallBtn" onclick="togglePlayerShopEnabled()">${p.player_shop.enabled ? "Desativar" : "Ativar"} loja</button><button class="smallBtn" onclick="openPlayerShop('${professionTargetName}','${currentUser}')">Abrir Loja</button></div>
   `;

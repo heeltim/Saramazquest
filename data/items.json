@@ -1,0 +1,2637 @@
+{
+  "items": [
+    {
+      "id": "aco_refinado",
+      "name": "Aço Refinado",
+      "icon": "⛏️",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:ferraria",
+        "profession:ferraria",
+        "type:material"
+      ],
+      "raridade": "incomum",
+      "categoria": "ferraria",
+      "valor_venda_gp_min": 1.0,
+      "valor_venda_gp_max": 1.3
+    },
+    {
+      "id": "aguardente",
+      "name": "Aguardente",
+      "icon": "🧪",
+      "type": "consumable",
+      "stack": 99,
+      "tags": [
+        "type:consumable",
+        "shop:taberna"
+      ],
+      "priceGold": 5,
+      "description": "Embriaguez rápida.",
+      "category": "drink"
+    },
+    {
+      "id": "alabarda_pesada",
+      "name": "Alabarda Pesada",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 10,
+      "weaponCategory": "martial",
+      "damage": "1d10",
+      "crit": "x3",
+      "range": null,
+      "weight": "6kg",
+      "damageType": "Corte",
+      "proficiency": "martial",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "algemas",
+      "name": "Algemas",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 15,
+      "description": "Imobiliza alvo médio; exige teste para escapar.",
+      "weight": "1kg",
+      "category": "tool"
+    },
+    {
+      "id": "algibeira",
+      "name": "Algibeira",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 1,
+      "description": "Guarda moedas e itens pequenos.",
+      "weight": "0.2kg",
+      "category": "equipment"
+    },
+    {
+      "id": "arco_curto",
+      "name": "Arco Curto",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 30,
+      "weaponCategory": "simple",
+      "damage": "1d6",
+      "crit": "x3",
+      "range": "Médio",
+      "weight": "1kg",
+      "damageType": "Perfuração",
+      "proficiency": "simple",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "arco_longo",
+      "name": "Arco Longo",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 100,
+      "weaponCategory": "martial",
+      "damage": "1d8",
+      "crit": "x3",
+      "range": "Longo",
+      "weight": "1.5kg",
+      "damageType": "Perfuração",
+      "proficiency": "martial",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "armadura_completa",
+      "name": "Armadura Completa",
+      "icon": "🥋",
+      "type": "armor",
+      "stack": 1,
+      "tags": [
+        "type:armor",
+        "shop:arsenal"
+      ],
+      "priceGold": 1500,
+      "defenseBonus": 8,
+      "penalty": -5,
+      "category": "heavy",
+      "weight": "25kg",
+      "description": "Armadura de arsenal."
+    },
+    {
+      "id": "armadura_draconica",
+      "name": "Armadura Dracônica",
+      "icon": "🥋",
+      "type": "armor",
+      "stack": 1,
+      "tags": [
+        "type:armor",
+        "shop:arsenal"
+      ],
+      "priceGold": 90000,
+      "defenseBonus": 9,
+      "penalty": -2,
+      "category": "heavy",
+      "weight": "25kg",
+      "description": "Armadura de arsenal."
+    },
+    {
+      "id": "armadura_profunda",
+      "name": "Armadura Profunda",
+      "icon": "🥋",
+      "type": "armor",
+      "stack": 1,
+      "tags": [
+        "type:armor",
+        "shop:arsenal"
+      ],
+      "priceGold": 5000,
+      "defenseBonus": 8,
+      "penalty": -5,
+      "category": "heavy",
+      "weight": "30kg",
+      "description": "Armadura de arsenal."
+    },
+    {
+      "id": "armadura_segmentada",
+      "name": "Armadura Segmentada",
+      "icon": "🥋",
+      "type": "armor",
+      "stack": 1,
+      "tags": [
+        "type:armor",
+        "shop:arsenal"
+      ],
+      "priceGold": 250,
+      "defenseBonus": 6,
+      "penalty": -5,
+      "category": "heavy",
+      "weight": "17kg",
+      "description": "Armadura de arsenal."
+    },
+    {
+      "id": "balao_goblin",
+      "name": "Balão Goblin",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 200,
+      "description": "Veículo aéreo improvisado.",
+      "category": "vehicle"
+    },
+    {
+      "id": "balsamo_restaurador",
+      "name": "Bálsamo Restaurador",
+      "icon": "🧪",
+      "type": "consumable",
+      "stack": 99,
+      "tags": [
+        "type:consumable",
+        "shop:taberna"
+      ],
+      "priceGold": 25,
+      "description": "Recupera vida ao ser aplicado.",
+      "weight": "0.5kg",
+      "category": "consumable"
+    },
+    {
+      "id": "banquete",
+      "name": "Banquete",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 50,
+      "description": "Recupera fadiga leve do grupo.",
+      "category": "event"
+    },
+    {
+      "id": "barril_explosivo",
+      "name": "Barril Explosivo",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 800,
+      "description": "Grande dano em área quando detonado.",
+      "weight": "10kg",
+      "category": "explosive"
+    },
+    {
+      "id": "besta_leve",
+      "name": "Besta Leve",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 35,
+      "weaponCategory": "simple",
+      "damage": "1d8",
+      "crit": "19-20",
+      "range": "Médio",
+      "weight": "3kg",
+      "damageType": "Perfuração",
+      "proficiency": "simple",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "besta_pesada",
+      "name": "Besta Pesada",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 50,
+      "weaponCategory": "martial",
+      "damage": "1d12",
+      "crit": "19-20",
+      "range": "Longo",
+      "weight": "4kg",
+      "damageType": "Perfuração",
+      "proficiency": "martial",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "brunea_reforcada",
+      "name": "Brunea Reforçada",
+      "icon": "🥋",
+      "type": "armor",
+      "stack": 1,
+      "tags": [
+        "type:armor",
+        "shop:arsenal"
+      ],
+      "priceGold": 50,
+      "defenseBonus": 4,
+      "penalty": -3,
+      "category": "medium",
+      "weight": "15kg",
+      "description": "Armadura de arsenal."
+    },
+    {
+      "id": "bumboo",
+      "name": "Bumboo",
+      "icon": "🧪",
+      "type": "consumable",
+      "stack": 99,
+      "tags": [
+        "type:consumable",
+        "shop:taberna"
+      ],
+      "priceGold": 10,
+      "description": "Exótica e forte.",
+      "category": "exotic_drink"
+    },
+    {
+      "id": "canoa",
+      "name": "Canoa",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 50,
+      "description": "Veículo aquático leve.",
+      "category": "vehicle"
+    },
+    {
+      "id": "cao_de_guarda",
+      "name": "Cão de Guarda",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 50,
+      "description": "Auxilia vigília e rastreamento.",
+      "category": "animal"
+    },
+    {
+      "id": "carne_bestial",
+      "name": "Carne Bestial",
+      "icon": "🥩",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:culinaria",
+        "profession:culinaria",
+        "type:material"
+      ],
+      "raridade": "raro",
+      "categoria": "culinaria",
+      "valor_venda_gp_min": 1.2,
+      "valor_venda_gp_max": 1.5
+    },
+    {
+      "id": "carne_comum",
+      "name": "Carne Comum",
+      "icon": "🥩",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:culinaria",
+        "profession:culinaria",
+        "type:material"
+      ],
+      "raridade": "comum",
+      "categoria": "culinaria",
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.6
+    },
+    {
+      "id": "carne_selvagem",
+      "name": "Carne Selvagem",
+      "icon": "🥩",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:culinaria",
+        "profession:culinaria",
+        "type:material"
+      ],
+      "raridade": "incomum",
+      "categoria": "culinaria",
+      "valor_venda_gp_min": 0.7,
+      "valor_venda_gp_max": 1.1
+    },
+    {
+      "id": "carroca",
+      "name": "Carroça",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 30,
+      "description": "Veículo terrestre simples.",
+      "category": "vehicle"
+    },
+    {
+      "id": "carruagem",
+      "name": "Carruagem",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 100,
+      "description": "Veículo terrestre confortável.",
+      "category": "vehicle"
+    },
+    {
+      "id": "carvao",
+      "name": "Carvão",
+      "icon": "⛏️",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:ferraria",
+        "profession:ferraria",
+        "type:material"
+      ],
+      "raridade": "comum",
+      "categoria": "ferraria",
+      "valor_venda_gp_min": 0.3,
+      "valor_venda_gp_max": 0.9
+    },
+    {
+      "id": "cavalo",
+      "name": "Cavalo",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 75,
+      "description": "Aumenta deslocamento.",
+      "category": "mount"
+    },
+    {
+      "id": "cavalo_de_guerra",
+      "name": "Cavalo de Guerra",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 400,
+      "description": "Treinado para combate.",
+      "category": "mount"
+    },
+    {
+      "id": "cerveja",
+      "name": "Cerveja",
+      "icon": "🧪",
+      "type": "consumable",
+      "stack": 99,
+      "tags": [
+        "type:consumable",
+        "shop:taberna"
+      ],
+      "priceGold": 1,
+      "description": "Relaxa; risco leve de embriaguez.",
+      "category": "drink"
+    },
+    {
+      "id": "cerveja_negra",
+      "name": "Cerveja Negra",
+      "icon": "🧪",
+      "type": "consumable",
+      "stack": 99,
+      "tags": [
+        "type:consumable",
+        "shop:taberna"
+      ],
+      "priceGold": 30,
+      "description": "Forte e encorpada.",
+      "category": "drink"
+    },
+    {
+      "id": "chicote_de_aco",
+      "name": "Chicote de Aço",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 2,
+      "weaponCategory": "exotic",
+      "damage": "1d3",
+      "crit": "x2",
+      "range": null,
+      "weight": "1kg",
+      "damageType": "Corte",
+      "proficiency": "exotic",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "cogumelo_luminoso",
+      "name": "Cogumelo Luminoso",
+      "icon": "🥩",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:culinaria",
+        "profession:culinaria",
+        "type:material"
+      ],
+      "raridade": "incomum",
+      "categoria": "culinaria",
+      "valor_venda_gp_min": 0.7,
+      "valor_venda_gp_max": 1.1
+    },
+    {
+      "id": "conjuracao_nivel_1",
+      "name": "Conjuração Nível 1",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 10,
+      "description": "Serviço mágico de nível 1.",
+      "category": "magic_service"
+    },
+    {
+      "id": "conjuracao_nivel_2",
+      "name": "Conjuração Nível 2",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 60,
+      "description": "Serviço mágico de nível 2.",
+      "category": "magic_service"
+    },
+    {
+      "id": "conjuracao_nivel_3",
+      "name": "Conjuração Nível 3",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 150,
+      "description": "Serviço mágico de nível 3.",
+      "category": "magic_service"
+    },
+    {
+      "id": "conjuracao_nivel_4",
+      "name": "Conjuração Nível 4",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 280,
+      "description": "Serviço mágico de nível 4.",
+      "category": "magic_service"
+    },
+    {
+      "id": "conjuracao_nivel_5",
+      "name": "Conjuração Nível 5",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 450,
+      "description": "Serviço mágico de nível 5.",
+      "category": "magic_service"
+    },
+    {
+      "id": "conjuracao_nivel_6",
+      "name": "Conjuração Nível 6",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 660,
+      "description": "Serviço mágico de nível 6.",
+      "category": "magic_service"
+    },
+    {
+      "id": "conjuracao_nivel_7",
+      "name": "Conjuração Nível 7",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 910,
+      "description": "Serviço mágico de nível 7.",
+      "category": "magic_service"
+    },
+    {
+      "id": "conjuracao_nivel_8",
+      "name": "Conjuração Nível 8",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 1200,
+      "description": "Serviço mágico de nível 8.",
+      "category": "magic_service"
+    },
+    {
+      "id": "conjuracao_nivel_9",
+      "name": "Conjuração Nível 9",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 1530,
+      "description": "Serviço mágico de nível 9.",
+      "category": "magic_service"
+    },
+    {
+      "id": "corda_15m",
+      "name": "Corda (15m)",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 1,
+      "description": "Auxilia escaladas, amarras e improvisos.",
+      "weight": "5kg",
+      "category": "utility"
+    },
+    {
+      "id": "corrente_espinhada",
+      "name": "Corrente Espinhada",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 25,
+      "weaponCategory": "exotic",
+      "damage": "2d4",
+      "crit": "19-20",
+      "range": null,
+      "weight": "5kg",
+      "damageType": "Corte",
+      "proficiency": "exotic",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "cota_metalica",
+      "name": "Cota Metálica",
+      "icon": "🥋",
+      "type": "armor",
+      "stack": 1,
+      "tags": [
+        "type:armor",
+        "shop:arsenal"
+      ],
+      "priceGold": 150,
+      "defenseBonus": 5,
+      "penalty": -3,
+      "category": "medium",
+      "weight": "20kg",
+      "description": "Armadura de arsenal."
+    },
+    {
+      "id": "couraca_de_bronze",
+      "name": "Couraça de Bronze",
+      "icon": "🥋",
+      "type": "armor",
+      "stack": 1,
+      "tags": [
+        "type:armor",
+        "shop:arsenal"
+      ],
+      "priceGold": 500,
+      "defenseBonus": 4,
+      "penalty": -4,
+      "category": "medium",
+      "weight": "12kg",
+      "description": "Armadura de arsenal."
+    },
+    {
+      "id": "couraca_de_peles",
+      "name": "Couraça de Peles",
+      "icon": "🥋",
+      "type": "armor",
+      "stack": 1,
+      "tags": [
+        "type:armor",
+        "shop:arsenal"
+      ],
+      "priceGold": 15,
+      "defenseBonus": 3,
+      "penalty": -2,
+      "category": "medium",
+      "weight": "12kg",
+      "description": "Armadura de arsenal."
+    },
+    {
+      "id": "couraca_rigida",
+      "name": "Couraça Rígida",
+      "icon": "🥋",
+      "type": "armor",
+      "stack": 1,
+      "tags": [
+        "type:armor",
+        "shop:arsenal"
+      ],
+      "priceGold": 200,
+      "defenseBonus": 5,
+      "penalty": -4,
+      "category": "medium",
+      "weight": "15kg",
+      "description": "Armadura de arsenal."
+    },
+    {
+      "id": "couro",
+      "name": "Couro",
+      "icon": "⛏️",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:ferraria",
+        "profession:ferraria",
+        "type:material"
+      ],
+      "raridade": "comum",
+      "categoria": "ferraria",
+      "valor_venda_gp_min": 0.3,
+      "valor_venda_gp_max": 0.9
+    },
+    {
+      "id": "couro_flexivel",
+      "name": "Couro Flexível",
+      "icon": "🥋",
+      "type": "armor",
+      "stack": 1,
+      "tags": [
+        "type:armor",
+        "shop:arsenal"
+      ],
+      "priceGold": 10,
+      "defenseBonus": 2,
+      "penalty": 0,
+      "category": "light",
+      "weight": "7kg",
+      "description": "Armadura de arsenal."
+    },
+    {
+      "id": "couro_reforcado",
+      "name": "Couro Reforçado",
+      "icon": "🥋",
+      "type": "armor",
+      "stack": 1,
+      "tags": [
+        "type:armor",
+        "shop:arsenal"
+      ],
+      "priceGold": 25,
+      "defenseBonus": 3,
+      "penalty": -1,
+      "category": "light",
+      "weight": "10kg",
+      "description": "Armadura de arsenal."
+    },
+    {
+      "id": "dardo_de_guerra",
+      "name": "Dardo de Guerra",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 1,
+      "weaponCategory": "simple",
+      "damage": "1d6",
+      "crit": "x2",
+      "range": "Médio",
+      "weight": "1kg",
+      "damageType": "Perfuração",
+      "proficiency": "simple",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "erva_aromatica",
+      "name": "Erva Aromática",
+      "icon": "🥩",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:culinaria",
+        "profession:culinaria",
+        "type:material"
+      ],
+      "raridade": "comum",
+      "categoria": "culinaria",
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.6
+    },
+    {
+      "id": "erva_comum",
+      "name": "Erva Comum",
+      "icon": "🧪",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:alquimia",
+        "profession:alquimia",
+        "type:material"
+      ],
+      "raridade": "comum",
+      "categoria": "alquimia",
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.7
+    },
+    {
+      "id": "erva_curativa",
+      "name": "Erva Curativa",
+      "icon": "🧪",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:alquimia",
+        "profession:alquimia",
+        "type:material"
+      ],
+      "raridade": "comum",
+      "categoria": "alquimia",
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.7
+    },
+    {
+      "id": "erva_rara",
+      "name": "Erva Rara",
+      "icon": "🧪",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:alquimia",
+        "profession:alquimia",
+        "type:material"
+      ],
+      "raridade": "incomum",
+      "categoria": "alquimia",
+      "valor_venda_gp_min": 0.8,
+      "valor_venda_gp_max": 1.2
+    },
+    {
+      "id": "escudo_de_torre",
+      "name": "Escudo de Torre",
+      "icon": "🛡️",
+      "type": "shield",
+      "stack": 1,
+      "tags": [
+        "type:shield",
+        "shop:arsenal"
+      ],
+      "priceGold": 50,
+      "defenseBonus": 4,
+      "penalty": -5,
+      "weight": "15kg",
+      "description": "Escudo de arsenal."
+    },
+    {
+      "id": "escudo_leve",
+      "name": "Escudo Leve",
+      "icon": "🛡️",
+      "type": "shield",
+      "stack": 1,
+      "tags": [
+        "type:shield",
+        "shop:arsenal"
+      ],
+      "priceGold": 5,
+      "defenseBonus": 1,
+      "penalty": -1,
+      "weight": "3kg",
+      "description": "Escudo de arsenal."
+    },
+    {
+      "id": "escudo_pesado",
+      "name": "Escudo Pesado",
+      "icon": "🛡️",
+      "type": "shield",
+      "stack": 1,
+      "tags": [
+        "type:shield",
+        "shop:arsenal"
+      ],
+      "priceGold": 15,
+      "defenseBonus": 2,
+      "penalty": -2,
+      "weight": "7kg",
+      "description": "Escudo de arsenal."
+    },
+    {
+      "id": "espada_grande",
+      "name": "Espada Grande",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 50,
+      "weaponCategory": "martial",
+      "damage": "2d6",
+      "crit": "19-20",
+      "range": null,
+      "weight": "4kg",
+      "damageType": "Corte",
+      "proficiency": "martial",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "espada_longa",
+      "name": "Espada Longa",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 15,
+      "weaponCategory": "martial",
+      "damage": "1d8",
+      "crit": "19-20",
+      "range": null,
+      "weight": "2kg",
+      "damageType": "Corte",
+      "proficiency": "martial",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "especiaria_exotica",
+      "name": "Especiaria Exótica",
+      "icon": "🥩",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:culinaria",
+        "profession:culinaria",
+        "type:material"
+      ],
+      "raridade": "raro",
+      "categoria": "culinaria",
+      "valor_venda_gp_min": 1.2,
+      "valor_venda_gp_max": 1.5
+    },
+    {
+      "id": "espelho_de_metal",
+      "name": "Espelho de Metal",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 10,
+      "description": "Permite observar cantos sem exposição.",
+      "weight": "0.2kg",
+      "category": "utility"
+    },
+    {
+      "id": "essencia_arcana",
+      "name": "Essência Arcana",
+      "icon": "🧪",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:alquimia",
+        "profession:alquimia",
+        "type:material"
+      ],
+      "raridade": "raro",
+      "categoria": "alquimia",
+      "valor_venda_gp_min": 1.3,
+      "valor_venda_gp_max": 1.5
+    },
+    {
+      "id": "estabulo_dia",
+      "name": "Estábulo (dia)",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 5,
+      "description": "Abrigo para montaria.",
+      "category": "service"
+    },
+    {
+      "id": "flechas_20",
+      "name": "Flechas (20)",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 99,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal",
+        "ammo"
+      ],
+      "priceGold": 1,
+      "weaponCategory": "ammo",
+      "damage": null,
+      "crit": null,
+      "range": null,
+      "weight": "1.5kg",
+      "damageType": null,
+      "proficiency": "ammo",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "flor_azul",
+      "name": "Flor Azul",
+      "icon": "🧪",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:alquimia",
+        "profession:alquimia",
+        "type:material"
+      ],
+      "raridade": "comum",
+      "categoria": "alquimia",
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.7
+    },
+    {
+      "id": "florete_fino",
+      "name": "Florete Fino",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 20,
+      "weaponCategory": "martial",
+      "damage": "1d6",
+      "crit": "18-20",
+      "range": null,
+      "weight": "1kg",
+      "damageType": "Perfuração",
+      "proficiency": "martial",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "foice_curta",
+      "name": "Foice Curta",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 4,
+      "weaponCategory": "simple",
+      "damage": "1d6",
+      "crit": "x3",
+      "range": null,
+      "weight": "1kg",
+      "damageType": "Corte",
+      "proficiency": "simple",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "fragmento_draconico",
+      "name": "Fragmento Dracônico",
+      "icon": "⛏️",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:ferraria",
+        "profession:ferraria",
+        "type:material"
+      ],
+      "raridade": "raro",
+      "categoria": "ferraria",
+      "valor_venda_gp_min": 1.4,
+      "valor_venda_gp_max": 1.5
+    },
+    {
+      "id": "gibao_acolchoado",
+      "name": "Gibão Acolchoado",
+      "icon": "🥋",
+      "type": "armor",
+      "stack": 1,
+      "tags": [
+        "type:armor",
+        "shop:arsenal"
+      ],
+      "priceGold": 5,
+      "defenseBonus": 1,
+      "penalty": 0,
+      "category": "light",
+      "weight": "5kg",
+      "description": "Armadura de arsenal."
+    },
+    {
+      "id": "grog",
+      "name": "Grog",
+      "icon": "🧪",
+      "type": "consumable",
+      "stack": 99,
+      "tags": [
+        "type:consumable",
+        "shop:taberna"
+      ],
+      "priceGold": 1,
+      "description": "Comum em portos.",
+      "category": "drink"
+    },
+    {
+      "id": "hidromel",
+      "name": "Hidromel",
+      "icon": "🧪",
+      "type": "consumable",
+      "stack": 99,
+      "tags": [
+        "type:consumable",
+        "shop:taberna"
+      ],
+      "priceGold": 1,
+      "description": "Forte e tradicional.",
+      "category": "drink"
+    },
+    {
+      "id": "katara",
+      "name": "Katara",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 30,
+      "weaponCategory": "exotic",
+      "damage": "1d10",
+      "crit": "x3",
+      "range": null,
+      "weight": "4kg",
+      "damageType": "Corte",
+      "proficiency": "exotic",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "kit_de_artesao",
+      "name": "Kit de Artesão",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 30,
+      "description": "Necessário para fabricar e reparar itens.",
+      "weight": "4kg",
+      "category": "tool"
+    },
+    {
+      "id": "kit_de_aventureiro",
+      "name": "Kit de Aventureiro",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 10,
+      "description": "Conjunto básico para exploração.",
+      "weight": "17kg",
+      "category": "pack"
+    },
+    {
+      "id": "kit_de_disfarce",
+      "name": "Kit de Disfarce",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 50,
+      "description": "Bônus em disfarces e infiltração.",
+      "weight": "4kg",
+      "category": "tool"
+    },
+    {
+      "id": "kit_de_ladrao",
+      "name": "Kit de Ladrão",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 30,
+      "description": "Permite abrir fechaduras e desarmar armadilhas.",
+      "weight": "0.5kg",
+      "category": "tool"
+    },
+    {
+      "id": "kit_medico",
+      "name": "Kit Médico",
+      "icon": "🧪",
+      "type": "consumable",
+      "stack": 99,
+      "tags": [
+        "type:consumable",
+        "shop:taberna"
+      ],
+      "priceGold": 50,
+      "description": "Estabiliza e trata ferimentos.",
+      "weight": "0.5kg",
+      "category": "consumable"
+    },
+    {
+      "id": "lamina_bastarda",
+      "name": "Lâmina Bastarda",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 35,
+      "weaponCategory": "exotic",
+      "damage": "1d10/1d12",
+      "crit": "19-20",
+      "range": null,
+      "weight": "3kg",
+      "damageType": "Corte",
+      "proficiency": "exotic",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "lamina_curta",
+      "name": "Lâmina Curta",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 2,
+      "weaponCategory": "simple",
+      "damage": "1d4",
+      "crit": "19-20",
+      "range": null,
+      "weight": "0.5kg",
+      "damageType": "Perfuração",
+      "proficiency": "simple",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "lampiao",
+      "name": "Lampião",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 7,
+      "description": "Ilumina área média por horas.",
+      "weight": "1kg",
+      "category": "light"
+    },
+    {
+      "id": "lanca_de_cavalaria",
+      "name": "Lança de Cavalaria",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 10,
+      "weaponCategory": "martial",
+      "damage": "1d8",
+      "crit": "x3",
+      "range": null,
+      "weight": "5kg",
+      "damageType": "Perfuração",
+      "proficiency": "martial",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "lanca_leve",
+      "name": "Lança Leve",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 2,
+      "weaponCategory": "simple",
+      "damage": "1d6",
+      "crit": "x2",
+      "range": "Curto",
+      "weight": "1.5kg",
+      "damageType": "Perfuração",
+      "proficiency": "simple",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "liga_rara",
+      "name": "Liga Rara",
+      "icon": "⛏️",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:ferraria",
+        "profession:ferraria",
+        "type:material"
+      ],
+      "raridade": "incomum",
+      "categoria": "ferraria",
+      "valor_venda_gp_min": 1.0,
+      "valor_venda_gp_max": 1.3
+    },
+    {
+      "id": "maca_leve",
+      "name": "Maça Leve",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 12,
+      "weaponCategory": "simple",
+      "damage": "1d8",
+      "crit": "x2",
+      "range": null,
+      "weight": "6kg",
+      "damageType": "Impacto",
+      "proficiency": "simple",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "machado_de_guerra",
+      "name": "Machado de Guerra",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 10,
+      "weaponCategory": "martial",
+      "damage": "1d8",
+      "crit": "x3",
+      "range": null,
+      "weight": "3kg",
+      "damageType": "Corte",
+      "proficiency": "martial",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "machado_titanico",
+      "name": "Machado Titânico",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 50,
+      "weaponCategory": "exotic",
+      "damage": "2d8",
+      "crit": "x3",
+      "range": null,
+      "weight": "12kg",
+      "damageType": "Corte",
+      "proficiency": "exotic",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "malha_leve",
+      "name": "Malha Leve",
+      "icon": "🥋",
+      "type": "armor",
+      "stack": 1,
+      "tags": [
+        "type:armor",
+        "shop:arsenal"
+      ],
+      "priceGold": 100,
+      "defenseBonus": 4,
+      "penalty": -2,
+      "category": "light",
+      "weight": "12kg",
+      "description": "Armadura de arsenal."
+    },
+    {
+      "id": "mangual_de_ferro",
+      "name": "Mangual de Ferro",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 8,
+      "weaponCategory": "martial",
+      "damage": "1d8",
+      "crit": "x2",
+      "range": null,
+      "weight": "2.5kg",
+      "damageType": "Impacto",
+      "proficiency": "martial",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "manopla_de_ferro",
+      "name": "Manopla de Ferro",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 5,
+      "weaponCategory": "simple",
+      "damage": "1d4",
+      "crit": "x2",
+      "range": null,
+      "weight": "1kg",
+      "damageType": "Impacto",
+      "proficiency": "simple",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "martelo_de_batalha",
+      "name": "Martelo de Batalha",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 12,
+      "weaponCategory": "martial",
+      "damage": "1d8",
+      "crit": "x3",
+      "range": null,
+      "weight": "2.5kg",
+      "damageType": "Impacto",
+      "proficiency": "martial",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "meia_armadura",
+      "name": "Meia-Armadura",
+      "icon": "🥋",
+      "type": "armor",
+      "stack": 1,
+      "tags": [
+        "type:armor",
+        "shop:arsenal"
+      ],
+      "priceGold": 600,
+      "defenseBonus": 7,
+      "penalty": -4,
+      "category": "heavy",
+      "weight": "22kg",
+      "description": "Armadura de arsenal."
+    },
+    {
+      "id": "mensageiro",
+      "name": "Mensageiro",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 2,
+      "description": "Custo por km.",
+      "priceUnit": "per_km",
+      "category": "service"
+    },
+    {
+      "id": "metal_arcano",
+      "name": "Metal Arcano",
+      "icon": "⛏️",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:ferraria",
+        "profession:ferraria",
+        "type:material"
+      ],
+      "raridade": "raro",
+      "categoria": "ferraria",
+      "valor_venda_gp_min": 1.4,
+      "valor_venda_gp_max": 1.5
+    },
+    {
+      "id": "mina_de_pressao",
+      "name": "Mina de Pressão",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 800,
+      "description": "Explosão em área ao ser ativada.",
+      "category": "trap"
+    },
+    {
+      "id": "minerio_aco",
+      "name": "Minério de Aço",
+      "icon": "⛏️",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:ferraria",
+        "profession:ferraria",
+        "type:material"
+      ],
+      "raridade": "incomum",
+      "categoria": "ferraria",
+      "valor_venda_gp_min": 1.0,
+      "valor_venda_gp_max": 1.3
+    },
+    {
+      "id": "minerio_ferro",
+      "name": "Minério de Ferro",
+      "icon": "⛏️",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:ferraria",
+        "profession:ferraria",
+        "type:material"
+      ],
+      "raridade": "comum",
+      "categoria": "ferraria",
+      "valor_venda_gp_min": 0.3,
+      "valor_venda_gp_max": 0.9
+    },
+    {
+      "id": "mochila",
+      "name": "Mochila",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 2,
+      "description": "Aumenta capacidade de carga organizada.",
+      "weight": "1kg",
+      "category": "equipment"
+    },
+    {
+      "id": "mosquete_longo",
+      "name": "Mosquete Longo",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 500,
+      "weaponCategory": "firearm",
+      "damage": "2d8",
+      "crit": "19/x3",
+      "range": "Médio",
+      "weight": "4kg",
+      "damageType": "Perfuração",
+      "proficiency": "firearm",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "municao_20",
+      "name": "Munição (20)",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 99,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal",
+        "ammo"
+      ],
+      "priceGold": 20,
+      "weaponCategory": "ammo",
+      "damage": null,
+      "crit": null,
+      "range": null,
+      "weight": "0.5kg",
+      "damageType": null,
+      "proficiency": "ammo",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "passaro_touro",
+      "name": "Pássaro-Touro",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 20,
+      "description": "Animal robusto e raro.",
+      "category": "exotic_animal"
+    },
+    {
+      "id": "pe_de_cabra",
+      "name": "Pé de Cabra",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 2,
+      "description": "Bônus ao forçar portas e objetos.",
+      "weight": "2.5kg",
+      "category": "tool"
+    },
+    {
+      "id": "pederneira",
+      "name": "Pederneira",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 1,
+      "description": "Acende fogo facilmente.",
+      "category": "utility"
+    },
+    {
+      "id": "peixe_abissal",
+      "name": "Peixe Abissal",
+      "icon": "🥩",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:culinaria",
+        "profession:culinaria",
+        "type:material"
+      ],
+      "raridade": "raro",
+      "categoria": "culinaria",
+      "valor_venda_gp_min": 1.2,
+      "valor_venda_gp_max": 1.5
+    },
+    {
+      "id": "peixe_prateado",
+      "name": "Peixe Prateado",
+      "icon": "🥩",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:culinaria",
+        "profession:culinaria",
+        "type:material"
+      ],
+      "raridade": "incomum",
+      "categoria": "culinaria",
+      "valor_venda_gp_min": 0.7,
+      "valor_venda_gp_max": 1.1
+    },
+    {
+      "id": "peixe_rio",
+      "name": "Peixe de Rio",
+      "icon": "🥩",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:culinaria",
+        "profession:culinaria",
+        "type:material"
+      ],
+      "raridade": "comum",
+      "categoria": "culinaria",
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.6
+    },
+    {
+      "id": "pena",
+      "name": "Pena",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 1,
+      "description": "Escrita formal.",
+      "category": "utility"
+    },
+    {
+      "id": "pergaminho",
+      "name": "Pergaminho",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 2,
+      "description": "Registro de mapas e textos.",
+      "category": "utility"
+    },
+    {
+      "id": "pique_simples",
+      "name": "Pique Simples",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 2,
+      "weaponCategory": "simple",
+      "damage": "1d8",
+      "crit": "x2",
+      "range": null,
+      "weight": "5kg",
+      "damageType": "Perfuração",
+      "proficiency": "simple",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "pistola_de_polvora",
+      "name": "Pistola de Pólvora",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 250,
+      "weaponCategory": "firearm",
+      "damage": "2d6",
+      "crit": "19/x3",
+      "range": "Curto",
+      "weight": "1kg",
+      "damageType": "Perfuração",
+      "proficiency": "firearm",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "po_de_cristal",
+      "name": "Pó de Cristal",
+      "icon": "🧪",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:alquimia",
+        "profession:alquimia",
+        "type:material"
+      ],
+      "raridade": "incomum",
+      "categoria": "alquimia",
+      "valor_venda_gp_min": 0.8,
+      "valor_venda_gp_max": 1.2
+    },
+    {
+      "id": "ponei",
+      "name": "Pônei",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 5,
+      "description": "Montaria leve.",
+      "category": "mount"
+    },
+    {
+      "id": "ponei_de_guerra",
+      "name": "Pônei de Guerra",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 30,
+      "description": "Montaria compacta de combate.",
+      "category": "mount"
+    },
+    {
+      "id": "punhal_de_combate",
+      "name": "Punhal de Combate",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 10,
+      "weaponCategory": "simple",
+      "damage": "1d6",
+      "crit": "19-20",
+      "range": null,
+      "weight": "1kg",
+      "damageType": "Perfuração",
+      "proficiency": "simple",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "quarto_confortavel",
+      "name": "Quarto Confortável",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 5,
+      "description": "Recuperação normal.",
+      "category": "service"
+    },
+    {
+      "id": "quarto_simples",
+      "name": "Quarto Simples",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 5,
+      "description": "Descanso básico.",
+      "category": "service"
+    },
+    {
+      "id": "quarto_superior",
+      "name": "Quarto Superior",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 10,
+      "description": "Remove fadiga leve.",
+      "category": "service"
+    },
+    {
+      "id": "racao_de_viagem_dia",
+      "name": "Ração de Viagem (dia)",
+      "icon": "🧪",
+      "type": "consumable",
+      "stack": 99,
+      "tags": [
+        "type:consumable",
+        "shop:taberna"
+      ],
+      "priceGold": 5,
+      "description": "Sustenta um dia em campo.",
+      "category": "consumable"
+    },
+    {
+      "id": "raiz_mistica",
+      "name": "Raiz Mística",
+      "icon": "🧪",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:alquimia",
+        "profession:alquimia",
+        "type:material"
+      ],
+      "raridade": "incomum",
+      "categoria": "alquimia",
+      "valor_venda_gp_min": 0.8,
+      "valor_venda_gp_max": 1.2
+    },
+    {
+      "id": "raiz_silvestre",
+      "name": "Raiz Silvestre",
+      "icon": "🥩",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:culinaria",
+        "profession:culinaria",
+        "type:material"
+      ],
+      "raridade": "comum",
+      "categoria": "culinaria",
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.6
+    },
+    {
+      "id": "rede_de_caca",
+      "name": "Rede de Caça",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 20,
+      "weaponCategory": "exotic",
+      "damage": null,
+      "crit": null,
+      "range": "Curto",
+      "weight": "3kg",
+      "damageType": "Controle",
+      "proficiency": "exotic",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "refeicao_boa",
+      "name": "Refeição Boa",
+      "icon": "🧪",
+      "type": "consumable",
+      "stack": 99,
+      "tags": [
+        "type:consumable",
+        "shop:taberna"
+      ],
+      "priceGold": 1,
+      "description": "Melhora moral temporária.",
+      "category": "food"
+    },
+    {
+      "id": "refeicao_especial",
+      "name": "Refeição Especial",
+      "icon": "🧪",
+      "type": "consumable",
+      "stack": 99,
+      "tags": [
+        "type:consumable",
+        "shop:taberna"
+      ],
+      "priceGold": 10,
+      "description": "Pequeno bônus temporário.",
+      "category": "food"
+    },
+    {
+      "id": "refeicao_simples",
+      "name": "Refeição Simples",
+      "icon": "🧪",
+      "type": "consumable",
+      "stack": 99,
+      "tags": [
+        "type:consumable",
+        "shop:taberna"
+      ],
+      "priceGold": 3,
+      "description": "Remove penalidade leve por fome.",
+      "category": "food"
+    },
+    {
+      "id": "resina_arvore",
+      "name": "Resina de Árvore",
+      "icon": "🧪",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:alquimia",
+        "profession:alquimia",
+        "type:material"
+      ],
+      "raridade": "comum",
+      "categoria": "alquimia",
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.7
+    },
+    {
+      "id": "rum",
+      "name": "Rum",
+      "icon": "🧪",
+      "type": "consumable",
+      "stack": 99,
+      "tags": [
+        "type:consumable",
+        "shop:taberna"
+      ],
+      "priceGold": 5,
+      "description": "Embriaguez moderada.",
+      "category": "drink"
+    },
+    {
+      "id": "rumfustiam",
+      "name": "Rumfustiam",
+      "icon": "🧪",
+      "type": "consumable",
+      "stack": 99,
+      "tags": [
+        "type:consumable",
+        "shop:taberna"
+      ],
+      "priceGold": 15,
+      "description": "Muito forte.",
+      "category": "drink"
+    },
+    {
+      "id": "sabre_curvo",
+      "name": "Sabre Curvo",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 1,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal"
+      ],
+      "priceGold": 15,
+      "weaponCategory": "martial",
+      "damage": "1d6",
+      "crit": "18-20",
+      "range": null,
+      "weight": "2kg",
+      "damageType": "Corte",
+      "proficiency": "martial",
+      "description": "Arma de arsenal."
+    },
+    {
+      "id": "saco_de_lona",
+      "name": "Saco de Lona",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 1,
+      "description": "Transporte simples de itens.",
+      "weight": "0.2kg",
+      "category": "utility"
+    },
+    {
+      "id": "sal_grosso",
+      "name": "Sal Grosso",
+      "icon": "🥩",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:culinaria",
+        "profession:culinaria",
+        "type:material"
+      ],
+      "raridade": "comum",
+      "categoria": "culinaria",
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.6
+    },
+    {
+      "id": "sangue_monstro",
+      "name": "Sangue de Monstro",
+      "icon": "🧪",
+      "type": "material",
+      "stack": 99,
+      "tags": [
+        "reagent",
+        "material_family:alquimia",
+        "profession:alquimia",
+        "type:material"
+      ],
+      "raridade": "raro",
+      "categoria": "alquimia",
+      "valor_venda_gp_min": 1.3,
+      "valor_venda_gp_max": 1.5
+    },
+    {
+      "id": "sela",
+      "name": "Sela",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 20,
+      "description": "Necessária para combate montado.",
+      "category": "equipment"
+    },
+    {
+      "id": "suite_luxuosa",
+      "name": "Suíte Luxuosa",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 50,
+      "description": "Recuperação completa leve.",
+      "category": "service"
+    },
+    {
+      "id": "tinta_frasco",
+      "name": "Tinta (frasco)",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 8,
+      "description": "Escrita permanente.",
+      "category": "utility"
+    },
+    {
+      "id": "tocha",
+      "name": "Tocha",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 1,
+      "description": "Ilumina área pequena; pode causar dano leve.",
+      "weight": "0.5kg",
+      "category": "light"
+    },
+    {
+      "id": "transporte_aereo",
+      "name": "Transporte Aéreo",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 1,
+      "description": "Custo por km.",
+      "priceUnit": "per_km",
+      "category": "service"
+    },
+    {
+      "id": "transporte_maritimo",
+      "name": "Transporte Marítimo",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 1,
+      "description": "Custo por km.",
+      "priceUnit": "per_km",
+      "category": "service"
+    },
+    {
+      "id": "transporte_terrestre",
+      "name": "Transporte Terrestre",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 3,
+      "description": "Custo por km.",
+      "priceUnit": "per_km",
+      "category": "service"
+    },
+    {
+      "id": "upgrade_acolchoada_interna",
+      "name": "Acolchoada Interna",
+      "icon": "anvil",
+      "type": "upgrade",
+      "stack": 1,
+      "tags": [
+        "type:upgrade",
+        "shop:ferreiro"
+      ],
+      "priceGold": 200,
+      "appliesTo": [
+        "armor"
+      ],
+      "effect": {
+        "comfortBonus": 1
+      },
+      "description": "Melhoria: Acolchoada Interna."
+    },
+    {
+      "id": "upgrade_afiada",
+      "name": "Afiada",
+      "icon": "anvil",
+      "type": "upgrade",
+      "stack": 1,
+      "tags": [
+        "type:upgrade",
+        "shop:ferreiro"
+      ],
+      "priceGold": 300,
+      "appliesTo": [
+        "weapon"
+      ],
+      "effect": {
+        "critRangeBonus": 1
+      },
+      "description": "Melhoria: Afiada."
+    },
+    {
+      "id": "upgrade_ajustada",
+      "name": "Ajustada",
+      "icon": "anvil",
+      "type": "upgrade",
+      "stack": 1,
+      "tags": [
+        "type:upgrade",
+        "shop:ferreiro"
+      ],
+      "priceGold": 300,
+      "appliesTo": [
+        "armor"
+      ],
+      "effect": {
+        "mobilityBonus": 1
+      },
+      "description": "Melhoria: Ajustada."
+    },
+    {
+      "id": "upgrade_baluarte",
+      "name": "Baluarte",
+      "icon": "anvil",
+      "type": "upgrade",
+      "stack": 1,
+      "tags": [
+        "type:upgrade",
+        "shop:ferreiro"
+      ],
+      "priceGold": 500,
+      "appliesTo": [
+        "armor",
+        "shield"
+      ],
+      "effect": {
+        "situationalDefenseBonus": 1
+      },
+      "description": "Melhoria: Baluarte."
+    },
+    {
+      "id": "upgrade_cruel",
+      "name": "Cruel",
+      "icon": "anvil",
+      "type": "upgrade",
+      "stack": 1,
+      "tags": [
+        "type:upgrade",
+        "shop:ferreiro"
+      ],
+      "priceGold": 200,
+      "appliesTo": [
+        "weapon"
+      ],
+      "effect": {
+        "damageBonus": 1
+      },
+      "description": "Melhoria: Cruel."
+    },
+    {
+      "id": "upgrade_defensora",
+      "name": "Defensora",
+      "icon": "anvil",
+      "type": "upgrade",
+      "stack": 1,
+      "tags": [
+        "type:upgrade",
+        "shop:ferreiro"
+      ],
+      "priceGold": 200,
+      "appliesTo": [
+        "weapon"
+      ],
+      "effect": {
+        "defenseBonus": 1
+      },
+      "description": "Melhoria: Defensora."
+    },
+    {
+      "id": "upgrade_equilibrada",
+      "name": "Equilibrada",
+      "icon": "anvil",
+      "type": "upgrade",
+      "stack": 1,
+      "tags": [
+        "type:upgrade",
+        "shop:ferreiro"
+      ],
+      "priceGold": 500,
+      "appliesTo": [
+        "weapon"
+      ],
+      "effect": {
+        "maneuverBonus": 1
+      },
+      "description": "Melhoria: Equilibrada."
+    },
+    {
+      "id": "upgrade_mira_certa",
+      "name": "Mira Certa",
+      "icon": "anvil",
+      "type": "upgrade",
+      "stack": 1,
+      "tags": [
+        "type:upgrade",
+        "shop:ferreiro"
+      ],
+      "priceGold": 150,
+      "appliesTo": [
+        "weapon"
+      ],
+      "effect": {
+        "attackBonus": 1
+      },
+      "description": "Melhoria: Mira Certa."
+    },
+    {
+      "id": "upgrade_pungente",
+      "name": "Pungente",
+      "icon": "anvil",
+      "type": "upgrade",
+      "stack": 1,
+      "tags": [
+        "type:upgrade",
+        "shop:ferreiro"
+      ],
+      "priceGold": 300,
+      "appliesTo": [
+        "weapon"
+      ],
+      "effect": {
+        "damageBonus": 2
+      },
+      "description": "Melhoria: Pungente."
+    },
+    {
+      "id": "upgrade_reforcada",
+      "name": "Reforçada",
+      "icon": "anvil",
+      "type": "upgrade",
+      "stack": 1,
+      "tags": [
+        "type:upgrade",
+        "shop:ferreiro"
+      ],
+      "priceGold": 500,
+      "appliesTo": [
+        "armor",
+        "shield"
+      ],
+      "effect": {
+        "defenseBonus": 1
+      },
+      "description": "Melhoria: Reforçada."
+    },
+    {
+      "id": "upgrade_sagrada",
+      "name": "Sagrada",
+      "icon": "anvil",
+      "type": "upgrade",
+      "stack": 1,
+      "tags": [
+        "type:upgrade",
+        "shop:ferreiro"
+      ],
+      "priceGold": 1000,
+      "appliesTo": [
+        "weapon"
+      ],
+      "effect": {
+        "holyBonus": 1
+      },
+      "description": "Melhoria: Sagrada."
+    },
+    {
+      "id": "upgrade_serrilhada",
+      "name": "Serrilhada",
+      "icon": "anvil",
+      "type": "upgrade",
+      "stack": 1,
+      "tags": [
+        "type:upgrade",
+        "shop:ferreiro"
+      ],
+      "priceGold": 150,
+      "appliesTo": [
+        "weapon"
+      ],
+      "effect": {
+        "bleed": 1
+      },
+      "description": "Melhoria: Serrilhada."
+    },
+    {
+      "id": "upgrade_sob_medida",
+      "name": "Sob Medida",
+      "icon": "anvil",
+      "type": "upgrade",
+      "stack": 1,
+      "tags": [
+        "type:upgrade",
+        "shop:ferreiro"
+      ],
+      "priceGold": 200,
+      "appliesTo": [
+        "armor",
+        "shield"
+      ],
+      "effect": {
+        "penaltyDelta": 1
+      },
+      "description": "Melhoria: Sob Medida."
+    },
+    {
+      "id": "upgrade_veloz",
+      "name": "Veloz",
+      "icon": "anvil",
+      "type": "upgrade",
+      "stack": 1,
+      "tags": [
+        "type:upgrade",
+        "shop:ferreiro"
+      ],
+      "priceGold": 1000,
+      "appliesTo": [
+        "weapon"
+      ],
+      "effect": {
+        "extraAttackLimited": 1
+      },
+      "description": "Melhoria: Veloz."
+    },
+    {
+      "id": "vara_de_madeira_3m",
+      "name": "Vara de Madeira (3m)",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 2,
+      "description": "Testa armadilhas e ativa mecanismos à distância.",
+      "weight": "4kg",
+      "category": "utility"
+    },
+    {
+      "id": "veleiro",
+      "name": "Veleiro",
+      "icon": "🎒",
+      "type": "utility",
+      "stack": 1,
+      "tags": [
+        "type:utility",
+        "shop:taberna"
+      ],
+      "priceGold": 10000,
+      "description": "Embarcação marítima de médio porte.",
+      "category": "vehicle"
+    },
+    {
+      "id": "vinho",
+      "name": "Vinho",
+      "icon": "🧪",
+      "type": "consumable",
+      "stack": 99,
+      "tags": [
+        "type:consumable",
+        "shop:taberna"
+      ],
+      "priceGold": 10,
+      "description": "Uso social.",
+      "category": "drink"
+    },
+    {
+      "id": "vinho_elfico",
+      "name": "Vinho Élfico",
+      "icon": "🧪",
+      "type": "consumable",
+      "stack": 99,
+      "tags": [
+        "type:consumable",
+        "shop:taberna"
+      ],
+      "priceGold": 60,
+      "description": "Bônus social temporário.",
+      "category": "rare_drink"
+    },
+    {
+      "id": "virotes_10",
+      "name": "Virotes (10)",
+      "icon": "⚔️",
+      "type": "weapon",
+      "stack": 99,
+      "tags": [
+        "type:weapon",
+        "shop:arsenal",
+        "ammo"
+      ],
+      "priceGold": 2,
+      "weaponCategory": "ammo",
+      "damage": null,
+      "crit": null,
+      "range": null,
+      "weight": "1kg",
+      "damageType": null,
+      "proficiency": "ammo",
+      "description": "Arma de arsenal."
+    }
+  ]
+}
