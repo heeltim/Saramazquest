@@ -2267,10 +2267,124 @@ select option {
   display: block;
 }
 
+.tileLibraryFilters {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.tileLibraryFilters label {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.tileLibraryFilters select,
+.tileLibraryFilters input {
+  width: 100%;
+}
+
 .tileLibrary {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.tileBiomeGroup {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px;
+}
+.tileBiomeTitle {
+  margin: 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.88;
+  cursor: pointer;
+  list-style: none;
+}
+.tileBiomeTitle::-webkit-details-marker {
+  display: none;
+}
+.tileBiomeTitle::before {
+  content: "▸";
+  display: inline-block;
+  margin-right: 6px;
+  transform: translateY(-1px);
+  opacity: 0.8;
+}
+.tileBiomeGroup[open] .tileBiomeTitle::before {
+  content: "▾";
+}
+.tileBiomeTitle small {
+  opacity: 0.7;
+  font-weight: 600;
+}
+.tileCardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 6px;
+}
+.tileCard {
+  border-radius: 12px;
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+  text-align: left;
+  min-height: 62px;
+}
+.tileCardMain {
+  font-weight: 900;
+  font-size: 12px;
+}
+.tileCardMeta {
+  font-size: 10px;
+  opacity: 0.8;
+}
+.tileCardSwatches {
+  display: flex;
+  gap: 4px;
+  margin-top: 2px;
+}
+.tileCardHint {
+  font-size: 10px;
+  opacity: 0.74;
+}
+.tileCardSprite {
+  font-size: 22px;
+  line-height: 1;
+  margin-top: 2px;
+}
+.tileCardMode-icon {
+  align-content: start;
+}
+.tileCardMode-icon .tileCardMain {
+  font-size: 11px;
+}
+.tileSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  flex: 0 0 auto;
+}
+.tileCard.active {
+  background: rgba(128, 220, 170, 0.23);
+  border-color: rgba(162, 250, 198, 0.78);
+  box-shadow: inset 0 0 0 1px rgba(201, 255, 223, 0.28);
+}
+.tileLibraryLegend {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tileChip {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .sceneActions {

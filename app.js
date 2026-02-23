@@ -3,6 +3,7 @@ const STORAGE_KEY = "rpgquest_v2_scene";
 const LAST_LOGIN_KEY = "rpgquest_last_login";
 const LAST_AVATAR_KEY = "rpgquest_last_avatar";
 const AUTH_STORAGE_KEY = "rpgquest_auth_v1";
+const TILE_LIBRARY_FILTER_KEY = "rpgquest_tile_library_filter_v1";
 const DEV_AUTH_BYPASS_ENABLED = true;
 const DEV_AUTH_USER = {
   email: "teste@saramaz.local",
@@ -5403,6 +5404,31 @@ function menuSend(idx) {
 
 /* ================= MASTER MODE / SCENE UI ================= */
 const TILE_TYPES = ["floor", "grass", "stone", "wall", "woodwall", "stonewall", "void"];
+const TILE_LIBRARY_META = {
+  floor: { icon: "🟦", label: "Chão", biome: "neutral", sourceTag: "base", tags: ["chao", "piso", "base"] },
+  grass: { icon: "🌿", label: "Grama", biome: "forest", sourceTag: "nature", tags: ["grama", "campo", "nature"] },
+  stone: { icon: "🪨", label: "Pedra", biome: "mountains", sourceTag: "rock", tags: ["pedra", "rocha", "minerio"] },
+  wall: { icon: "🧱", label: "Parede", biome: "structures", sourceTag: "structure", tags: ["parede", "muro", "estrutura"] },
+  woodwall: { icon: "🪵", label: "Muro Madeira", biome: "structures", sourceTag: "wood", tags: ["madeira", "tronco", "palicada"] },
+  stonewall: { icon: "🏛️", label: "Muro Pedra", biome: "structures", sourceTag: "fortification", tags: ["muro", "forte", "fortificacao"] },
+  void: { icon: "⬛", label: "Vazio", biome: "mystic", sourceTag: "void", tags: ["vazio", "abismo", "buraco"] },
+};
+const TILE_BIOME_LABELS = {
+  all: "Todos os biomas",
+  ocean: "Oceano",
+  coast: "Costa",
+  forest: "Floresta",
+  mystic: "Caídos Místicos",
+  saramaz: "Saramaz",
+  mountains: "Montanha",
+  islands: "Ilhas",
+  neutral: "Neutros",
+  structures: "Estruturas",
+};
+const DEFAULT_TILE_LIBRARY_FILTER = { biome: "all", text: "" };
+const TILE_CATEGORY_ORDER = ["ocean", "forest", "mystic", "saramaz", "mountains", "islands", "neutral", "structures"];
+let tileCatalogCache = null;
+let tileCatalogPromise = null;
 let isMaster = false;
 let paintTool = "floor";
 let brushSize = 1;
@@ -5623,11 +5649,178 @@ function setSceneSection(section) {
 }
 window.setSceneSection = setSceneSection;
 
+function normalizeSearchToken(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function normalizeTileLibraryFilter(raw = {}) {
+  const biome = String(raw?.biome || "all").trim().toLowerCase();
+  const text = String(raw?.text || "").slice(0, 60);
+  const allowedBiomes = new Set(["all", ...Object.keys(TILE_BIOME_LABELS)]);
+  return {
+    biome: allowedBiomes.has(biome) ? biome : "all",
+    text,
+  };
+}
+
+function loadTileLibraryFilter() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(TILE_LIBRARY_FILTER_KEY) || "{}");
+    return normalizeTileLibraryFilter(raw);
+  } catch {
+    return { ...DEFAULT_TILE_LIBRARY_FILTER };
+  }
+}
+
+function saveTileLibraryFilter(nextFilter = DEFAULT_TILE_LIBRARY_FILTER) {
+  const normalized = normalizeTileLibraryFilter(nextFilter);
+  localStorage.setItem(TILE_LIBRARY_FILTER_KEY, JSON.stringify(normalized));
+  return normalized;
+}
+
+async function loadTileCatalog() {
+  if (tileCatalogCache) return tileCatalogCache;
+  if (!tileCatalogPromise) {
+    tileCatalogPromise = fetch("data/world/tile-catalog.json", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .catch(() => null)
+      .then((payload) => {
+        if (!payload || !Array.isArray(payload.categories)) return null;
+        tileCatalogCache = payload;
+        return tileCatalogCache;
+      });
+  }
+  await tileCatalogPromise;
+  return tileCatalogCache;
+}
+
+function getTileLibraryEntries(catalog = null) {
+  const catalogEntries = [];
+  if (catalog?.categories?.length) {
+    catalog.categories.forEach((category) => {
+      (category.tiles || []).forEach((tile) => {
+        catalogEntries.push({
+          tileId: String(tile.id || "").trim(),
+          type: TILE_TYPES.includes(tile.paintType) ? tile.paintType : "floor",
+          label: String(tile.label || tile.id || "Tile").trim(),
+          icon: String(tile.icon || TILE_LIBRARY_META[tile.paintType]?.icon || "🧩"),
+          visualMode: String(tile.visualMode || "swatch").toLowerCase(),
+          kind: String(tile.kind || "ground").toLowerCase(),
+          biome: String(category.id || "neutral").trim().toLowerCase(),
+          biomeLabel: String(category.label || TILE_BIOME_LABELS[category.id] || category.id || "Outros"),
+          sourceTag: String(tile.sourceTag || category.id || "custom").trim(),
+          tags: [String(tile.id || ""), String(tile.sourceTag || ""), String(category.id || ""), String(tile.kind || "")],
+          colors: tile.colors || {},
+        });
+      });
+    });
+  }
+
+  if (catalogEntries.length) return catalogEntries;
+
+  return TILE_TYPES.map((type) => {
+    const fallback = { icon: "🧱", label: type, biome: "neutral", sourceTag: "base", tags: [] };
+    const meta = { ...fallback, ...(TILE_LIBRARY_META[type] || {}) };
+    return {
+      tileId: type,
+      type,
+      ...meta,
+      biomeLabel: TILE_BIOME_LABELS[meta.biome] || meta.biome,
+      colors: {},
+    };
+  });
+}
+
+async function renderTileLibrary() {
+  const library = document.getElementById("tileLibraryButtons");
+  const biomeFilter = document.getElementById("tileBiomeFilter");
+  const searchFilter = document.getElementById("tileSearchFilter");
+  const emptyState = document.getElementById("tileLibraryEmpty");
+  if (!library || !biomeFilter || !searchFilter) return;
+
+  const catalog = await loadTileCatalog();
+  const entries = getTileLibraryEntries(catalog);
+  const persisted = loadTileLibraryFilter();
+  const selectedBiome = biomeFilter.value || persisted.biome;
+  const searchTerm = normalizeSearchToken(searchFilter.value || persisted.text);
+
+  const biomeValues = [...new Set(entries.map((entry) => entry.biome))];
+  biomeFilter.innerHTML = `<option value="all">${TILE_BIOME_LABELS.all}</option>${biomeValues
+    .map((biome) => `<option value="${escapeHtml(biome)}">${escapeHtml(TILE_BIOME_LABELS[biome] || biome)}</option>`)
+    .join("")}`;
+  biomeFilter.value = biomeValues.includes(selectedBiome) || selectedBiome === "all" ? selectedBiome : "all";
+  searchFilter.value = String(searchFilter.value || persisted.text || "");
+
+  const groups = new Map();
+  entries.forEach((entry) => {
+    const searchPool = [entry.type, entry.label, entry.biomeLabel, entry.sourceTag, ...(entry.tags || [])]
+      .map(normalizeSearchToken)
+      .join(" ");
+    const biomeOk = biomeFilter.value === "all" || entry.biome === biomeFilter.value;
+    const textOk = !searchTerm || searchPool.includes(searchTerm);
+    if (!biomeOk || !textOk) return;
+    if (!groups.has(entry.biome)) groups.set(entry.biome, []);
+    groups.get(entry.biome).push(entry);
+  });
+
+  const sortedGroups = [...groups.entries()].sort((a, b) => {
+    const ai = TILE_CATEGORY_ORDER.indexOf(a[0]);
+    const bi = TILE_CATEGORY_ORDER.indexOf(b[0]);
+    return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+  });
+
+  const groupedHtml = sortedGroups
+    .map(([biome, items]) => {
+      const cards = items
+        .map((entry) => {
+          const cardMeta = `${entry.biomeLabel} · ${entry.sourceTag}`;
+          const activeClass = entry.type === paintTool ? " active" : "";
+          const colorSwatches = [entry.colors?.base, entry.colors?.highlight, entry.colors?.shadow || entry.colors?.glow]
+            .filter(Boolean)
+            .map((color) => `<span class="tileSwatch" style="background:${escapeHtml(color)}" title="${escapeHtml(color)}"></span>`)
+            .join("");
+          const iconPreview = entry.visualMode === "icon"
+            ? `<span class="tileCardSprite" title="Item de cenário">${escapeHtml(entry.icon)}</span>`
+            : "";
+          const colorRow = entry.visualMode === "icon"
+            ? '<span class="tileCardHint">Visual por ícone (planta/árvore)</span>'
+            : (colorSwatches ? `<span class="tileCardSwatches">${colorSwatches}</span>` : "");
+          return `
+            <button type="button" id="tool${entry.type.charAt(0).toUpperCase()}${entry.type.slice(1)}_${escapeHtml(entry.tileId)}" class="toolBtn tileCard tileCardMode-${escapeHtml(entry.visualMode)}${activeClass}" data-tile-type="${entry.type}" data-tile-id="${escapeHtml(entry.tileId)}" data-tile-visual-mode="${escapeHtml(entry.visualMode)}">
+              <span class="tileCardMain">${entry.icon} ${escapeHtml(entry.label)}</span>
+              <span class="tileCardMeta">${escapeHtml(cardMeta)}</span>
+              ${iconPreview}
+              ${colorRow}
+            </button>
+          `;
+        })
+        .join("");
+      return `
+        <details class="tileBiomeGroup" ${biomeFilter.value === "all" ? "" : "open"}>
+          <summary class="tileBiomeTitle">${escapeHtml(TILE_BIOME_LABELS[biome] || items[0]?.biomeLabel || biome)} <small>(${items.length})</small></summary>
+          <div class="tileCardGrid">${cards}</div>
+        </details>
+      `;
+    })
+    .join("");
+
+  library.innerHTML = groupedHtml;
+  library.querySelectorAll(".tileCard").forEach((btn) => {
+    btn.addEventListener("click", () => setTool(btn.dataset.tileType || "floor"));
+  });
+
+  if (emptyState) emptyState.hidden = groups.size > 0;
+  saveTileLibraryFilter({ biome: biomeFilter.value, text: searchFilter.value });
+}
+
 function setTool(tool) {
   paintTool = TILE_TYPES.includes(tool) ? tool : "floor";
-  TILE_TYPES.forEach((type) => {
-    const btn = document.getElementById(`tool${type.charAt(0).toUpperCase()}${type.slice(1)}`);
-    if (btn) btn.classList.toggle("active", type === paintTool);
+  document.querySelectorAll(".tileCard").forEach((btn) => {
+    btn.classList.toggle("active", (btn.dataset.tileType || "") === paintTool);
   });
 }
 
@@ -5657,6 +5850,7 @@ function syncSceneUIFromStorage() {
   renderSceneLayerList();
   syncWorldBuilderUI();
   if (isWorldMapWindowOpen) renderWorldMapWindow();
+  renderTileLibrary();
   setTool(paintTool);
   setBrushSize(brushSize);
   applySceneCSS();
@@ -5914,19 +6108,23 @@ function saveGlobalMapMeta(meta) {
   localStorage.setItem(getGlobalMapMetaStorageKey(), JSON.stringify(meta));
 }
 
-const WORLD_BIOME_CLASSIFIER_VERSION = 1;
+const WORLD_BIOME_CLASSIFIER_VERSION = 2;
 const DEFAULT_WORLD_BIOME_COLOR_TABLE = {
-  version: 1,
+  version: 2,
   metric: "rgb",
   biomes: [
-    { biome: "ocean", color: [40, 85, 150], tolerance: 88 },
-    { biome: "coast", color: [170, 185, 130], tolerance: 82 },
-    { biome: "plains", color: [100, 150, 88], tolerance: 78 },
-    { biome: "forest", color: [55, 112, 68], tolerance: 78 },
-    { biome: "desert", color: [210, 186, 120], tolerance: 82 },
-    { biome: "mountains", color: [134, 126, 120], tolerance: 72 },
+    { biome: "ocean", color: [36, 92, 140], tolerance: 90 },
+    { biome: "coast", color: [201, 168, 106], tolerance: 84 },
+    { biome: "plains", color: [140, 176, 96], tolerance: 80 },
+    { biome: "forest", color: [62, 122, 82], tolerance: 80 },
+    { biome: "desert", color: [184, 139, 58], tolerance: 84 },
+    { biome: "mountains", color: [138, 143, 149], tolerance: 74 },
     { biome: "tundra", color: [188, 204, 214], tolerance: 70 },
-    { biome: "volcanic", color: [82, 60, 55], tolerance: 68 },
+    { biome: "volcanic", color: [58, 58, 58], tolerance: 70 },
+    { biome: "mystic", color: [94, 76, 138], tolerance: 76 },
+    { biome: "islands", color: [62, 143, 87], tolerance: 78 },
+    { biome: "ruins", color: [92, 90, 87], tolerance: 72 },
+    { biome: "structures", color: [85, 90, 97], tolerance: 72 },
   ],
 };
 
@@ -6519,6 +6717,26 @@ function bindSceneInputs() {
   gridStyle.addEventListener("change", upd);
   gridOpacity.addEventListener("input", upd);
   gridLine.addEventListener("input", upd);
+
+  const tileBiomeFilter = document.getElementById("tileBiomeFilter");
+  const tileSearchFilter = document.getElementById("tileSearchFilter");
+  const persistedFilter = loadTileLibraryFilter();
+  if (tileBiomeFilter) {
+    tileBiomeFilter.value = persistedFilter.biome;
+    if (!tileBiomeFilter.dataset.bound) {
+      tileBiomeFilter.dataset.bound = "1";
+      tileBiomeFilter.addEventListener("change", renderTileLibrary);
+    }
+  }
+  if (tileSearchFilter) {
+    tileSearchFilter.value = persistedFilter.text;
+    if (!tileSearchFilter.dataset.bound) {
+      tileSearchFilter.dataset.bound = "1";
+      tileSearchFilter.addEventListener("input", renderTileLibrary);
+      tileSearchFilter.addEventListener("search", renderTileLibrary);
+    }
+  }
+  renderTileLibrary();
 
 }
 bindSceneInputs();
