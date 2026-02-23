@@ -132,7 +132,7 @@ body {
   border-radius: 8px;
   padding: 6px 2px;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 14px;
 }
 
 .setupAvatarBtn.active,
@@ -290,27 +290,27 @@ body {
 #mapZoomControls {
   position: absolute;
   right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 10px;
+  transform: none;
   z-index: 7;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 6px 5px;
-  border-radius: 12px;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(12, 14, 22, 0.68);
 }
 
 .zoomBtn {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
   border: 1px solid rgba(111, 189, 255, 0.45);
   background: linear-gradient(180deg, rgba(37, 60, 102, 0.9), rgba(21, 37, 68, 0.95));
   color: #e8f4ff;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 900;
   cursor: pointer;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 6px 12px rgba(3, 8, 20, 0.45);
@@ -324,8 +324,8 @@ body {
 #mapZoom {
   writing-mode: vertical-lr;
   direction: rtl;
-  width: 22px;
-  height: 140px;
+  width: 18px;
+  height: 108px;
   accent-color: #66c4ff;
 }
 
@@ -1672,7 +1672,7 @@ body {
 }
 .modalTitle {
   margin: 0;
-  font-size: 18px;
+  font-size: 14px;
 }
 .modalSub {
   opacity: 0.75;
@@ -2916,7 +2916,7 @@ kbd {
 }
 
 .professionsHeroTitle {
-  font-size: 18px;
+  font-size: 14px;
 }
 
 .profHeroStats {
@@ -3321,7 +3321,7 @@ kbd {
 }
 
 .tokenConditionOption span {
-  font-size: 18px;
+  font-size: 14px;
 }
 
 .tokenConditionOption.active {

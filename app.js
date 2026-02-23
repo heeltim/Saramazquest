@@ -3331,6 +3331,7 @@ loadRpgDatabases().finally(() => {
 /* ================= GRID ================= */
 const arena = document.getElementById("arena");
 const mapViewport = document.getElementById("mapViewport");
+const arenaWrap = document.getElementById("arenaWrap");
 const mapZoomInput = document.getElementById("mapZoom");
 const artboardSelect = document.getElementById("artboardSelect");
 let mapDragState = { active: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 };
@@ -3442,17 +3443,25 @@ function bindMapInteractions() {
     mapViewport.classList.remove("dragging");
   });
 
-  mapViewport.addEventListener("wheel", (e) => {
+  const zoomWheelTarget = arenaWrap || mapViewport;
+  zoomWheelTarget.addEventListener("wheel", (e) => {
     if (e.target.closest("#sidebar")) return;
     e.preventDefault();
 
-    wheelZoomDelta += e.deltaY < 0 ? 0.035 : -0.035;
-    wheelZoomAnchor = { x: e.clientX, y: e.clientY };
+    const viewportRect = mapViewport?.getBoundingClientRect?.() || null;
+    const isInsideViewport = !!viewportRect
+      && e.clientX >= viewportRect.left
+      && e.clientX <= viewportRect.right
+      && e.clientY >= viewportRect.top
+      && e.clientY <= viewportRect.bottom;
+
+    wheelZoomDelta += e.deltaY < 0 ? 0.03 : -0.03;
+    wheelZoomAnchor = isInsideViewport ? { x: e.clientX, y: e.clientY } : null;
 
     if (!wheelZoomRAF) {
       wheelZoomRAF = requestAnimationFrame(() => {
         setMapZoom(getSceneZoom() + wheelZoomDelta, {
-          keepCenter: false,
+          keepCenter: !wheelZoomAnchor,
           anchorClientX: wheelZoomAnchor?.x ?? null,
           anchorClientY: wheelZoomAnchor?.y ?? null,
           persist: false,
