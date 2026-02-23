@@ -223,6 +223,11 @@ function getAvatarEmoji(avatar) {
   return String(avatar || "🧙").trim() || "🧙";
 }
 
+function getLegacyTokenInitial(name) {
+  const label = String(name || "?").trim();
+  return (label[0] || "?").toUpperCase();
+}
+
 function getAvatarSelectionKey(avatar) {
   if (isSpriteAvatar(avatar) || isIconAvatar(avatar)) return String(avatar.url || "");
   return getAvatarEmoji(avatar);
@@ -3577,25 +3582,11 @@ function updateArenaNow() {
     const tokenSize = tokenScale * gridUnit;
     tokenStack.style.width = `${tokenSize}px`;
     tokenStack.style.height = `${tokenSize}px`;
-    token.style.width = `${tokenSize - 8}px`;
-    token.style.height = `${tokenSize - 8}px`;
+    token.style.width = `${tokenSize}px`;
+    token.style.height = `${tokenSize}px`;
+    token.style.fontSize = `${Math.max(18, tokenSize * 0.36)}px`;
     token.style.transform = `rotate(${p.tokenRotation || 0}deg)`;
-    const avatarEmoji = getAvatarEmoji(p.avatar || name[0].toUpperCase());
-    token.innerHTML = "";
-    if (isSpriteAvatar(p.avatar) || isIconAvatar(p.avatar)) {
-      const sprite = document.createElement("img");
-      sprite.className = "tokenSprite";
-      sprite.src = p.avatar.url;
-      sprite.alt = `${name} avatar`;
-      sprite.loading = "lazy";
-      sprite.onerror = () => {
-        sprite.remove();
-        token.textContent = avatarEmoji;
-      };
-      token.appendChild(sprite);
-    } else {
-      token.textContent = avatarEmoji;
-    }
+    token.textContent = getLegacyTokenInitial(p.name || name);
 
     token.onclick = (e) => {
       e.stopPropagation();
@@ -4379,15 +4370,7 @@ function renderSheetComputed(p) {
   const mpPct = p.manaMax > 0 ? (p.mana / p.manaMax) * 100 : 0;
 
   const avatarNode = document.getElementById("sheetAvatarBadge");
-  if (avatarNode) {
-    const avatarEmoji = getAvatarEmoji(p.avatar || "🧙");
-    avatarNode.innerHTML = "";
-    if (isSpriteAvatar(p.avatar) || isIconAvatar(p.avatar)) {
-      avatarNode.innerHTML = `<img src="${p.avatar.url}" alt="Avatar" loading="lazy" />`;
-    } else {
-      avatarNode.textContent = avatarEmoji;
-    }
-  }
+  if (avatarNode) avatarNode.textContent = getLegacyTokenInitial(p.name || currentSheetName || "?");
 
   const heroName = document.getElementById("sheetHeroName");
   const heroClass = document.getElementById("sheetHeroClass");
