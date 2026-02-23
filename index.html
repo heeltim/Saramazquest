@@ -200,6 +200,22 @@
               </div>
             </div>
 
+            <div class="field full layerEditorField">
+              <label>Camadas de imagem (estilo mesa virtual)</label>
+              <div class="layerImportGrid">
+                <input id="sceneLayerUrl" placeholder="URL da imagem para camada" />
+                <button class="toolBtn" type="button" onclick="addSceneLayerFromUrl()">Adicionar por URL</button>
+                <input id="sceneLayerFile" type="file" accept="image/*" />
+                <select id="sceneLayerKind">
+                  <option value="map">Camada Mapa</option>
+                  <option value="objects">Camada Objetos</option>
+                  <option value="foreground">Camada Superior</option>
+                </select>
+                <label class="layerSnapToggle"><input id="sceneLayerSnap" type="checkbox" checked /> Encaixar no grid</label>
+              </div>
+              <div id="sceneLayerList" class="sceneLayerList"></div>
+            </div>
+
             <div class="field">
               <label>Zoom (Scale)</label>
               <input id="bgScale" type="range" min="40" max="300" value="120" />

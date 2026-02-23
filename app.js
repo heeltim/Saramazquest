@@ -444,6 +444,7 @@ const DEFAULT_SCENE = {
   bgScale: 120, // %
   bgOpacity: 65, // %
   mapZoom: 1,
+  layers: [], // imagens posicionáveis por camada: map | objects | foreground
   tiles: [], // string array: "floor" | "wall" | "void"
 };
 
@@ -1288,6 +1289,62 @@ if (!data.scenes[room]) data.scenes[room] = structuredClone(DEFAULT_SCENE);
 save(data);
 
 /* ================= SCENE HELPERS ================= */
+const SCENE_LAYER_KIND_LABELS = {
+  map: "Mapa",
+  objects: "Objetos",
+  foreground: "Superior",
+};
+
+function normalizeSceneLayer(rawLayer, idx = 0) {
+  const id = String(rawLayer?.id || `layer_${Date.now()}_${idx}_${Math.random().toString(36).slice(2, 6)}`);
+  const kind = ["map", "objects", "foreground"].includes(rawLayer?.kind) ? rawLayer.kind : "objects";
+  const z = Number.isFinite(rawLayer?.z) ? rawLayer.z : idx;
+  return {
+    id,
+    name: String(rawLayer?.name || `Camada ${idx + 1}`),
+    kind,
+    src: String(rawLayer?.src || "").trim(),
+    x: Number.isFinite(rawLayer?.x) ? rawLayer.x : 0,
+    y: Number.isFinite(rawLayer?.y) ? rawLayer.y : 0,
+    width: Number.isFinite(rawLayer?.width) ? rawLayer.width : 8,
+    height: Number.isFinite(rawLayer?.height) ? rawLayer.height : 8,
+    opacity: Number.isFinite(rawLayer?.opacity) ? Math.max(0, Math.min(100, rawLayer.opacity)) : 100,
+    visible: rawLayer?.visible !== false,
+    lockToGrid: rawLayer?.lockToGrid !== false,
+    z,
+  };
+}
+
+function getSceneLayerList(scene = null) {
+  const s = scene || load().scenes[room];
+  if (!Array.isArray(s.layers)) s.layers = [];
+  return s.layers;
+}
+
+function sortSceneLayers(layers) {
+  layers.sort((a, b) => (a.z || 0) - (b.z || 0));
+  layers.forEach((layer, idx) => {
+    layer.z = idx;
+  });
+}
+
+function normalizeSceneLayers(scene) {
+  const layers = getSceneLayerList(scene)
+    .map((layer, idx) => normalizeSceneLayer(layer, idx))
+    .filter((layer) => layer.src);
+  sortSceneLayers(layers);
+  scene.layers = layers;
+}
+
+function clampSceneLayerToGrid(layer, scene) {
+  const s = scene || load().scenes[room];
+  if (!layer.lockToGrid) return;
+  layer.x = Math.max(0, Math.min(s.cols - 1, Math.round(layer.x)));
+  layer.y = Math.max(0, Math.min(s.rows - 1, Math.round(layer.y)));
+  layer.width = Math.max(1, Math.min(s.cols, Math.round(layer.width)));
+  layer.height = Math.max(1, Math.min(s.rows, Math.round(layer.height)));
+}
+
 function ensureScene() {
   let data = load();
   if (!data.scenes) data.scenes = {};
@@ -1317,6 +1374,7 @@ function ensureScene() {
   s.bgScale = Number.isFinite(s.bgScale) ? s.bgScale : 120;
   s.bgOpacity = Number.isFinite(s.bgOpacity) ? s.bgOpacity : 65;
   s.mapZoom = Number.isFinite(s.mapZoom) ? Math.max(0.5, Math.min(1.6, s.mapZoom)) : 1;
+  normalizeSceneLayers(s);
 
   data.scenes[room] = s;
   save(data);
@@ -2643,6 +2701,26 @@ function updateArena() {
   const s = data.scenes[room];
 
   applySceneCSS();
+
+  document.querySelectorAll('.sceneLayerSprite').forEach((el) => el.remove());
+  const layerList = getSceneLayerList(s).filter((layer) => layer.visible !== false && layer.src);
+  layerList.forEach((layer) => {
+    const layerEl = document.createElement('div');
+    layerEl.className = `sceneLayerSprite sceneLayer-${layer.kind || 'objects'}`;
+    layerEl.style.left = `${layer.x * 40}px`;
+    layerEl.style.top = `${layer.y * 40}px`;
+    layerEl.style.width = `${Math.max(1, layer.width) * 40}px`;
+    layerEl.style.height = `${Math.max(1, layer.height) * 40}px`;
+    layerEl.style.opacity = `${Math.max(0, Math.min(100, layer.opacity ?? 100)) / 100}`;
+    layerEl.style.zIndex = String(layer.kind === 'map' ? 1 : layer.kind === 'foreground' ? 4 : 3);
+
+    const img = document.createElement('img');
+    img.src = layer.src;
+    img.alt = layer.name || 'Camada';
+    img.loading = 'lazy';
+    layerEl.appendChild(img);
+    arena.appendChild(layerEl);
+  });
 
   let cells = [...document.querySelectorAll(".cell")];
   // aplica tiles nas células
@@ -4680,9 +4758,155 @@ function syncSceneUIFromStorage() {
   document.getElementById("bgOpacity").value = s.bgOpacity;
   document.getElementById("bgX").value = s.bgX;
   document.getElementById("bgY").value = s.bgY;
+  const kindInput = document.getElementById("sceneLayerKind");
+  if (kindInput && !kindInput.value) kindInput.value = "map";
   if (mapZoomInput) mapZoomInput.value = String(Math.round((s.mapZoom || 1) * 100));
+  renderSceneLayerList();
   applySceneCSS();
 }
+
+function updateSceneLayer(layerId, updates = {}) {
+  let data = load();
+  const scene = data.scenes[room];
+  const layer = getSceneLayerList(scene).find((entry) => entry.id === layerId);
+  if (!layer) return;
+  Object.assign(layer, updates);
+  clampSceneLayerToGrid(layer, scene);
+  save(data);
+  updateArena();
+  renderSceneLayerList();
+}
+
+function removeSceneLayer(layerId) {
+  let data = load();
+  const scene = data.scenes[room];
+  scene.layers = getSceneLayerList(scene).filter((entry) => entry.id !== layerId);
+  normalizeSceneLayers(scene);
+  save(data);
+  updateArena();
+  renderSceneLayerList();
+}
+
+function shiftSceneLayer(layerId, direction) {
+  let data = load();
+  const scene = data.scenes[room];
+  const layers = getSceneLayerList(scene);
+  const idx = layers.findIndex((entry) => entry.id === layerId);
+  if (idx < 0) return;
+  const target = idx + direction;
+  if (target < 0 || target >= layers.length) return;
+  const tmp = layers[idx];
+  layers[idx] = layers[target];
+  layers[target] = tmp;
+  sortSceneLayers(layers);
+  save(data);
+  updateArena();
+  renderSceneLayerList();
+}
+
+function renderSceneLayerList() {
+  const wrap = document.getElementById("sceneLayerList");
+  if (!wrap) return;
+  ensureScene();
+  const layers = getSceneLayerList(load().scenes[room]);
+  if (!layers.length) {
+    wrap.innerHTML = '<div class="sceneHint">Sem camadas extras. Importe uma imagem para montar o mapa.</div>';
+    return;
+  }
+
+  wrap.innerHTML = layers
+    .map((layer, idx) => {
+      const safeName = escapeHtml(layer.name || `Camada ${idx + 1}`);
+      return `
+        <div class="sceneLayerCard" data-layer-id="${layer.id}">
+          <div class="sceneLayerTop">
+            <strong>${safeName}</strong>
+            <span>${SCENE_LAYER_KIND_LABELS[layer.kind] || layer.kind}</span>
+          </div>
+          <div class="sceneLayerControls">
+            <label>X <input type="number" class="layerNum" data-field="x" value="${layer.x}" /></label>
+            <label>Y <input type="number" class="layerNum" data-field="y" value="${layer.y}" /></label>
+            <label>Larg <input type="number" class="layerNum" data-field="width" min="1" value="${layer.width}" /></label>
+            <label>Alt <input type="number" class="layerNum" data-field="height" min="1" value="${layer.height}" /></label>
+            <label>Opac <input type="range" class="layerRange" data-field="opacity" min="0" max="100" value="${layer.opacity}" /></label>
+            <label><input type="checkbox" class="layerChk" data-field="visible" ${layer.visible ? "checked" : ""}/> Visível</label>
+            <label><input type="checkbox" class="layerChk" data-field="lockToGrid" ${layer.lockToGrid ? "checked" : ""}/> Grid</label>
+            <label>Tipo
+              <select class="layerKind" data-field="kind">
+                <option value="map" ${layer.kind === "map" ? "selected" : ""}>Mapa</option>
+                <option value="objects" ${layer.kind === "objects" ? "selected" : ""}>Objetos</option>
+                <option value="foreground" ${layer.kind === "foreground" ? "selected" : ""}>Superior</option>
+              </select>
+            </label>
+          </div>
+          <div class="sceneLayerActions">
+            <button type="button" class="toolBtn" data-act="up">▲</button>
+            <button type="button" class="toolBtn" data-act="down">▼</button>
+            <button type="button" class="toolBtn" data-act="remove">Remover</button>
+          </div>
+        </div>`;
+    })
+    .join("");
+
+  wrap.querySelectorAll('.sceneLayerCard').forEach((card) => {
+    const layerId = card.dataset.layerId;
+    card.querySelectorAll('.layerNum, .layerRange').forEach((input) => {
+      input.addEventListener('input', () => {
+        const field = input.dataset.field;
+        updateSceneLayer(layerId, { [field]: parseInt(input.value, 10) || 0 });
+      });
+    });
+    card.querySelectorAll('.layerChk').forEach((input) => {
+      input.addEventListener('change', () => {
+        const field = input.dataset.field;
+        updateSceneLayer(layerId, { [field]: !!input.checked });
+      });
+    });
+    const kindSel = card.querySelector('.layerKind');
+    if (kindSel) {
+      kindSel.addEventListener('change', () => {
+        updateSceneLayer(layerId, { kind: kindSel.value });
+      });
+    }
+    const upBtn = card.querySelector('[data-act="up"]');
+    const downBtn = card.querySelector('[data-act="down"]');
+    const removeBtn = card.querySelector('[data-act="remove"]');
+    if (upBtn) upBtn.addEventListener('click', () => shiftSceneLayer(layerId, -1));
+    if (downBtn) downBtn.addEventListener('click', () => shiftSceneLayer(layerId, 1));
+    if (removeBtn) removeBtn.addEventListener('click', () => removeSceneLayer(layerId));
+  });
+}
+
+window.addSceneLayerFromUrl = function addSceneLayerFromUrl() {
+  const input = document.getElementById("sceneLayerUrl");
+  if (!input) return;
+  const src = String(input.value || "").trim();
+  if (!src) return alert("Informe a URL da imagem da camada.");
+
+  let data = load();
+  const scene = data.scenes[room];
+  const kind = document.getElementById("sceneLayerKind")?.value || "map";
+  const lockToGrid = document.getElementById("sceneLayerSnap")?.checked !== false;
+
+  scene.layers.push(normalizeSceneLayer({
+    name: src.split('/').pop()?.slice(0, 40) || `Camada ${scene.layers.length + 1}`,
+    src,
+    kind,
+    lockToGrid,
+    x: 0,
+    y: 0,
+    width: Math.min(scene.cols, 10),
+    height: Math.min(scene.rows, 10),
+    opacity: 100,
+    visible: true,
+    z: scene.layers.length,
+  }, scene.layers.length));
+  normalizeSceneLayers(scene);
+  save(data);
+  input.value = "";
+  updateArena();
+  renderSceneLayerList();
+};
 
 function bindSceneInputs() {
   const bgUrl = document.getElementById("bgUrl");
@@ -4691,6 +4915,7 @@ function bindSceneInputs() {
   const bgX = document.getElementById("bgX");
   const bgY = document.getElementById("bgY");
   const bgFile = document.getElementById("bgFile");
+  const layerFile = document.getElementById("sceneLayerFile");
 
   bgUrl.addEventListener("change", () => {
     let data = load();
@@ -4727,6 +4952,39 @@ function bindSceneInputs() {
     };
     reader.readAsDataURL(file);
   });
+
+  if (layerFile) {
+    layerFile.addEventListener("change", () => {
+      const file = layerFile.files && layerFile.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        let data = load();
+        const scene = data.scenes[room];
+        const kind = document.getElementById("sceneLayerKind")?.value || "map";
+        const lockToGrid = document.getElementById("sceneLayerSnap")?.checked !== false;
+        scene.layers.push(normalizeSceneLayer({
+          name: file.name,
+          src: String(reader.result || ""),
+          kind,
+          lockToGrid,
+          x: 0,
+          y: 0,
+          width: Math.min(scene.cols, 10),
+          height: Math.min(scene.rows, 10),
+          opacity: 100,
+          visible: true,
+          z: scene.layers.length,
+        }, scene.layers.length));
+        normalizeSceneLayers(scene);
+        save(data);
+        layerFile.value = "";
+        updateArena();
+        renderSceneLayerList();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 }
 bindSceneInputs();
 
