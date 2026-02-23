@@ -1835,6 +1835,36 @@ function getTileBaseType(tileId = "") {
   return tileMetadataById.get(tileId)?.baseTile || "floor";
 }
 
+const DEFAULT_TILE_PALETTE_BY_BASE = {
+  floor: { base: "#2a3248", highlight: "#3a4667", shadow: "#1a2236" },
+  grass: { base: "#4f8d46", highlight: "#7dc76f", shadow: "#2f5b2a" },
+  stone: { base: "#6e7583", highlight: "#9ea5b3", shadow: "#454b57" },
+  wall: { base: "#6f3a3a", highlight: "#a95c5c", shadow: "#3e2020" },
+  woodwall: { base: "#7a5a3a", highlight: "#a27a52", shadow: "#4a341f" },
+  stonewall: { base: "#616772", highlight: "#8b919b", shadow: "#3d424d" },
+  void: { base: "#1a1d24", highlight: "#2b3039", shadow: "#0b0d12" },
+};
+
+function getTileRenderPalette(tileId = "floor") {
+  const metadata = tileMetadataById.get(tileId) || {};
+  const baseTile = getTileBaseType(tileId);
+  const fallback = DEFAULT_TILE_PALETTE_BY_BASE[baseTile] || DEFAULT_TILE_PALETTE_BY_BASE.floor;
+  const metaColors = typeof sanitizeTileColors === "function" ? sanitizeTileColors(metadata?.colors || {}) : {};
+  return {
+    base: metaColors.base || fallback.base,
+    highlight: metaColors.highlight || fallback.highlight,
+    shadow: metaColors.shadow || fallback.shadow,
+  };
+}
+
+function applyTileVisual(cell, tileId = "floor") {
+  if (!cell) return;
+  const palette = getTileRenderPalette(tileId);
+  cell.style.setProperty("--tile-base-color", palette.base || "transparent");
+  cell.style.setProperty("--tile-highlight-color", palette.highlight || palette.base || "transparent");
+  cell.style.setProperty("--tile-shadow-color", palette.shadow || palette.base || "transparent");
+}
+
 function clearTileClasses(cell) {
   TILE_TYPES.forEach((type) => {
     cell.classList.remove(`tile-${type}`);
@@ -3456,6 +3486,7 @@ function updateArenaNow() {
     const t = tileMetadataById.has(rawTile) ? rawTile : "floor";
     clearTileClasses(cell);
     cell.classList.add(getTileCssClass(t));
+    applyTileVisual(cell, t);
     cell.innerHTML = "";
   }
 
@@ -7178,6 +7209,7 @@ function fillAll(type) {
     clearTileClasses(cell);
     cell.classList.remove("paint-floor", "paint-wall", "paint-void");
     cell.classList.add(getTileCssClass(fillType));
+    applyTileVisual(cell, fillType);
   });
   refreshTokenPlacements();
 }
@@ -7278,6 +7310,7 @@ function paintAtEvent(e, cell) {
       targetCell.classList.remove("paint-floor", "paint-wall", "paint-void");
       clearTileClasses(targetCell);
       targetCell.classList.add(getTileCssClass(t));
+      applyTileVisual(targetCell, t);
       const baseTile = getTileBaseType(t);
       if (baseTile === "floor" || baseTile === "wall" || baseTile === "void") {
         targetCell.classList.add("paint-" + baseTile);
