@@ -272,9 +272,10 @@ body {
   align-content: center;
   --cols: 20;
   --rows: 12;
+  --cell-size: 40px;
   --map-zoom: 1;
-  grid-template-columns: repeat(var(--cols), 40px);
-  grid-template-rows: repeat(var(--rows), 40px);
+  grid-template-columns: repeat(var(--cols), var(--cell-size));
+  grid-template-rows: repeat(var(--rows), var(--cell-size));
   border-radius: 14px;
   box-shadow: 0 16px 45px rgba(0, 0, 0, 0.34);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -785,12 +786,37 @@ body {
   background-image:
     linear-gradient(to right, rgba(255, 255, 255, 0.95) var(--grid-line, 1px), transparent var(--grid-line, 1px)),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.95) var(--grid-line, 1px), transparent var(--grid-line, 1px));
-  background-size: 40px 40px;
+  background-size: var(--cell-size) var(--cell-size);
 }
 
 #arena[data-grid-style="dots"]::after {
   background-image: radial-gradient(circle, rgba(255, 255, 255, 0.92) 1.3px, transparent 1.4px);
-  background-size: 40px 40px;
+  background-size: var(--cell-size) var(--cell-size);
+}
+
+/* Safari iOS costuma desalinha o background repetido quando o grid está com zoom/transform. */
+@supports (-webkit-touch-callout: none) {
+  #arena[data-grid-style="square"]::after {
+    display: none;
+  }
+
+  #arena[data-grid-style="square"] .cell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-right: var(--grid-line, 1px) solid rgba(255, 255, 255, 0.52);
+    border-bottom: var(--grid-line, 1px) solid rgba(255, 255, 255, 0.52);
+    z-index: 5;
+  }
+
+  #arena[data-grid-style="square"] .cell[data-x="0"]::after {
+    border-left: var(--grid-line, 1px) solid rgba(255, 255, 255, 0.52);
+  }
+
+  #arena[data-grid-style="square"] .cell[data-y="0"]::after {
+    border-top: var(--grid-line, 1px) solid rgba(255, 255, 255, 0.52);
+  }
 }
 
 #arena[data-grid-style="hex"]::after {
