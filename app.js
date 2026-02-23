@@ -187,9 +187,14 @@ const DEFAULT_SPRITE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/ma
 const TOKEN_GRID_UNIT = 40;
 
 function getArenaCellSize() {
-  const raw = getComputedStyle(arena).getPropertyValue("--cell-size").trim();
-  const parsed = Number.parseFloat(raw);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : TOKEN_GRID_UNIT;
+  const styles = getComputedStyle(arena);
+  const rawSize = styles.getPropertyValue("--cell-size").trim();
+  const rawZoom = styles.getPropertyValue("--map-zoom").trim();
+  const size = Number.parseFloat(rawSize);
+  const zoom = Number.parseFloat(rawZoom);
+  const resolvedSize = Number.isFinite(size) && size > 0 ? size : TOKEN_GRID_UNIT;
+  const resolvedZoom = Number.isFinite(zoom) && zoom > 0 ? zoom : 1;
+  return resolvedSize * resolvedZoom;
 }
 const TOKEN_CONDITION_LIBRARY = [
   { id: "bleeding", icon: "🩸", label: "Sangrando" },
@@ -1775,7 +1780,7 @@ function ensureScene() {
   s.bgY = Number.isFinite(s.bgY) ? s.bgY : 0;
   s.bgScale = Number.isFinite(s.bgScale) ? s.bgScale : 120;
   s.bgOpacity = Number.isFinite(s.bgOpacity) ? s.bgOpacity : 65;
-  s.mapZoom = Number.isFinite(s.mapZoom) ? Math.max(0.5, Math.min(1.6, s.mapZoom)) : 1;
+  s.mapZoom = Number.isFinite(s.mapZoom) ? Math.max(0.5, Math.min(3, s.mapZoom)) : 1;
   s.gridStyle = ["square", "dots"].includes(s.gridStyle) ? s.gridStyle : "square";
   s.gridOpacity = Number.isFinite(s.gridOpacity) ? Math.max(0, Math.min(100, s.gridOpacity)) : 55;
   s.gridLine = Number.isFinite(s.gridLine) ? Math.max(1, Math.min(4, s.gridLine)) : 1;
@@ -3333,28 +3338,27 @@ let isSceneDockOpen = false;
 
 function getSceneZoom() {
   const scene = load().scenes[room];
-  return Number.isFinite(scene?.mapZoom) ? Math.max(0.5, Math.min(1.6, scene.mapZoom)) : 1;
+  return Number.isFinite(scene?.mapZoom) ? Math.max(0.5, Math.min(3, scene.mapZoom)) : 1;
 }
 
 function setMapZoom(nextZoom, options = {}) {
   const { keepCenter = true, anchorClientX = null, anchorClientY = null } = options;
-  const clamped = Math.max(0.5, Math.min(1.6, Number(nextZoom) || 1));
+  const clamped = Math.max(0.5, Math.min(3, Number(nextZoom) || 1));
   const data = load();
   if (!data.scenes[room]) data.scenes[room] = structuredClone(DEFAULT_SCENE);
   const viewportRect = mapViewport?.getBoundingClientRect?.() || null;
-  const prevZoom = getSceneZoom();
   let centerRatioX = 0.5;
   let centerRatioY = 0.5;
 
   if (mapViewport && arena.offsetWidth && arena.offsetHeight) {
     if (anchorClientX != null && anchorClientY != null && viewportRect) {
-      const anchorX = (mapViewport.scrollLeft + (anchorClientX - viewportRect.left)) / (arena.offsetWidth * prevZoom);
-      const anchorY = (mapViewport.scrollTop + (anchorClientY - viewportRect.top)) / (arena.offsetHeight * prevZoom);
+      const anchorX = (mapViewport.scrollLeft + (anchorClientX - viewportRect.left)) / arena.offsetWidth;
+      const anchorY = (mapViewport.scrollTop + (anchorClientY - viewportRect.top)) / arena.offsetHeight;
       centerRatioX = anchorX;
       centerRatioY = anchorY;
     } else if (keepCenter) {
-      centerRatioX = (mapViewport.scrollLeft + mapViewport.clientWidth / 2) / (arena.offsetWidth * prevZoom);
-      centerRatioY = (mapViewport.scrollTop + mapViewport.clientHeight / 2) / (arena.offsetHeight * prevZoom);
+      centerRatioX = (mapViewport.scrollLeft + mapViewport.clientWidth / 2) / arena.offsetWidth;
+      centerRatioY = (mapViewport.scrollTop + mapViewport.clientHeight / 2) / arena.offsetHeight;
     }
   }
 
@@ -3365,8 +3369,8 @@ function setMapZoom(nextZoom, options = {}) {
   if (mapZoomInput) mapZoomInput.value = String(Math.round(clamped * 100));
 
   if (mapViewport) {
-    const w = arena.offsetWidth * clamped;
-    const h = arena.offsetHeight * clamped;
+    const w = arena.offsetWidth;
+    const h = arena.offsetHeight;
     if (anchorClientX != null && anchorClientY != null && viewportRect) {
       mapViewport.scrollLeft = Math.max(0, w * centerRatioX - (anchorClientX - viewportRect.left));
       mapViewport.scrollTop = Math.max(0, h * centerRatioY - (anchorClientY - viewportRect.top));
