@@ -14,7 +14,12 @@
         "critRangeBonus": 1
       },
       "description": "Melhoria: Afiada.",
-      "icon": "anvil"
+      "icon": "anvil",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain"
+      ]
     },
     {
       "id": "upgrade_cruel",
@@ -28,7 +33,12 @@
         "damageBonus": 1
       },
       "description": "Melhoria: Cruel.",
-      "icon": "anvil"
+      "icon": "anvil",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain"
+      ]
     },
     {
       "id": "upgrade_pungente",
@@ -42,7 +52,12 @@
         "damageBonus": 2
       },
       "description": "Melhoria: Pungente.",
-      "icon": "anvil"
+      "icon": "anvil",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain"
+      ]
     },
     {
       "id": "upgrade_mira_certa",
@@ -56,7 +71,12 @@
         "attackBonus": 1
       },
       "description": "Melhoria: Mira Certa.",
-      "icon": "anvil"
+      "icon": "anvil",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain"
+      ]
     },
     {
       "id": "upgrade_veloz",
@@ -70,7 +90,12 @@
         "extraAttackLimited": 1
       },
       "description": "Melhoria: Veloz.",
-      "icon": "anvil"
+      "icon": "anvil",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain"
+      ]
     },
     {
       "id": "upgrade_serrilhada",
@@ -84,7 +109,12 @@
         "bleed": 1
       },
       "description": "Melhoria: Serrilhada.",
-      "icon": "anvil"
+      "icon": "anvil",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain"
+      ]
     },
     {
       "id": "upgrade_defensora",
@@ -98,7 +128,12 @@
         "defenseBonus": 1
       },
       "description": "Melhoria: Defensora.",
-      "icon": "anvil"
+      "icon": "anvil",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain"
+      ]
     },
     {
       "id": "upgrade_equilibrada",
@@ -112,7 +147,12 @@
         "maneuverBonus": 1
       },
       "description": "Melhoria: Equilibrada.",
-      "icon": "anvil"
+      "icon": "anvil",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain"
+      ]
     },
     {
       "id": "upgrade_sagrada",
@@ -126,7 +166,12 @@
         "holyBonus": 1
       },
       "description": "Melhoria: Sagrada.",
-      "icon": "anvil"
+      "icon": "anvil",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain"
+      ]
     },
     {
       "id": "upgrade_reforcada",
@@ -141,7 +186,12 @@
         "defenseBonus": 1
       },
       "description": "Melhoria: Reforçada.",
-      "icon": "anvil"
+      "icon": "anvil",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain"
+      ]
     },
     {
       "id": "upgrade_sob_medida",
@@ -156,7 +206,12 @@
         "penaltyDelta": 1
       },
       "description": "Melhoria: Sob Medida.",
-      "icon": "anvil"
+      "icon": "anvil",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain"
+      ]
     },
     {
       "id": "upgrade_ajustada",
@@ -170,7 +225,12 @@
         "mobilityBonus": 1
       },
       "description": "Melhoria: Ajustada.",
-      "icon": "anvil"
+      "icon": "anvil",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain"
+      ]
     },
     {
       "id": "upgrade_acolchoada_interna",
@@ -184,7 +244,12 @@
         "comfortBonus": 1
       },
       "description": "Melhoria: Acolchoada Interna.",
-      "icon": "anvil"
+      "icon": "anvil",
+      "tags": [
+        "leather",
+        "profession:ferraria",
+        "biome:mountain"
+      ]
     },
     {
       "id": "upgrade_baluarte",
@@ -199,7 +264,12 @@
         "situationalDefenseBonus": 1
       },
       "description": "Melhoria: Baluarte.",
-      "icon": "anvil"
+      "icon": "anvil",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain"
+      ]
     }
   ]
 }

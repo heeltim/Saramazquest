@@ -11,10 +11,19 @@
       "damage": "1d4",
       "crit": "19-20",
       "range": null,
-      "weight": "0.5kg",
+      "weight": 0.5,
       "damageType": "Perfuração",
       "proficiency": "simple",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "0.5kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
       "id": "punhal_de_combate",
@@ -25,10 +34,19 @@
       "damage": "1d6",
       "crit": "19-20",
       "range": null,
-      "weight": "1kg",
+      "weight": 1,
       "damageType": "Perfuração",
       "proficiency": "simple",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
       "id": "foice_curta",
@@ -39,10 +57,19 @@
       "damage": "1d6",
       "crit": "x3",
       "range": null,
-      "weight": "1kg",
+      "weight": 1,
       "damageType": "Corte",
       "proficiency": "simple",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
       "id": "manopla_de_ferro",
@@ -53,10 +80,19 @@
       "damage": "1d4",
       "crit": "x2",
       "range": null,
-      "weight": "1kg",
+      "weight": 1,
       "damageType": "Impacto",
       "proficiency": "simple",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
       "id": "lanca_leve",
@@ -67,10 +103,19 @@
       "damage": "1d6",
       "crit": "x2",
       "range": "Curto",
-      "weight": "1.5kg",
+      "weight": 1.5,
       "damageType": "Perfuração",
       "proficiency": "simple",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "1.5kg",
+      "tags": [
+        "wood",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "wood"
     },
     {
       "id": "maca_leve",
@@ -81,10 +126,19 @@
       "damage": "1d8",
       "crit": "x2",
       "range": null,
-      "weight": "6kg",
+      "weight": 6,
       "damageType": "Impacto",
       "proficiency": "simple",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "6kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
       "id": "pique_simples",
@@ -95,10 +149,19 @@
       "damage": "1d8",
       "crit": "x2",
       "range": null,
-      "weight": "5kg",
+      "weight": 5,
       "damageType": "Perfuração",
       "proficiency": "simple",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "5kg",
+      "tags": [
+        "wood",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "wood"
     },
     {
       "id": "arco_curto",
@@ -109,10 +172,19 @@
       "damage": "1d6",
       "crit": "x3",
       "range": "Médio",
-      "weight": "1kg",
+      "weight": 1,
       "damageType": "Perfuração",
       "proficiency": "simple",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "wood",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "wood"
     },
     {
       "id": "dardo_de_guerra",
@@ -123,10 +195,19 @@
       "damage": "1d6",
       "crit": "x2",
       "range": "Médio",
-      "weight": "1kg",
+      "weight": 1,
       "damageType": "Perfuração",
       "proficiency": "simple",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
       "id": "besta_leve",
@@ -137,10 +218,19 @@
       "damage": "1d8",
       "crit": "19-20",
       "range": "Médio",
-      "weight": "3kg",
+      "weight": 3,
       "damageType": "Perfuração",
       "proficiency": "simple",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "3kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
       "id": "flechas_20",
@@ -151,10 +241,19 @@
       "damage": null,
       "crit": null,
       "range": null,
-      "weight": "1.5kg",
+      "weight": 1.5,
       "damageType": null,
       "proficiency": "ammo",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "1.5kg",
+      "tags": [
+        "wood",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "wood"
     },
     {
       "id": "virotes_10",
@@ -165,10 +264,19 @@
       "damage": null,
       "crit": null,
       "range": null,
-      "weight": "1kg",
+      "weight": 1,
       "damageType": null,
       "proficiency": "ammo",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "wood",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "wood"
     },
     {
       "id": "machado_de_guerra",
@@ -179,10 +287,19 @@
       "damage": "1d8",
       "crit": "x3",
       "range": null,
-      "weight": "3kg",
+      "weight": 3,
       "damageType": "Corte",
       "proficiency": "martial",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "3kg",
+      "tags": [
+        "herb",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "herb"
     },
     {
       "id": "espada_longa",
@@ -193,10 +310,19 @@
       "damage": "1d8",
       "crit": "19-20",
       "range": null,
-      "weight": "2kg",
+      "weight": 2,
       "damageType": "Corte",
       "proficiency": "martial",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "2kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
       "id": "sabre_curvo",
@@ -207,10 +333,19 @@
       "damage": "1d6",
       "crit": "18-20",
       "range": null,
-      "weight": "2kg",
+      "weight": 2,
       "damageType": "Corte",
       "proficiency": "martial",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "2kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
       "id": "florete_fino",
@@ -221,10 +356,19 @@
       "damage": "1d6",
       "crit": "18-20",
       "range": null,
-      "weight": "1kg",
+      "weight": 1,
       "damageType": "Perfuração",
       "proficiency": "martial",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
       "id": "martelo_de_batalha",
@@ -235,10 +379,19 @@
       "damage": "1d8",
       "crit": "x3",
       "range": null,
-      "weight": "2.5kg",
+      "weight": 2.5,
       "damageType": "Impacto",
       "proficiency": "martial",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "2.5kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
       "id": "mangual_de_ferro",
@@ -249,10 +402,19 @@
       "damage": "1d8",
       "crit": "x2",
       "range": null,
-      "weight": "2.5kg",
+      "weight": 2.5,
       "damageType": "Impacto",
       "proficiency": "martial",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "2.5kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
       "id": "alabarda_pesada",
@@ -263,10 +425,19 @@
       "damage": "1d10",
       "crit": "x3",
       "range": null,
-      "weight": "6kg",
+      "weight": 6,
       "damageType": "Corte",
       "proficiency": "martial",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "6kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
       "id": "lanca_de_cavalaria",
@@ -277,10 +448,19 @@
       "damage": "1d8",
       "crit": "x3",
       "range": null,
-      "weight": "5kg",
+      "weight": 5,
       "damageType": "Perfuração",
       "proficiency": "martial",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "5kg",
+      "tags": [
+        "wood",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "wood"
     },
     {
       "id": "espada_grande",
@@ -291,10 +471,19 @@
       "damage": "2d6",
       "crit": "19-20",
       "range": null,
-      "weight": "4kg",
+      "weight": 4,
       "damageType": "Corte",
       "proficiency": "martial",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "4kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
       "id": "arco_longo",
@@ -305,10 +494,19 @@
       "damage": "1d8",
       "crit": "x3",
       "range": "Longo",
-      "weight": "1.5kg",
+      "weight": 1.5,
       "damageType": "Perfuração",
       "proficiency": "martial",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "1.5kg",
+      "tags": [
+        "wood",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 3,
+      "material": "wood"
     },
     {
       "id": "besta_pesada",
@@ -319,10 +517,19 @@
       "damage": "1d12",
       "crit": "19-20",
       "range": "Longo",
-      "weight": "4kg",
+      "weight": 4,
       "damageType": "Perfuração",
       "proficiency": "martial",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "4kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
       "id": "chicote_de_aco",
@@ -333,10 +540,19 @@
       "damage": "1d3",
       "crit": "x2",
       "range": null,
-      "weight": "1kg",
+      "weight": 1,
       "damageType": "Corte",
       "proficiency": "exotic",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
       "id": "lamina_bastarda",
@@ -347,10 +563,19 @@
       "damage": "1d10/1d12",
       "crit": "19-20",
       "range": null,
-      "weight": "3kg",
+      "weight": 3,
       "damageType": "Corte",
       "proficiency": "exotic",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "3kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
       "id": "katara",
@@ -361,10 +586,19 @@
       "damage": "1d10",
       "crit": "x3",
       "range": null,
-      "weight": "4kg",
+      "weight": 4,
       "damageType": "Corte",
       "proficiency": "exotic",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "4kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
       "id": "corrente_espinhada",
@@ -375,10 +609,19 @@
       "damage": "2d4",
       "crit": "19-20",
       "range": null,
-      "weight": "5kg",
+      "weight": 5,
       "damageType": "Corte",
       "proficiency": "exotic",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "5kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
       "id": "machado_titanico",
@@ -389,10 +632,19 @@
       "damage": "2d8",
       "crit": "x3",
       "range": null,
-      "weight": "12kg",
+      "weight": 12,
       "damageType": "Corte",
       "proficiency": "exotic",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "12kg",
+      "tags": [
+        "herb",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "herb"
     },
     {
       "id": "rede_de_caca",
@@ -403,10 +655,19 @@
       "damage": null,
       "crit": null,
       "range": "Curto",
-      "weight": "3kg",
+      "weight": 3,
       "damageType": "Controle",
       "proficiency": "exotic",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "3kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
       "id": "pistola_de_polvora",
@@ -417,10 +678,19 @@
       "damage": "2d6",
       "crit": "19/x3",
       "range": "Curto",
-      "weight": "1kg",
+      "weight": 1,
       "damageType": "Perfuração",
       "proficiency": "firearm",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "1kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 3,
+      "material": "metal"
     },
     {
       "id": "mosquete_longo",
@@ -431,10 +701,19 @@
       "damage": "2d8",
       "crit": "19/x3",
       "range": "Médio",
-      "weight": "4kg",
+      "weight": 4,
       "damageType": "Perfuração",
       "proficiency": "firearm",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "4kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 4,
+      "material": "metal"
     },
     {
       "id": "municao_20",
@@ -445,10 +724,19 @@
       "damage": null,
       "crit": null,
       "range": null,
-      "weight": "0.5kg",
+      "weight": 0.5,
       "damageType": null,
       "proficiency": "ammo",
-      "description": "Arma de arsenal."
+      "description": "Arma de arsenal.",
+      "displayWeight": "0.5kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
       "id": "gibao_acolchoado",
@@ -458,8 +746,17 @@
       "defenseBonus": 1,
       "penalty": 0,
       "category": "light",
-      "weight": "5kg",
-      "description": "Armadura de arsenal."
+      "weight": 5,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "5kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
       "id": "couro_flexivel",
@@ -469,8 +766,17 @@
       "defenseBonus": 2,
       "penalty": 0,
       "category": "light",
-      "weight": "7kg",
-      "description": "Armadura de arsenal."
+      "weight": 7,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "7kg",
+      "tags": [
+        "leather",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "leather"
     },
     {
       "id": "couro_reforcado",
@@ -480,8 +786,17 @@
       "defenseBonus": 3,
       "penalty": -1,
       "category": "light",
-      "weight": "10kg",
-      "description": "Armadura de arsenal."
+      "weight": 10,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "10kg",
+      "tags": [
+        "leather",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "leather"
     },
     {
       "id": "malha_leve",
@@ -491,8 +806,17 @@
       "defenseBonus": 4,
       "penalty": -2,
       "category": "light",
-      "weight": "12kg",
-      "description": "Armadura de arsenal."
+      "weight": 12,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "12kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 3,
+      "material": "metal"
     },
     {
       "id": "couraca_de_peles",
@@ -502,8 +826,17 @@
       "defenseBonus": 3,
       "penalty": -2,
       "category": "medium",
-      "weight": "12kg",
-      "description": "Armadura de arsenal."
+      "weight": 12,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "12kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 1,
+      "material": "metal"
     },
     {
       "id": "brunea_reforcada",
@@ -513,8 +846,17 @@
       "defenseBonus": 4,
       "penalty": -3,
       "category": "medium",
-      "weight": "15kg",
-      "description": "Armadura de arsenal."
+      "weight": 15,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "15kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 2,
+      "material": "metal"
     },
     {
       "id": "cota_metalica",
@@ -524,8 +866,17 @@
       "defenseBonus": 5,
       "penalty": -3,
       "category": "medium",
-      "weight": "20kg",
-      "description": "Armadura de arsenal."
+      "weight": 20,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "20kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 3,
+      "material": "metal"
     },
     {
       "id": "couraca_rigida",
@@ -535,8 +886,17 @@
       "defenseBonus": 5,
       "penalty": -4,
       "category": "medium",
-      "weight": "15kg",
-      "description": "Armadura de arsenal."
+      "weight": 15,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "15kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 3,
+      "material": "metal"
     },
     {
       "id": "couraca_de_bronze",
@@ -546,8 +906,17 @@
       "defenseBonus": 4,
       "penalty": -4,
       "category": "medium",
-      "weight": "12kg",
-      "description": "Armadura de arsenal."
+      "weight": 12,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "12kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 4,
+      "material": "metal"
     },
     {
       "id": "armadura_segmentada",
@@ -557,8 +926,17 @@
       "defenseBonus": 6,
       "penalty": -5,
       "category": "heavy",
-      "weight": "17kg",
-      "description": "Armadura de arsenal."
+      "weight": 17,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "17kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 3,
+      "material": "metal"
     },
     {
       "id": "meia_armadura",
@@ -568,8 +946,17 @@
       "defenseBonus": 7,
       "penalty": -4,
       "category": "heavy",
-      "weight": "22kg",
-      "description": "Armadura de arsenal."
+      "weight": 22,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "22kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 4,
+      "material": "metal"
     },
     {
       "id": "armadura_completa",
@@ -579,8 +966,17 @@
       "defenseBonus": 8,
       "penalty": -5,
       "category": "heavy",
-      "weight": "25kg",
-      "description": "Armadura de arsenal."
+      "weight": 25,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "25kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 5,
+      "material": "metal"
     },
     {
       "id": "armadura_profunda",
@@ -590,8 +986,17 @@
       "defenseBonus": 8,
       "penalty": -5,
       "category": "heavy",
-      "weight": "30kg",
-      "description": "Armadura de arsenal."
+      "weight": 30,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "30kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 5,
+      "material": "metal"
     },
     {
       "id": "armadura_draconica",
@@ -601,8 +1006,17 @@
       "defenseBonus": 9,
       "penalty": -2,
       "category": "heavy",
-      "weight": "25kg",
-      "description": "Armadura de arsenal."
+      "weight": 25,
+      "description": "Armadura de arsenal.",
+      "displayWeight": "25kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ],
+      "tier": 5,
+      "material": "metal"
     },
     {
       "id": "escudo_leve",
@@ -611,8 +1025,15 @@
       "type": "shield",
       "defenseBonus": 1,
       "penalty": -1,
-      "weight": "3kg",
-      "description": "Escudo de arsenal."
+      "weight": 3,
+      "description": "Escudo de arsenal.",
+      "displayWeight": "3kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ]
     },
     {
       "id": "escudo_pesado",
@@ -621,8 +1042,15 @@
       "type": "shield",
       "defenseBonus": 2,
       "penalty": -2,
-      "weight": "7kg",
-      "description": "Escudo de arsenal."
+      "weight": 7,
+      "description": "Escudo de arsenal.",
+      "displayWeight": "7kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ]
     },
     {
       "id": "escudo_de_torre",
@@ -631,8 +1059,15 @@
       "type": "shield",
       "defenseBonus": 4,
       "penalty": -5,
-      "weight": "15kg",
-      "description": "Escudo de arsenal."
+      "weight": 15,
+      "description": "Escudo de arsenal.",
+      "displayWeight": "15kg",
+      "tags": [
+        "metal",
+        "profession:ferraria",
+        "biome:mountain",
+        "craftable"
+      ]
     }
   ]
 }
