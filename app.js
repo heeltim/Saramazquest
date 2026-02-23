@@ -5094,6 +5094,12 @@ function syncSceneUIFromStorage() {
   const kindInput = document.getElementById("sceneLayerKind");
   if (kindInput && !kindInput.value) kindInput.value = "map";
   if (mapZoomInput) mapZoomInput.value = String(Math.round((s.mapZoom || 1) * 100));
+  setSceneBackgroundPreview(s.bgUrl || "");
+  if (s.bgUrl) {
+    setSceneBackgroundUploadStatus("Imagem do cenário ativa.", "success");
+  } else {
+    setSceneBackgroundUploadStatus("Nenhuma imagem selecionada.");
+  }
   renderArtboardControls();
   renderSceneLayerList();
   setTool(paintTool);
@@ -5314,16 +5320,50 @@ window.applyTemporaryGlobalMap = function applyTemporaryGlobalMap() {
   setSceneSection("grid");
 };
 
+function setSceneBackgroundUploadStatus(message, state = "idle") {
+  const status = document.getElementById("sceneBgUploadStatus");
+  if (!status) return;
+  status.textContent = message;
+  status.classList.remove("is-loading", "is-success", "is-error");
+  if (state === "loading") status.classList.add("is-loading");
+  if (state === "success") status.classList.add("is-success");
+  if (state === "error") status.classList.add("is-error");
+}
+
+function setSceneBackgroundPreview(src = "") {
+  const wrap = document.getElementById("sceneBgPreviewWrap");
+  const img = document.getElementById("sceneBgPreview");
+  if (!wrap || !img) return;
+  if (!src) {
+    img.removeAttribute("src");
+    wrap.hidden = true;
+    return;
+  }
+  img.src = src;
+  wrap.hidden = false;
+}
+
 window.importSceneBackground = function importSceneBackground() {
   const fileInput = document.getElementById("sceneBgFile");
   const file = fileInput?.files?.[0];
-  if (!file) return alert("Selecione uma imagem para o cenário.");
-  if (!file.type || !file.type.startsWith("image/")) return alert("Arquivo inválido. Use uma imagem.");
+  if (!file) {
+    setSceneBackgroundUploadStatus("Selecione uma imagem para o cenário.", "error");
+    return alert("Selecione uma imagem para o cenário.");
+  }
+  if (!file.type || !file.type.startsWith("image/")) {
+    setSceneBackgroundUploadStatus("Arquivo inválido. Use uma imagem.", "error");
+    return alert("Arquivo inválido. Use uma imagem.");
+  }
+
+  setSceneBackgroundUploadStatus(`Carregando ${file.name}...`, "loading");
 
   const reader = new FileReader();
   reader.onload = () => {
     const src = String(reader.result || "");
-    if (!src) return alert("Não foi possível ler a imagem.");
+    if (!src) {
+      setSceneBackgroundUploadStatus("Não foi possível ler a imagem.", "error");
+      return alert("Não foi possível ler a imagem.");
+    }
     let data = load();
     const scene = data.scenes[room];
     scene.bgUrl = src;
@@ -5339,10 +5379,15 @@ window.importSceneBackground = function importSceneBackground() {
     createGrid();
     updateArena();
     syncSceneUIFromStorage();
+    setSceneBackgroundUploadStatus(`Imagem carregada: ${file.name}`, "success");
+    setSceneBackgroundPreview(src);
     setSceneSection("grid");
     fileInput.value = "";
   };
-  reader.onerror = () => alert("Falha ao carregar o arquivo de imagem.");
+  reader.onerror = () => {
+    setSceneBackgroundUploadStatus("Falha ao carregar o arquivo de imagem.", "error");
+    alert("Falha ao carregar o arquivo de imagem.");
+  };
   reader.readAsDataURL(file);
 };
 
@@ -5355,6 +5400,8 @@ window.clearSceneBackground = function clearSceneBackground() {
   createGrid();
   updateArena();
   syncSceneUIFromStorage();
+  setSceneBackgroundPreview("");
+  setSceneBackgroundUploadStatus("Imagem removida. Nenhuma imagem selecionada.");
 };
 
 function bindSceneInputs() {
@@ -5365,6 +5412,7 @@ function bindSceneInputs() {
   const gridStyle = document.getElementById("gridStyle");
   const gridOpacity = document.getElementById("gridOpacity");
   const gridLine = document.getElementById("gridLine");
+  const sceneBgFile = document.getElementById("sceneBgFile");
 
   if (artboardSelect && !artboardSelect.dataset.bound) {
     artboardSelect.dataset.bound = "1";
@@ -5404,6 +5452,17 @@ function bindSceneInputs() {
   gridStyle.addEventListener("change", upd);
   gridOpacity.addEventListener("input", upd);
   gridLine.addEventListener("input", upd);
+  if (sceneBgFile && !sceneBgFile.dataset.bound) {
+    sceneBgFile.dataset.bound = "1";
+    sceneBgFile.addEventListener("change", () => {
+      const file = sceneBgFile.files?.[0];
+      if (!file) {
+        setSceneBackgroundUploadStatus("Nenhuma imagem selecionada.");
+        return;
+      }
+      setSceneBackgroundUploadStatus(`Imagem selecionada: ${file.name}`);
+    });
+  }
 
 }
 bindSceneInputs();

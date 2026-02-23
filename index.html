@@ -158,6 +158,10 @@
                     <button class="toolBtn" type="button" onclick="importSceneBackground()">Carregar imagem do cenário</button>
                     <button class="toolBtn" type="button" onclick="clearSceneBackground()">Remover imagem</button>
                   </div>
+                  <div id="sceneBgUploadStatus" class="sceneUploadStatus" aria-live="polite">Nenhuma imagem selecionada.</div>
+                  <div id="sceneBgPreviewWrap" class="sceneBgPreviewWrap" hidden>
+                    <img id="sceneBgPreview" class="sceneBgPreview" alt="Pré-visualização da imagem do cenário" />
+                  </div>
                   <div class="sceneHint">A imagem carregada aqui aparece no mapa global e o grid fica sobreposto automaticamente.</div>
                 </div>
               </section>
