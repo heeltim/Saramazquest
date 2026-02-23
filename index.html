@@ -185,6 +185,13 @@
             </button>
           </div>
 
+          <div class="sceneActions sceneArtboardActions">
+            <select id="artboardSelect" aria-label="Selecionar artboard"></select>
+            <button class="toolBtn" type="button" onclick="createArtboard()">+ Artboard</button>
+            <button class="toolBtn" type="button" onclick="renameArtboard()">Renomear</button>
+            <button class="toolBtn" type="button" onclick="deleteArtboard()">Remover</button>
+          </div>
+
           <div class="sceneGrid">
             <div class="field full layerEditorField">
               <label>Camadas de imagem</label>
@@ -233,6 +240,15 @@
             <div class="field">
               <label>Offset Y</label>
               <input id="bgY" type="range" min="-600" max="600" value="0" />
+            </div>
+
+            <div class="field full sceneSizeField">
+              <label>Tamanho do Artboard (cada célula = 1,5 m)</label>
+              <div class="sceneSizeControls">
+                <label>Colunas <input id="sceneCols" type="number" min="6" max="120" value="20" /></label>
+                <label>Linhas <input id="sceneRows" type="number" min="6" max="120" value="12" /></label>
+                <button class="toolBtn" type="button" onclick="applyArtboardSize()">Aplicar tamanho</button>
+              </div>
             </div>
 
             <div class="field full">

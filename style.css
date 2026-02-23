@@ -241,13 +241,10 @@ body {
   overflow: auto;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(180deg, #171d2c 0%, #111724 100%);
-  background-size: 40px 40px, 40px 40px, cover;
+  background: linear-gradient(180deg, #171d2c 0%, #111724 100%);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 20px 60px rgba(0, 0, 0, 0.45);
   cursor: grab;
+  scroll-behavior: smooth;
 }
 
 #mapViewport.dragging {
@@ -1853,6 +1850,25 @@ select option {
 .sceneActions .toolBtn {
   width: 100%;
   justify-content: center;
+}
+
+.sceneArtboardActions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  gap: 6px;
+}
+.sceneArtboardActions select {
+  min-width: 0;
+}
+.sceneSizeControls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  gap: 6px;
+  align-items: end;
+}
+.sceneSizeControls label {
+  display: grid;
+  gap: 4px;
 }
 
 .sceneGrid {
