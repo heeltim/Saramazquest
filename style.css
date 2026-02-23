@@ -2336,6 +2336,53 @@ select option {
   width: 100%;
 }
 
+
+.tileQuickSlots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.tileQuickSlot {
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  min-height: 54px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  text-align: left;
+}
+.tileQuickSlot:hover {
+  border-color: rgba(162, 250, 198, 0.72);
+}
+.tileQuickSlot.empty {
+  opacity: 0.8;
+}
+.tileQuickSlot.active {
+  background: rgba(128, 220, 170, 0.2);
+  border-style: solid;
+  border-color: rgba(162, 250, 198, 0.85);
+  box-shadow: inset 0 0 0 1px rgba(201, 255, 223, 0.26);
+}
+.tileQuickSlotIcon {
+  font-size: 16px;
+}
+.tileQuickSlotIndex {
+  font-size: 11px;
+  opacity: 0.75;
+}
+.tileQuickSlotLabel {
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .tileLibrary {
   display: grid;
   gap: 10px;
