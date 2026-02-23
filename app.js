@@ -5972,11 +5972,10 @@ function pickWeightedTile(rule, seedInput = "") {
 
 function isWorldCellTerrainLocked(cellData) {
   if (!cellData || typeof cellData !== "object") return false;
-  if (cellData.terrainLock === true) return true;
-  if (cellData.tileLock === true) return true;
-  if (String(cellData.terrainSource || "").toLowerCase() === "manual") return true;
-  if (String(cellData.tileSource || "").toLowerCase() === "manual") return true;
-  if (String(cellData.terrainOverride || "").toLowerCase() === "manual") return true;
+  const boolLockKeys = ["terrainLock", "tileLock", "locked", "isLocked", "manualLock", "lockTerrain", "lockTile"];
+  if (boolLockKeys.some((key) => cellData[key] === true)) return true;
+  const sourceKeys = ["terrainSource", "tileSource", "terrainOverride", "tileOverride", "editSource"];
+  if (sourceKeys.some((key) => String(cellData[key] || "").toLowerCase() === "manual")) return true;
   return false;
 }
 
@@ -5984,21 +5983,24 @@ function generateTerrainFromWorldBiomes(scene, options = {}) {
   if (!scene) return { updated: 0, skipped: 0, total: 0 };
   const meta = normalizeWorldMapMetaWithScene(scene);
   const cells = meta && typeof meta.cells === "object" ? meta.cells : {};
-  const cols = Math.max(1, parseInt(scene.cols, 10) || DEFAULT_COLS);
-  const rows = Math.max(1, parseInt(scene.rows, 10) || DEFAULT_ROWS);
-  const needed = cols * rows;
+  const sceneCols = Math.max(1, parseInt(scene.cols, 10) || DEFAULT_COLS);
+  const sceneRows = Math.max(1, parseInt(scene.rows, 10) || DEFAULT_ROWS);
+  const worldCols = Math.max(1, parseInt(meta?.cols, 10) || parseInt(scene.worldMap?.gridCols, 10) || sceneCols);
+  const worldRows = Math.max(1, parseInt(meta?.rows, 10) || parseInt(scene.worldMap?.gridRows, 10) || sceneRows);
+  const needed = sceneCols * sceneRows;
   if (!Array.isArray(scene.tiles)) scene.tiles = [];
   if (scene.tiles.length !== needed) {
     scene.tiles = Array.from({ length: needed }, (_, i) => scene.tiles?.[i] || "floor");
   }
 
+  const baseSeed = String(options.seed || meta?.classification?.signature || scene.worldMap?.imageUrl || "default");
   let updated = 0;
   let skipped = 0;
   Object.entries(cells).forEach(([key, cellData]) => {
     const [xRaw, yRaw] = String(key).split("_");
-    const x = parseInt(xRaw, 10);
-    const y = parseInt(yRaw, 10);
-    if (!Number.isFinite(x) || !Number.isFinite(y) || x < 0 || y < 0 || x >= cols || y >= rows) {
+    const worldX = parseInt(xRaw, 10);
+    const worldY = parseInt(yRaw, 10);
+    if (!Number.isFinite(worldX) || !Number.isFinite(worldY) || worldX < 0 || worldY < 0 || worldX >= worldCols || worldY >= worldRows) {
       skipped += 1;
       return;
     }
@@ -6008,8 +6010,10 @@ function generateTerrainFromWorldBiomes(scene, options = {}) {
     }
     const biome = String(cellData?.biome || cellData?.biomeDetection?.detectedBiome || "unknown").trim().toLowerCase();
     const rule = BIOME_TO_TILE_RULES[biome] || BIOME_TO_TILE_RULES.unknown;
-    const tile = pickWeightedTile(rule, `${key}:${biome}:${options.seed || "default"}`);
-    const idx = y * cols + x;
+    const tile = pickWeightedTile(rule, `${baseSeed}:${key}:${biome}`);
+    const sceneX = Math.min(sceneCols - 1, Math.max(0, Math.floor((worldX / worldCols) * sceneCols)));
+    const sceneY = Math.min(sceneRows - 1, Math.max(0, Math.floor((worldY / worldRows) * sceneRows)));
+    const idx = sceneY * sceneCols + sceneX;
     if (!TILE_TYPES.includes(tile) || idx < 0 || idx >= scene.tiles.length) {
       skipped += 1;
       return;
@@ -6464,7 +6468,7 @@ window.importWorldMapImage = function importWorldMapImage() {
     classifyWorldMapBiomes(scene, { force: true }).finally(() => {
       let terrainData = load();
       const terrainScene = terrainData.scenes[room];
-      const terrainSummary = generateTerrainFromWorldBiomes(terrainScene, { seed: Date.now() });
+      const terrainSummary = generateTerrainFromWorldBiomes(terrainScene);
       save(terrainData);
       updateArena();
       setWorldMapUploadStatus(`Mapa global carregado: ${file.name} · terreno gerado (${terrainSummary.updated}/${terrainSummary.total})`, "success");
@@ -6483,7 +6487,7 @@ window.generateProceduralTerrainFromWorldBiomes = function generateProceduralTer
   const scene = data.scenes[room];
   classifyWorldMapBiomes(scene, { force: false })
     .then(() => {
-      const summary = generateTerrainFromWorldBiomes(scene, { seed: Date.now() });
+      const summary = generateTerrainFromWorldBiomes(scene);
       save(data);
       updateArena();
       setWorldMapUploadStatus(`Terreno procedural atualizado (${summary.updated}/${summary.total} células).`, "success");
@@ -6551,7 +6555,7 @@ function bindWorldBuilderInputs() {
     classifyWorldMapBiomes(scene, { force: true }).finally(() => {
       let terrainData = load();
       const terrainScene = terrainData.scenes[room];
-      generateTerrainFromWorldBiomes(terrainScene, { seed: Date.now() });
+      generateTerrainFromWorldBiomes(terrainScene);
       save(terrainData);
       updateArena();
       if (isWorldMapWindowOpen) renderWorldMapWindow();
