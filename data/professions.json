@@ -1,0 +1,19 @@
+{
+  "professions": {
+    "culinaria": {
+      "allowedItemTags": ["consumable"],
+      "allowedRecipeTags": ["food", "drink", "consumable"],
+      "toolItemIds": ["kit_de_aventureiro"]
+    },
+    "alquimia": {
+      "allowedItemTags": ["consumable", "utility"],
+      "allowedRecipeTags": ["potion", "elixir", "alchemical", "consumable"],
+      "toolItemIds": ["kit_medico"]
+    },
+    "ferraria": {
+      "allowedItemTags": ["weapon", "armor", "shield"],
+      "allowedRecipeTags": ["weapon", "armor", "shield", "smithing"],
+      "toolItemIds": ["kit_de_artesao"]
+    }
+  }
+}

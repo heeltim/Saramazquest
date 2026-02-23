@@ -2983,3 +2983,5 @@ kbd {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+.profRecipeCard { border:1px solid #2f3b66; border-radius:8px; padding:8px; margin-top:8px; background:#131a2f; }
+.profSpecialBadge { display:inline-block; margin-left:6px; padding:1px 6px; border-radius:999px; font-size:11px; background:#7c3aed; color:#fff; }
