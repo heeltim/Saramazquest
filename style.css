@@ -503,8 +503,8 @@ body {
   position: absolute;
   left: 12px;
   top: 144px;
-  width: min(860px, calc(100% - 24px));
-  height: min(620px, calc(100% - 156px));
+  width: min(1120px, calc(100% - 24px));
+  height: min(700px, calc(100% - 156px));
   border-radius: 14px;
   background: linear-gradient(180deg, rgba(28, 33, 48, 0.95), rgba(18, 22, 33, 0.92));
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -532,12 +532,44 @@ body {
   gap: 8px;
 }
 
-#worldMapStage {
+.worldMapWindowActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.worldMapToggleGrid {
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.worldMapViewportLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 10px;
+  min-height: 0;
+}
+
+#worldMapStageWrap {
   position: relative;
+  min-height: 0;
   border-radius: 12px;
   overflow: hidden;
   background: rgba(5, 8, 14, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: grab;
+}
+
+#worldMapStageWrap.dragging {
+  cursor: grabbing;
+}
+
+#worldMapStage {
+  position: absolute;
+  inset: 0;
+  transform-origin: center center;
 }
 
 #worldMapImage {
@@ -545,6 +577,7 @@ body {
   height: 100%;
   object-fit: contain;
   display: block;
+  pointer-events: none;
 }
 
 #worldMapGridOverlay,
@@ -556,16 +589,18 @@ body {
 
 #worldMapGridOverlay {
   display: grid;
+  grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--grid-rows), minmax(0, 1fr));
 }
 
 .worldGridCell {
   border: 1px solid rgba(130, 214, 255, 0.24);
-  background: rgba(120, 160, 255, 0.03);
+  background: rgba(120, 160, 255, 0.01);
   cursor: pointer;
 }
 
 .worldGridCell:hover {
-  background: rgba(120, 160, 255, 0.12);
+  background: rgba(120, 160, 255, 0.14);
 }
 
 .worldMarkerPin {
@@ -583,6 +618,42 @@ body {
   box-shadow: inset 0 0 0 1px rgba(10, 10, 10, 0.45);
   pointer-events: none;
   display: none;
+}
+
+#worldMapDrawer {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(13, 17, 27, 0.65);
+  padding: 10px;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.worldMapDrawerTitle {
+  font-weight: 800;
+}
+
+#worldMapDrawer label {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+}
+
+#worldMapDrawer input,
+#worldMapDrawer textarea {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(8, 11, 18, 0.8);
+  color: #fff;
+  padding: 8px;
+}
+
+.worldMapDrawerActions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
 }
 .diceTopRow {
   display: flex;
@@ -2396,6 +2467,14 @@ kbd {
   .sheetDnaGrid .classField,
   .sheetDnaGrid .field:last-child {
     grid-column: span 1;
+  }
+}
+
+
+
+@media (max-width: 980px) {
+  .worldMapViewportLayout {
+    grid-template-columns: 1fr;
   }
 }
 
