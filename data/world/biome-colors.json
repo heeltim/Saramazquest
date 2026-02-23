@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "metric": "rgb",
+  "biomes": [
+    { "biome": "ocean", "color": [40, 85, 150], "tolerance": 88 },
+    { "biome": "coast", "color": [170, 185, 130], "tolerance": 82 },
+    { "biome": "plains", "color": [100, 150, 88], "tolerance": 78 },
+    { "biome": "forest", "color": [55, 112, 68], "tolerance": 78 },
+    { "biome": "desert", "color": [210, 186, 120], "tolerance": 82 },
+    { "biome": "mountains", "color": [134, 126, 120], "tolerance": 72 },
+    { "biome": "tundra", "color": [188, 204, 214], "tolerance": 70 },
+    { "biome": "volcanic", "color": [82, 60, 55], "tolerance": 68 }
+  ]
+}
