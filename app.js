@@ -1193,6 +1193,17 @@ const PROFESSIONS_DB = {
 };
 let REAGENT_BY_ID = Object.fromEntries(PROFESSIONS_DB.reagents.map((r) => [r.id, r]));
 const PROFESSION_BY_ID = Object.fromEntries(PROFESSIONS_DB.professions.map((r) => [r.id, r]));
+const PROFESSION_ICON_BY_ID = {
+  culinaria: "🍳",
+  alquimia: "🧪",
+  ferraria: "⚒️",
+  mercador: "🏪",
+};
+
+function getProfessionIcon(professionId, fallback = "🧭") {
+  return PROFESSION_ICON_BY_ID[professionId] || fallback;
+}
+
 let MANUAL_RECIPES_DB = { recipes: [] };
 let selectedProfessionId = "culinaria";
 let professionTargetName = null;
@@ -7189,35 +7200,113 @@ function closeProfessions() {
 function renderProfessionsModal(p) {
   const panel = document.getElementById("professionsPanel");
   if (!panel) return;
-  const profTabs = PROFESSIONS_DB.professions.map((prof) => `<button class="smallBtn ${selectedProfessionId === prof.id ? "smallBtnPrimary" : ""}" onclick="selectedProfessionId='${prof.id}'; renderProfessionsModal(load().rooms[room][professionTargetName]);">${prof.nome}</button>`).join("");
+  const selectedProfession = PROFESSION_BY_ID[selectedProfessionId] || null;
+  const selectedProfessionName = selectedProfession?.nome || "Profissão";
+  const selectedProfessionIcon = getProfessionIcon(selectedProfessionId);
+  const activeProductionList = (p.production_professions || []).map((id) => `${getProfessionIcon(id)} ${PROFESSION_BY_ID[id]?.nome || id}`);
+  const totalReagents = Object.values(p.reagents_inventory || {}).reduce((sum, qty) => sum + Number(qty || 0), 0);
+
+  const profTabs = PROFESSIONS_DB.professions.map((prof) => `
+    <button class="profTabBtn ${selectedProfessionId === prof.id ? "active" : ""}" onclick="selectedProfessionId='${prof.id}'; renderProfessionsModal(load().rooms[room][professionTargetName]);">
+      <span class="profIcon" aria-hidden="true">${getProfessionIcon(prof.id)}</span>
+      <span>${prof.nome}</span>
+    </button>
+  `).join("");
+
   const recipeCards = getRecipeItemCandidates(selectedProfessionId);
   const reagentsHtml = Object.entries(p.reagents_inventory || {}).map(([rid, qty]) => `<div class="reagentRow"><span>${REAGENT_BY_ID[rid]?.nome || rid}</span><strong>x${qty}</strong></div>`).join("") || '<div class="invDesc">Sem reagentes.</div>';
-  const productionOptions = ["culinaria", "alquimia", "ferraria"].map((id) => `<label><input type="checkbox" ${p.production_professions.includes(id) ? "checked" : ""} onchange="toggleProductionProfession('${id}', this.checked)"> ${PROFESSION_BY_ID[id].nome}</label>`).join(" ");
+  const productionOptions = ["culinaria", "alquimia", "ferraria"]
+    .map((id) => `
+      <label class="profOptionToggle">
+        <input type="checkbox" ${p.production_professions.includes(id) ? "checked" : ""} onchange="toggleProductionProfession('${id}', this.checked)">
+        <span class="profIcon" aria-hidden="true">${getProfessionIcon(id)}</span>
+        <span>${PROFESSION_BY_ID[id].nome}</span>
+      </label>
+    `)
+    .join("");
+
   const recipesHtml = recipeCards.map((card) => {
     const check = canCraftRecipe(p, card);
     const item = getShopEntryById(card.outputItemId);
     const reagents = (card.reagents || []).map((req) => `${REAGENT_BY_ID[req.id]?.nome || req.id} x${req.qtd}`).join(", ") || "Sem reagentes";
     const reasons = check.reasons.length > 0 ? `<div class="invDesc">${check.reasons.join(" ")}</div>` : "";
-    return `<div class="profRecipeCard">
+    return `<div class="professionCard recipeCard">
       <div class="profHeader"><strong>${item?.name || card.recipeName}</strong><span class="profBadge">${iconForShopItem(item || { type: card.outputType })} ${item?.type || card.outputType}</span></div>
       <div class="invDesc">Item final: ${(item?.name || card.outputItemId)} x${card.outputQty}${card.special ? ' <span class="profSpecialBadge">Especial</span>' : ''}</div>
       <div class="invDesc">Reagentes: ${reagents}</div>
       ${reasons}
-      <button class="smallBtn ${check.canCraft ? "smallBtnPrimary" : ""}" onclick="craftRecipe('${card.outputItemId}','${card.professionId}')" ${check.canCraft ? "" : "disabled"}>Craftar</button>
+      <button class="smallBtn profBtn ${check.canCraft ? "profBtnPrimary" : ""}" onclick="craftRecipe('${card.outputItemId}','${card.professionId}')" ${check.canCraft ? "" : "disabled"}>Craftar</button>
     </div>`;
   }).join("") || '<div class="invDesc">Sem receitas.</div>';
-  panel.innerHTML = `
-    <div class="profSection"><strong>Downtime:</strong> ${p.downtime_days}</div>
-    <div class="profSection">${profTabs}</div>
-    <div class="profSection">
-      <div><strong>Profissões de produção (máx ${MAX_PRODUCTION_PROFESSIONS})</strong></div>
-      <div>${productionOptions}</div>
+
+  const professionSummaryCards = PROFESSIONS_DB.professions.map((prof) => `
+    <div class="professionCard professionSummaryCard">
+      <div class="professionCardHeader">
+        <span class="profTitleWithIcon">
+          <span class="profIcon" aria-hidden="true">${getProfessionIcon(prof.id)}</span>
+          <strong>${prof.nome}</strong>
+        </span>
+      </div>
+      <div class="professionCardBody">
+        <span class="profBadge">Nv ${p.professions_progress[prof.id]?.level || 1}</span>
+        <span class="profBadge">XP ${p.professions_progress[prof.id]?.xp || 0}</span>
+        ${(p.production_professions || []).includes(prof.id) ? '<span class="profBadge profBadgeActive">Ativa</span>' : ""}
+      </div>
     </div>
-    ${PROFESSIONS_DB.professions.map((prof) => `<div class="profSection"><div class="profHeader"><strong>${prof.nome}</strong><span class="profBadge">Nv ${p.professions_progress[prof.id]?.level || 1} • XP ${p.professions_progress[prof.id]?.xp || 0}</span></div></div>`).join("")}
-    <div class="profSection"><strong>Ações</strong><div class="profActions"><button class="smallBtn smallBtnPrimary" onclick="collectProfession('${selectedProfessionId}')">Coletar</button><button class="smallBtn smallBtnPrimary" onclick="sellFirstReagent()">Vender</button></div></div>
-    <div class="profSection"><strong>Receitas (${PROFESSION_BY_ID[selectedProfessionId]?.nome || ''})</strong>${recipesHtml}</div>
-    <div class="profSection"><strong>Inventário de reagentes</strong>${reagentsHtml}</div>
-    <div class="profSection"><strong>Mercador / Loja do jogador</strong><button class="smallBtn" onclick="togglePlayerShopEnabled()">${p.player_shop.enabled ? "Desativar" : "Ativar"} loja</button><button class="smallBtn" onclick="openPlayerShop('${professionTargetName}','${currentUser}')">Abrir Loja</button></div>
+  `).join("");
+
+  panel.innerHTML = `
+    <div class="professionsHero">
+      <div>
+        <div class="profTitleWithIcon professionsHeroTitle"><span class="profIcon" aria-hidden="true">${selectedProfessionIcon}</span><strong>${selectedProfessionName}</strong></div>
+        <div class="invDesc">Foque sua evolução com coleta, craft e comércio.</div>
+      </div>
+      <div class="profHeroStats">
+        <div class="profHeroStat"><span>⏳ Downtime</span><strong>${p.downtime_days}</strong></div>
+        <div class="profHeroStat"><span>🧰 Reagentes</span><strong>${totalReagents}</strong></div>
+        <div class="profHeroStat"><span>🛠️ Produção ativa</span><strong>${activeProductionList.join(" • ") || "Nenhuma"}</strong></div>
+      </div>
+    </div>
+
+    <div class="profSection">${profTabs}</div>
+
+    <div class="professionsLayout">
+      <section class="professionCard">
+        <div class="professionCardHeader"><strong>📚 Progresso por profissão</strong></div>
+        <div class="professionCardBody professionSummaryGrid">${professionSummaryCards}</div>
+      </section>
+
+      <section class="professionCard">
+        <div class="professionCardHeader"><strong>🧪 Profissões de produção (máx ${MAX_PRODUCTION_PROFESSIONS})</strong></div>
+        <div class="professionCardBody professionOptionsGrid">${productionOptions}</div>
+      </section>
+
+      <section class="professionCard">
+        <div class="professionCardHeader"><strong>⚡ Ações rápidas</strong></div>
+        <div class="professionCardBody professionActionsGrid">
+          <button class="smallBtn profBtn profBtnPrimary" onclick="collectProfession('${selectedProfessionId}')">Coletar</button>
+          <button class="smallBtn profBtn profBtnGhost" onclick="sellFirstReagent()">Vender reagente</button>
+        </div>
+      </section>
+
+      <section class="professionCard professionCardWide">
+        <div class="professionCardHeader"><strong>📜 Receitas (${selectedProfessionIcon} ${selectedProfessionName})</strong></div>
+        <div class="professionCardBody recipeGrid">${recipesHtml}</div>
+      </section>
+
+      <section class="professionCard">
+        <div class="professionCardHeader"><strong>🧺 Inventário de reagentes</strong></div>
+        <div class="professionCardBody">${reagentsHtml}</div>
+      </section>
+
+      <section class="professionCard">
+        <div class="professionCardHeader"><strong>🏪 Mercador / Loja do jogador</strong></div>
+        <div class="professionCardBody professionActionsGrid">
+          <button class="smallBtn profBtn ${p.player_shop.enabled ? "profBtnDanger" : "profBtnGhost"}" onclick="togglePlayerShopEnabled()">${p.player_shop.enabled ? "Desativar" : "Ativar"} loja</button>
+          <button class="smallBtn profBtn profBtnPrimary" onclick="openPlayerShop('${professionTargetName}','${currentUser}')">Abrir Loja</button>
+        </div>
+      </section>
+    </div>
   `;
 }
 
