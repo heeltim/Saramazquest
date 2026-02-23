@@ -1402,64 +1402,272 @@
   ],
   "reagents": [
     {
-      "id": "erva_comum",
-      "nome": "Erva Comum",
-      "categoria": "herbal",
+      "id": "carne_comum",
+      "nome": "Carne Comum",
+      "categoria": "culinaria",
       "raridade": "comum",
       "stack_max": 99,
-      "valor_venda_gp": 1
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.6
     },
     {
-      "id": "erva_rara",
-      "nome": "Erva Rara",
-      "categoria": "herbal",
-      "raridade": "raro",
+      "id": "peixe_rio",
+      "nome": "Peixe de Rio",
+      "categoria": "culinaria",
+      "raridade": "comum",
       "stack_max": 99,
-      "valor_venda_gp": 3
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.6
+    },
+    {
+      "id": "raiz_silvestre",
+      "nome": "Raiz Silvestre",
+      "categoria": "culinaria",
+      "raridade": "comum",
+      "stack_max": 99,
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.6
+    },
+    {
+      "id": "erva_aromatica",
+      "nome": "Erva Aromática",
+      "categoria": "culinaria",
+      "raridade": "comum",
+      "stack_max": 99,
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.6
+    },
+    {
+      "id": "sal_grosso",
+      "nome": "Sal Grosso",
+      "categoria": "culinaria",
+      "raridade": "comum",
+      "stack_max": 99,
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.6
     },
     {
       "id": "carne_selvagem",
       "nome": "Carne Selvagem",
       "categoria": "culinaria",
-      "raridade": "comum",
+      "raridade": "incomum",
       "stack_max": 99,
-      "valor_venda_gp": 2
+      "valor_venda_gp_min": 0.7,
+      "valor_venda_gp_max": 1.1
     },
     {
-      "id": "grao_fino",
-      "nome": "Grão Fino",
+      "id": "peixe_prateado",
+      "nome": "Peixe Prateado",
       "categoria": "culinaria",
       "raridade": "incomum",
       "stack_max": 99,
-      "valor_venda_gp": 2
+      "valor_venda_gp_min": 0.7,
+      "valor_venda_gp_max": 1.1
+    },
+    {
+      "id": "cogumelo_luminoso",
+      "nome": "Cogumelo Luminoso",
+      "categoria": "culinaria",
+      "raridade": "incomum",
+      "stack_max": 99,
+      "valor_venda_gp_min": 0.7,
+      "valor_venda_gp_max": 1.1
+    },
+    {
+      "id": "carne_bestial",
+      "nome": "Carne Bestial",
+      "categoria": "culinaria",
+      "raridade": "raro",
+      "stack_max": 99,
+      "valor_venda_gp_min": 1.2,
+      "valor_venda_gp_max": 1.5
+    },
+    {
+      "id": "peixe_abissal",
+      "nome": "Peixe Abissal",
+      "categoria": "culinaria",
+      "raridade": "raro",
+      "stack_max": 99,
+      "valor_venda_gp_min": 1.2,
+      "valor_venda_gp_max": 1.5
+    },
+    {
+      "id": "especiaria_exotica",
+      "nome": "Especiaria Exótica",
+      "categoria": "culinaria",
+      "raridade": "raro",
+      "stack_max": 99,
+      "valor_venda_gp_min": 1.2,
+      "valor_venda_gp_max": 1.5
+    },
+    {
+      "id": "erva_curativa",
+      "nome": "Erva Curativa",
+      "categoria": "alquimia",
+      "raridade": "comum",
+      "stack_max": 99,
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.7
+    },
+    {
+      "id": "flor_azul",
+      "nome": "Flor Azul",
+      "categoria": "alquimia",
+      "raridade": "comum",
+      "stack_max": 99,
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.7
+    },
+    {
+      "id": "resina_arvore",
+      "nome": "Resina de Árvore",
+      "categoria": "alquimia",
+      "raridade": "comum",
+      "stack_max": 99,
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.7
+    },
+    {
+      "id": "erva_comum",
+      "nome": "Erva Comum",
+      "categoria": "alquimia",
+      "raridade": "comum",
+      "stack_max": 99,
+      "valor_venda_gp_min": 0.2,
+      "valor_venda_gp_max": 0.7
+    },
+    {
+      "id": "raiz_mistica",
+      "nome": "Raiz Mística",
+      "categoria": "alquimia",
+      "raridade": "incomum",
+      "stack_max": 99,
+      "valor_venda_gp_min": 0.8,
+      "valor_venda_gp_max": 1.2
+    },
+    {
+      "id": "po_de_cristal",
+      "nome": "Pó de Cristal",
+      "categoria": "alquimia",
+      "raridade": "incomum",
+      "stack_max": 99,
+      "valor_venda_gp_min": 0.8,
+      "valor_venda_gp_max": 1.2
+    },
+    {
+      "id": "erva_rara",
+      "nome": "Erva Rara",
+      "categoria": "alquimia",
+      "raridade": "incomum",
+      "stack_max": 99,
+      "valor_venda_gp_min": 0.8,
+      "valor_venda_gp_max": 1.2
+    },
+    {
+      "id": "essencia_arcana",
+      "nome": "Essência Arcana",
+      "categoria": "alquimia",
+      "raridade": "raro",
+      "stack_max": 99,
+      "valor_venda_gp_min": 1.3,
+      "valor_venda_gp_max": 1.5
+    },
+    {
+      "id": "sangue_monstro",
+      "nome": "Sangue de Monstro",
+      "categoria": "alquimia",
+      "raridade": "raro",
+      "stack_max": 99,
+      "valor_venda_gp_min": 1.3,
+      "valor_venda_gp_max": 1.5
     },
     {
       "id": "minerio_ferro",
       "nome": "Minério de Ferro",
-      "categoria": "metal",
+      "categoria": "ferraria",
       "raridade": "comum",
       "stack_max": 99,
-      "valor_venda_gp": 2
+      "valor_venda_gp_min": 0.3,
+      "valor_venda_gp_max": 0.9
+    },
+    {
+      "id": "carvao",
+      "nome": "Carvão",
+      "categoria": "ferraria",
+      "raridade": "comum",
+      "stack_max": 99,
+      "valor_venda_gp_min": 0.3,
+      "valor_venda_gp_max": 0.9
+    },
+    {
+      "id": "couro",
+      "nome": "Couro",
+      "categoria": "ferraria",
+      "raridade": "comum",
+      "stack_max": 99,
+      "valor_venda_gp_min": 0.3,
+      "valor_venda_gp_max": 0.9
+    },
+    {
+      "id": "aco_refinado",
+      "nome": "Aço Refinado",
+      "categoria": "ferraria",
+      "raridade": "incomum",
+      "stack_max": 99,
+      "valor_venda_gp_min": 1.0,
+      "valor_venda_gp_max": 1.3
+    },
+    {
+      "id": "liga_rara",
+      "nome": "Liga Rara",
+      "categoria": "ferraria",
+      "raridade": "incomum",
+      "stack_max": 99,
+      "valor_venda_gp_min": 1.0,
+      "valor_venda_gp_max": 1.3
     },
     {
       "id": "minerio_aco",
       "nome": "Minério de Aço",
-      "categoria": "metal",
+      "categoria": "ferraria",
+      "raridade": "incomum",
+      "stack_max": 99,
+      "valor_venda_gp_min": 1.0,
+      "valor_venda_gp_max": 1.3
+    },
+    {
+      "id": "metal_arcano",
+      "nome": "Metal Arcano",
+      "categoria": "ferraria",
       "raridade": "raro",
       "stack_max": 99,
-      "valor_venda_gp": 4
+      "valor_venda_gp_min": 1.4,
+      "valor_venda_gp_max": 1.5
+    },
+    {
+      "id": "fragmento_draconico",
+      "nome": "Fragmento Dracônico",
+      "categoria": "ferraria",
+      "raridade": "raro",
+      "stack_max": 99,
+      "valor_venda_gp_min": 1.4,
+      "valor_venda_gp_max": 1.5
     }
   ],
   "recipes": [
     {
-      "id": "cul_refeicao_simples",
+      "id": "cul_ensopado",
       "profissao_id": "culinaria",
-      "nome": "Refeição Simples",
+      "nome": "Ensopado Simples",
       "nivel_profissao_min": 1,
       "tempo_dias": 1,
       "reagentes": [
         {
-          "id": "carne_selvagem",
+          "id": "carne_comum",
+          "qtd": 1
+        },
+        {
+          "id": "raiz_silvestre",
           "qtd": 1
         }
       ],
@@ -1468,21 +1676,21 @@
         "item_id": "refeicao_simples",
         "qtd": 1
       },
-      "xp_gain": 20
+      "xp_gain": 10
     },
     {
-      "id": "cul_refeicao_boa",
+      "id": "cul_peixe_grelhado",
       "profissao_id": "culinaria",
-      "nome": "Refeição Boa",
+      "nome": "Peixe Grelhado",
       "nivel_profissao_min": 1,
       "tempo_dias": 1,
       "reagentes": [
         {
-          "id": "carne_selvagem",
+          "id": "peixe_rio",
           "qtd": 1
         },
         {
-          "id": "grao_fino",
+          "id": "sal_grosso",
           "qtd": 1
         }
       ],
@@ -1491,22 +1699,22 @@
         "item_id": "refeicao_boa",
         "qtd": 1
       },
-      "xp_gain": 25
+      "xp_gain": 10
     },
     {
-      "id": "cul_banquete",
+      "id": "cul_banquete_vigoroso",
       "profissao_id": "culinaria",
-      "nome": "Banquete",
-      "nivel_profissao_min": 2,
+      "nome": "Banquete Vigoroso",
+      "nivel_profissao_min": 5,
       "tempo_dias": 1,
       "reagentes": [
         {
-          "id": "carne_selvagem",
-          "qtd": 2
+          "id": "carne_bestial",
+          "qtd": 1
         },
         {
-          "id": "grao_fino",
-          "qtd": 2
+          "id": "especiaria_exotica",
+          "qtd": 1
         }
       ],
       "output": {
@@ -1517,15 +1725,19 @@
       "xp_gain": 40
     },
     {
-      "id": "alq_balsamo",
+      "id": "alq_pocao_cura_fraca",
       "profissao_id": "alquimia",
-      "nome": "Bálsamo Restaurador",
+      "nome": "Poção de Cura Fraca",
       "nivel_profissao_min": 1,
       "tempo_dias": 1,
       "reagentes": [
         {
-          "id": "erva_comum",
-          "qtd": 2
+          "id": "erva_curativa",
+          "qtd": 1
+        },
+        {
+          "id": "flor_azul",
+          "qtd": 1
         }
       ],
       "output": {
@@ -1533,21 +1745,21 @@
         "item_id": "balsamo_restaurador",
         "qtd": 1
       },
-      "xp_gain": 25
+      "xp_gain": 10
     },
     {
-      "id": "alq_vinho_elfico",
+      "id": "alq_elixir_mental",
       "profissao_id": "alquimia",
-      "nome": "Elixir Élfico",
-      "nivel_profissao_min": 2,
+      "nome": "Elixir Mental",
+      "nivel_profissao_min": 3,
       "tempo_dias": 1,
       "reagentes": [
         {
-          "id": "erva_comum",
+          "id": "raiz_mistica",
           "qtd": 1
         },
         {
-          "id": "erva_rara",
+          "id": "po_de_cristal",
           "qtd": 1
         }
       ],
@@ -1556,18 +1768,22 @@
         "item_id": "vinho_elfico",
         "qtd": 1
       },
-      "xp_gain": 35
+      "xp_gain": 25
     },
     {
-      "id": "fer_punhal",
+      "id": "fer_espada_simples",
       "profissao_id": "ferraria",
-      "nome": "Punhal de Combate",
+      "nome": "Espada Simples",
       "nivel_profissao_min": 1,
       "tempo_dias": 1,
       "reagentes": [
         {
           "id": "minerio_ferro",
-          "qtd": 2
+          "qtd": 1
+        },
+        {
+          "id": "carvao",
+          "qtd": 1
         }
       ],
       "output": {
@@ -1575,21 +1791,21 @@
         "item_id": "punhal_de_combate",
         "qtd": 1
       },
-      "xp_gain": 25
+      "xp_gain": 10
     },
     {
-      "id": "fer_espada_longa",
+      "id": "fer_arma_reforcada",
       "profissao_id": "ferraria",
-      "nome": "Espada Longa",
-      "nivel_profissao_min": 2,
+      "nome": "Arma Reforçada",
+      "nivel_profissao_min": 3,
       "tempo_dias": 1,
       "reagentes": [
         {
-          "id": "minerio_ferro",
-          "qtd": 2
+          "id": "aco_refinado",
+          "qtd": 1
         },
         {
-          "id": "minerio_aco",
+          "id": "liga_rara",
           "qtd": 1
         }
       ],
@@ -1598,21 +1814,21 @@
         "item_id": "espada_longa",
         "qtd": 1
       },
-      "xp_gain": 40
+      "xp_gain": 25
     },
     {
-      "id": "fer_cota",
+      "id": "fer_armadura_resistente",
       "profissao_id": "ferraria",
-      "nome": "Cota Metálica",
-      "nivel_profissao_min": 2,
+      "nome": "Armadura Resistente",
+      "nivel_profissao_min": 5,
       "tempo_dias": 1,
       "reagentes": [
         {
-          "id": "minerio_ferro",
-          "qtd": 2
+          "id": "metal_arcano",
+          "qtd": 1
         },
         {
-          "id": "minerio_aco",
+          "id": "fragmento_draconico",
           "qtd": 1
         }
       ],
@@ -1621,7 +1837,7 @@
         "item_id": "cota_metalica",
         "qtd": 1
       },
-      "xp_gain": 45
+      "xp_gain": 40
     }
   ]
 }

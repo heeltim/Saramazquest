@@ -1120,22 +1120,46 @@ const PROFESSIONS_DB = {
     { id: "mercador", nome: "Mercador", descricao: "Gerencia a loja do jogador.", ui: { cor_hex: "#2563eb" }, actions: ["vender", "gerenciar_loja"] },
   ],
   reagents: [
-    { id: "erva_comum", nome: "Erva Comum", categoria: "herbal", raridade: "comum", stack_max: 99, valor_venda_gp: 1 },
-    { id: "erva_rara", nome: "Erva Rara", categoria: "herbal", raridade: "raro", stack_max: 99, valor_venda_gp: 3 },
-    { id: "carne_selvagem", nome: "Carne Selvagem", categoria: "culinaria", raridade: "comum", stack_max: 99, valor_venda_gp: 2 },
-    { id: "grao_fino", nome: "Grão Fino", categoria: "culinaria", raridade: "incomum", stack_max: 99, valor_venda_gp: 2 },
-    { id: "minerio_ferro", nome: "Minério de Ferro", categoria: "metal", raridade: "comum", stack_max: 99, valor_venda_gp: 2 },
-    { id: "minerio_aco", nome: "Minério de Aço", categoria: "metal", raridade: "raro", stack_max: 99, valor_venda_gp: 4 },
+    { id: "carne_comum", nome: "Carne Comum", categoria: "culinaria", raridade: "comum", stack_max: 99, valor_venda_gp_min: 0.2, valor_venda_gp_max: 0.6 },
+    { id: "peixe_rio", nome: "Peixe de Rio", categoria: "culinaria", raridade: "comum", stack_max: 99, valor_venda_gp_min: 0.2, valor_venda_gp_max: 0.6 },
+    { id: "raiz_silvestre", nome: "Raiz Silvestre", categoria: "culinaria", raridade: "comum", stack_max: 99, valor_venda_gp_min: 0.2, valor_venda_gp_max: 0.6 },
+    { id: "erva_aromatica", nome: "Erva Aromática", categoria: "culinaria", raridade: "comum", stack_max: 99, valor_venda_gp_min: 0.2, valor_venda_gp_max: 0.6 },
+    { id: "sal_grosso", nome: "Sal Grosso", categoria: "culinaria", raridade: "comum", stack_max: 99, valor_venda_gp_min: 0.2, valor_venda_gp_max: 0.6 },
+    { id: "carne_selvagem", nome: "Carne Selvagem", categoria: "culinaria", raridade: "incomum", stack_max: 99, valor_venda_gp_min: 0.7, valor_venda_gp_max: 1.1 },
+    { id: "peixe_prateado", nome: "Peixe Prateado", categoria: "culinaria", raridade: "incomum", stack_max: 99, valor_venda_gp_min: 0.7, valor_venda_gp_max: 1.1 },
+    { id: "cogumelo_luminoso", nome: "Cogumelo Luminoso", categoria: "culinaria", raridade: "incomum", stack_max: 99, valor_venda_gp_min: 0.7, valor_venda_gp_max: 1.1 },
+    { id: "carne_bestial", nome: "Carne Bestial", categoria: "culinaria", raridade: "raro", stack_max: 99, valor_venda_gp_min: 1.2, valor_venda_gp_max: 1.5 },
+    { id: "peixe_abissal", nome: "Peixe Abissal", categoria: "culinaria", raridade: "raro", stack_max: 99, valor_venda_gp_min: 1.2, valor_venda_gp_max: 1.5 },
+    { id: "especiaria_exotica", nome: "Especiaria Exótica", categoria: "culinaria", raridade: "raro", stack_max: 99, valor_venda_gp_min: 1.2, valor_venda_gp_max: 1.5 },
+
+    { id: "erva_curativa", nome: "Erva Curativa", categoria: "alquimia", raridade: "comum", stack_max: 99, valor_venda_gp_min: 0.2, valor_venda_gp_max: 0.7 },
+    { id: "flor_azul", nome: "Flor Azul", categoria: "alquimia", raridade: "comum", stack_max: 99, valor_venda_gp_min: 0.2, valor_venda_gp_max: 0.7 },
+    { id: "resina_arvore", nome: "Resina de Árvore", categoria: "alquimia", raridade: "comum", stack_max: 99, valor_venda_gp_min: 0.2, valor_venda_gp_max: 0.7 },
+    { id: "erva_comum", nome: "Erva Comum", categoria: "alquimia", raridade: "comum", stack_max: 99, valor_venda_gp_min: 0.2, valor_venda_gp_max: 0.7 },
+    { id: "raiz_mistica", nome: "Raiz Mística", categoria: "alquimia", raridade: "incomum", stack_max: 99, valor_venda_gp_min: 0.8, valor_venda_gp_max: 1.2 },
+    { id: "po_de_cristal", nome: "Pó de Cristal", categoria: "alquimia", raridade: "incomum", stack_max: 99, valor_venda_gp_min: 0.8, valor_venda_gp_max: 1.2 },
+    { id: "erva_rara", nome: "Erva Rara", categoria: "alquimia", raridade: "incomum", stack_max: 99, valor_venda_gp_min: 0.8, valor_venda_gp_max: 1.2 },
+    { id: "essencia_arcana", nome: "Essência Arcana", categoria: "alquimia", raridade: "raro", stack_max: 99, valor_venda_gp_min: 1.3, valor_venda_gp_max: 1.5 },
+    { id: "sangue_monstro", nome: "Sangue de Monstro", categoria: "alquimia", raridade: "raro", stack_max: 99, valor_venda_gp_min: 1.3, valor_venda_gp_max: 1.5 },
+
+    { id: "minerio_ferro", nome: "Minério de Ferro", categoria: "ferraria", raridade: "comum", stack_max: 99, valor_venda_gp_min: 0.3, valor_venda_gp_max: 0.9 },
+    { id: "carvao", nome: "Carvão", categoria: "ferraria", raridade: "comum", stack_max: 99, valor_venda_gp_min: 0.3, valor_venda_gp_max: 0.9 },
+    { id: "couro", nome: "Couro", categoria: "ferraria", raridade: "comum", stack_max: 99, valor_venda_gp_min: 0.3, valor_venda_gp_max: 0.9 },
+    { id: "aco_refinado", nome: "Aço Refinado", categoria: "ferraria", raridade: "incomum", stack_max: 99, valor_venda_gp_min: 1.0, valor_venda_gp_max: 1.3 },
+    { id: "liga_rara", nome: "Liga Rara", categoria: "ferraria", raridade: "incomum", stack_max: 99, valor_venda_gp_min: 1.0, valor_venda_gp_max: 1.3 },
+    { id: "minerio_aco", nome: "Minério de Aço", categoria: "ferraria", raridade: "incomum", stack_max: 99, valor_venda_gp_min: 1.0, valor_venda_gp_max: 1.3 },
+    { id: "metal_arcano", nome: "Metal Arcano", categoria: "ferraria", raridade: "raro", stack_max: 99, valor_venda_gp_min: 1.4, valor_venda_gp_max: 1.5 },
+    { id: "fragmento_draconico", nome: "Fragmento Dracônico", categoria: "ferraria", raridade: "raro", stack_max: 99, valor_venda_gp_min: 1.4, valor_venda_gp_max: 1.5 },
   ],
   recipes: [
-    { id: "cul_refeicao_simples", profissao_id: "culinaria", nome: "Refeição Simples", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "carne_selvagem", qtd: 1 }], output: { type: "item", item_id: "refeicao_simples", qtd: 1 }, xp_gain: 20 },
-    { id: "cul_refeicao_boa", profissao_id: "culinaria", nome: "Refeição Boa", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "carne_selvagem", qtd: 1 }, { id: "grao_fino", qtd: 1 }], output: { type: "item", item_id: "refeicao_boa", qtd: 1 }, xp_gain: 25 },
-    { id: "cul_banquete", profissao_id: "culinaria", nome: "Banquete", nivel_profissao_min: 2, tempo_dias: 1, reagentes: [{ id: "carne_selvagem", qtd: 2 }, { id: "grao_fino", qtd: 2 }], output: { type: "item", item_id: "banquete", qtd: 1 }, xp_gain: 40 },
-    { id: "alq_balsamo", profissao_id: "alquimia", nome: "Bálsamo Restaurador", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "erva_comum", qtd: 2 }], output: { type: "item", item_id: "balsamo_restaurador", qtd: 1 }, xp_gain: 25 },
-    { id: "alq_vinho_elfico", profissao_id: "alquimia", nome: "Elixir Élfico", nivel_profissao_min: 2, tempo_dias: 1, reagentes: [{ id: "erva_comum", qtd: 1 }, { id: "erva_rara", qtd: 1 }], output: { type: "item", item_id: "vinho_elfico", qtd: 1 }, xp_gain: 35 },
-    { id: "fer_punhal", profissao_id: "ferraria", nome: "Punhal de Combate", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "minerio_ferro", qtd: 2 }], output: { type: "item", item_id: "punhal_de_combate", qtd: 1 }, xp_gain: 25 },
-    { id: "fer_espada_longa", profissao_id: "ferraria", nome: "Espada Longa", nivel_profissao_min: 2, tempo_dias: 1, reagentes: [{ id: "minerio_ferro", qtd: 2 }, { id: "minerio_aco", qtd: 1 }], output: { type: "item", item_id: "espada_longa", qtd: 1 }, xp_gain: 40 },
-    { id: "fer_cota", profissao_id: "ferraria", nome: "Cota Metálica", nivel_profissao_min: 2, tempo_dias: 1, reagentes: [{ id: "minerio_ferro", qtd: 2 }, { id: "minerio_aco", qtd: 1 }], output: { type: "item", item_id: "cota_metalica", qtd: 1 }, xp_gain: 45 },
+    { id: "cul_ensopado", profissao_id: "culinaria", nome: "Ensopado Simples", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "carne_comum", qtd: 1 }, { id: "raiz_silvestre", qtd: 1 }], output: { type: "item", item_id: "refeicao_simples", qtd: 1 }, xp_gain: 10 },
+    { id: "cul_peixe_grelhado", profissao_id: "culinaria", nome: "Peixe Grelhado", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "peixe_rio", qtd: 1 }, { id: "sal_grosso", qtd: 1 }], output: { type: "item", item_id: "refeicao_boa", qtd: 1 }, xp_gain: 10 },
+    { id: "cul_banquete_vigoroso", profissao_id: "culinaria", nome: "Banquete Vigoroso", nivel_profissao_min: 5, tempo_dias: 1, reagentes: [{ id: "carne_bestial", qtd: 1 }, { id: "especiaria_exotica", qtd: 1 }], output: { type: "item", item_id: "banquete", qtd: 1 }, xp_gain: 40 },
+    { id: "alq_pocao_cura_fraca", profissao_id: "alquimia", nome: "Poção de Cura Fraca", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "erva_curativa", qtd: 1 }, { id: "flor_azul", qtd: 1 }], output: { type: "item", item_id: "balsamo_restaurador", qtd: 1 }, xp_gain: 10 },
+    { id: "alq_elixir_mental", profissao_id: "alquimia", nome: "Elixir Mental", nivel_profissao_min: 3, tempo_dias: 1, reagentes: [{ id: "raiz_mistica", qtd: 1 }, { id: "po_de_cristal", qtd: 1 }], output: { type: "item", item_id: "vinho_elfico", qtd: 1 }, xp_gain: 25 },
+    { id: "fer_espada_simples", profissao_id: "ferraria", nome: "Espada Simples", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "minerio_ferro", qtd: 1 }, { id: "carvao", qtd: 1 }], output: { type: "item", item_id: "punhal_de_combate", qtd: 1 }, xp_gain: 10 },
+    { id: "fer_arma_reforcada", profissao_id: "ferraria", nome: "Arma Reforçada", nivel_profissao_min: 3, tempo_dias: 1, reagentes: [{ id: "aco_refinado", qtd: 1 }, { id: "liga_rara", qtd: 1 }], output: { type: "item", item_id: "espada_longa", qtd: 1 }, xp_gain: 25 },
+    { id: "fer_armadura_resistente", profissao_id: "ferraria", nome: "Armadura Resistente", nivel_profissao_min: 5, tempo_dias: 1, reagentes: [{ id: "metal_arcano", qtd: 1 }, { id: "fragmento_draconico", qtd: 1 }], output: { type: "item", item_id: "cota_metalica", qtd: 1 }, xp_gain: 40 },
   ],
 };
 const REAGENT_BY_ID = Object.fromEntries(PROFESSIONS_DB.reagents.map((r) => [r.id, r]));
@@ -5903,6 +5927,49 @@ function gainProfessionXp(p, professionId, xpGain) {
   p.professions_progress[professionId] = prog;
 }
 
+const PROFESSION_XP_BY_RARITY = { comum: 5, incomum: 15, raro: 40 };
+
+function rollInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function pickRandom(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function getProfessionDropConfig(professionId) {
+  const byId = {
+    culinaria: {
+      commons: ["carne_comum", "peixe_rio", "raiz_silvestre", "erva_aromatica", "sal_grosso"],
+      uncommons: ["carne_selvagem", "peixe_prateado", "cogumelo_luminoso"],
+      rares: ["carne_bestial", "peixe_abissal", "especiaria_exotica"],
+      commonRoll: [1, 3],
+      uncommonChance: 0.10,
+      rareBaseChance: 0.03,
+      rareLevelBonus: 0.01,
+    },
+    alquimia: {
+      commons: ["erva_curativa", "flor_azul", "resina_arvore", "erva_comum"],
+      uncommons: ["raiz_mistica", "po_de_cristal", "erva_rara"],
+      rares: ["essencia_arcana", "sangue_monstro"],
+      commonRoll: [1, 4],
+      uncommonChance: 0.15,
+      rareBaseChance: 0.05,
+      rareLevelBonus: 0.01,
+    },
+    ferraria: {
+      commons: ["minerio_ferro", "carvao", "couro"],
+      uncommons: ["aco_refinado", "liga_rara", "minerio_aco"],
+      rares: ["metal_arcano", "fragmento_draconico"],
+      commonRoll: [1, 3],
+      uncommonChance: 0.15,
+      rareBaseChance: 0.03,
+      rareLevelBonus: 0.01,
+    },
+  };
+  return byId[professionId] || null;
+}
+
 function collectProfession(professionId) {
   if (!professionTargetName) return;
   const data = load();
@@ -5913,16 +5980,32 @@ function collectProfession(professionId) {
     alert("Sem downtime suficiente.");
     return;
   }
-  const table = {
-    culinaria: [{ id: "carne_selvagem", qtd: 2 }, { id: "grao_fino", qtd: 1 }],
-    alquimia: [{ id: "erva_comum", qtd: 2 }, { id: "erva_rara", qtd: 1 }],
-    ferraria: [{ id: "minerio_ferro", qtd: 2 }, { id: "minerio_aco", qtd: 1 }],
-  };
-  const gains = table[professionId] || [];
-  gains.forEach((g) => addReagentToPlayer(p, g.id, g.qtd));
+  const config = getProfessionDropConfig(professionId);
+  if (!config) return;
+  const prog = p.professions_progress[professionId] || { xp: 0, level: 1 };
+  const drops = [];
+  const [minCommon, maxCommon] = config.commonRoll;
+  const commonCount = rollInt(minCommon, maxCommon);
+  for (let i = 0; i < commonCount; i += 1) {
+    const id = pickRandom(config.commons);
+    addReagentToPlayer(p, id, 1);
+    drops.push({ id, qtd: 1, raridade: "comum" });
+  }
+  if (prog.level >= 3 && Math.random() < config.uncommonChance) {
+    const id = pickRandom(config.uncommons);
+    addReagentToPlayer(p, id, 1);
+    drops.push({ id, qtd: 1, raridade: "incomum" });
+  }
+  const rareChance = Math.min(0.5, config.rareBaseChance + Math.max(0, prog.level - 1) * config.rareLevelBonus);
+  if (prog.level >= 5 && Math.random() < rareChance) {
+    const id = pickRandom(config.rares);
+    addReagentToPlayer(p, id, 1);
+    drops.push({ id, qtd: 1, raridade: "raro" });
+  }
   p.downtime_days -= 1;
-  gainProfessionXp(p, professionId, 20);
-  professionDebugLog({ reagentes_ganhos: gains, xp_ganho: 20, downtime_gasto: 1, craft_output: null, saldo_ouro: p.gold });
+  const xpGain = drops.reduce((sum, d) => sum + (PROFESSION_XP_BY_RARITY[d.raridade] || 0), 0);
+  gainProfessionXp(p, professionId, xpGain);
+  professionDebugLog({ reagentes_ganhos: drops, xp_ganho: xpGain, downtime_gasto: 1, craft_output: null, saldo_ouro: p.gold });
   save(data);
   renderProfessionsModal(p);
   updateArena();
@@ -5948,8 +6031,12 @@ function craftRecipe(recipeId) {
     const res = addItemToPlayer(p, itemRuntimeId);
     if (!res.ok) break;
   }
-  gainProfessionXp(p, recipe.profissao_id, recipe.xp_gain || 0);
-  professionDebugLog({ reagentes_ganhos: [], xp_ganho: recipe.xp_gain || 0, downtime_gasto: recipe.tempo_dias || 1, craft_output: recipe.output.item_id, saldo_ouro: p.gold });
+  const craftXp = (recipe.reagentes || []).reduce((sum, req) => {
+    const raridade = REAGENT_BY_ID[req.id]?.raridade;
+    return sum + (PROFESSION_XP_BY_RARITY[raridade] || 0) * (req.qtd || 1);
+  }, 0) || recipe.xp_gain || 0;
+  gainProfessionXp(p, recipe.profissao_id, craftXp);
+  professionDebugLog({ reagentes_ganhos: [], xp_ganho: craftXp, downtime_gasto: recipe.tempo_dias || 1, craft_output: recipe.output.item_id, saldo_ouro: p.gold });
   save(data);
   renderProfessionsModal(p);
   updateArena();
@@ -5967,8 +6054,11 @@ function sellFirstReagent() {
   const reagent = REAGENT_BY_ID[rid];
   p.reagents_inventory[rid] -= 1;
   if (p.reagents_inventory[rid] <= 0) delete p.reagents_inventory[rid];
-  p.gold += reagent?.valor_venda_gp || 0;
-  professionDebugLog({ reagentes_ganhos: [], xp_ganho: 0, downtime_gasto: 0, craft_output: null, saldo_ouro: p.gold });
+  const min = reagent?.valor_venda_gp_min ?? reagent?.valor_venda_gp ?? 0;
+  const max = reagent?.valor_venda_gp_max ?? reagent?.valor_venda_gp ?? min;
+  const saleValue = Math.round((min + Math.random() * Math.max(0, max - min)) * 100) / 100;
+  p.gold += saleValue;
+  professionDebugLog({ reagentes_ganhos: [], xp_ganho: 0, downtime_gasto: 0, craft_output: null, saldo_ouro: p.gold, venda_gp: saleValue });
   save(data);
   renderProfessionsModal(p);
   updateArena();
