@@ -3,203 +3,46 @@
   "shopName": "Ferreiro",
   "items": [
     {
-      "id": "upgrade_afiada",
-      "name": "Afiada",
-      "priceGold": 300,
-      "type": "upgrade",
-      "appliesTo": [
-        "weapon"
-      ],
-      "effect": {
-        "critRangeBonus": 1
-      },
-      "description": "Melhoria: Afiada.",
-      "icon": "anvil"
+      "itemId": "upgrade_afiada"
     },
     {
-      "id": "upgrade_cruel",
-      "name": "Cruel",
-      "priceGold": 200,
-      "type": "upgrade",
-      "appliesTo": [
-        "weapon"
-      ],
-      "effect": {
-        "damageBonus": 1
-      },
-      "description": "Melhoria: Cruel.",
-      "icon": "anvil"
+      "itemId": "upgrade_cruel"
     },
     {
-      "id": "upgrade_pungente",
-      "name": "Pungente",
-      "priceGold": 300,
-      "type": "upgrade",
-      "appliesTo": [
-        "weapon"
-      ],
-      "effect": {
-        "damageBonus": 2
-      },
-      "description": "Melhoria: Pungente.",
-      "icon": "anvil"
+      "itemId": "upgrade_pungente"
     },
     {
-      "id": "upgrade_mira_certa",
-      "name": "Mira Certa",
-      "priceGold": 150,
-      "type": "upgrade",
-      "appliesTo": [
-        "weapon"
-      ],
-      "effect": {
-        "attackBonus": 1
-      },
-      "description": "Melhoria: Mira Certa.",
-      "icon": "anvil"
+      "itemId": "upgrade_mira_certa"
     },
     {
-      "id": "upgrade_veloz",
-      "name": "Veloz",
-      "priceGold": 1000,
-      "type": "upgrade",
-      "appliesTo": [
-        "weapon"
-      ],
-      "effect": {
-        "extraAttackLimited": 1
-      },
-      "description": "Melhoria: Veloz.",
-      "icon": "anvil"
+      "itemId": "upgrade_veloz"
     },
     {
-      "id": "upgrade_serrilhada",
-      "name": "Serrilhada",
-      "priceGold": 150,
-      "type": "upgrade",
-      "appliesTo": [
-        "weapon"
-      ],
-      "effect": {
-        "bleed": 1
-      },
-      "description": "Melhoria: Serrilhada.",
-      "icon": "anvil"
+      "itemId": "upgrade_serrilhada"
     },
     {
-      "id": "upgrade_defensora",
-      "name": "Defensora",
-      "priceGold": 200,
-      "type": "upgrade",
-      "appliesTo": [
-        "weapon"
-      ],
-      "effect": {
-        "defenseBonus": 1
-      },
-      "description": "Melhoria: Defensora.",
-      "icon": "anvil"
+      "itemId": "upgrade_defensora"
     },
     {
-      "id": "upgrade_equilibrada",
-      "name": "Equilibrada",
-      "priceGold": 500,
-      "type": "upgrade",
-      "appliesTo": [
-        "weapon"
-      ],
-      "effect": {
-        "maneuverBonus": 1
-      },
-      "description": "Melhoria: Equilibrada.",
-      "icon": "anvil"
+      "itemId": "upgrade_equilibrada"
     },
     {
-      "id": "upgrade_sagrada",
-      "name": "Sagrada",
-      "priceGold": 1000,
-      "type": "upgrade",
-      "appliesTo": [
-        "weapon"
-      ],
-      "effect": {
-        "holyBonus": 1
-      },
-      "description": "Melhoria: Sagrada.",
-      "icon": "anvil"
+      "itemId": "upgrade_sagrada"
     },
     {
-      "id": "upgrade_reforcada",
-      "name": "Reforçada",
-      "priceGold": 500,
-      "type": "upgrade",
-      "appliesTo": [
-        "armor",
-        "shield"
-      ],
-      "effect": {
-        "defenseBonus": 1
-      },
-      "description": "Melhoria: Reforçada.",
-      "icon": "anvil"
+      "itemId": "upgrade_reforcada"
     },
     {
-      "id": "upgrade_sob_medida",
-      "name": "Sob Medida",
-      "priceGold": 200,
-      "type": "upgrade",
-      "appliesTo": [
-        "armor",
-        "shield"
-      ],
-      "effect": {
-        "penaltyDelta": 1
-      },
-      "description": "Melhoria: Sob Medida.",
-      "icon": "anvil"
+      "itemId": "upgrade_sob_medida"
     },
     {
-      "id": "upgrade_ajustada",
-      "name": "Ajustada",
-      "priceGold": 300,
-      "type": "upgrade",
-      "appliesTo": [
-        "armor"
-      ],
-      "effect": {
-        "mobilityBonus": 1
-      },
-      "description": "Melhoria: Ajustada.",
-      "icon": "anvil"
+      "itemId": "upgrade_ajustada"
     },
     {
-      "id": "upgrade_acolchoada_interna",
-      "name": "Acolchoada Interna",
-      "priceGold": 200,
-      "type": "upgrade",
-      "appliesTo": [
-        "armor"
-      ],
-      "effect": {
-        "comfortBonus": 1
-      },
-      "description": "Melhoria: Acolchoada Interna.",
-      "icon": "anvil"
+      "itemId": "upgrade_acolchoada_interna"
     },
     {
-      "id": "upgrade_baluarte",
-      "name": "Baluarte",
-      "priceGold": 500,
-      "type": "upgrade",
-      "appliesTo": [
-        "armor",
-        "shield"
-      ],
-      "effect": {
-        "situationalDefenseBonus": 1
-      },
-      "description": "Melhoria: Baluarte.",
-      "icon": "anvil"
+      "itemId": "upgrade_baluarte"
     }
   ]
 }
