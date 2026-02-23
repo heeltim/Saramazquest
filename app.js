@@ -1751,18 +1751,30 @@ function tileIndex(x, y) {
 function getTile(x, y) {
   const s = load().scenes[room];
   const idx = y * s.cols + x;
-  return TILE_TYPES.includes(s.tiles[idx]) ? s.tiles[idx] : "floor";
+  const tileId = s.tiles[idx];
+  return tileMetadataById.has(tileId) ? tileId : "floor";
 }
 function setTile(x, y, type) {
   let data = load();
   const s = data.scenes[room];
   const idx = y * s.cols + x;
-  s.tiles[idx] = TILE_TYPES.includes(type) ? type : "floor";
+  s.tiles[idx] = tileMetadataById.has(type) ? type : "floor";
   save(data);
 }
 
+function getTileCssClass(tileId = "") {
+  return tileMetadataById.get(tileId)?.cssClass || `tile-${tileId}`;
+}
+
+function getTileBaseType(tileId = "") {
+  return tileMetadataById.get(tileId)?.baseTile || "floor";
+}
+
 function clearTileClasses(cell) {
-  TILE_TYPES.forEach((type) => cell.classList.remove(`tile-${type}`));
+  TILE_TYPES.forEach((type) => {
+    cell.classList.remove(`tile-${type}`);
+    cell.classList.remove(getTileCssClass(type));
+  });
 }
 
 /* ================= PLAYER SCHEMA ================= */
@@ -3373,9 +3385,10 @@ function updateArenaNow() {
   for (const cell of cells) {
     const x = parseInt(cell.dataset.x, 10);
     const y = parseInt(cell.dataset.y, 10);
-    const t = TILE_TYPES.includes(s.tiles[tileIndex(x, y)]) ? s.tiles[tileIndex(x, y)] : "floor";
+    const rawTile = s.tiles[tileIndex(x, y)];
+    const t = tileMetadataById.has(rawTile) ? rawTile : "floor";
     clearTileClasses(cell);
-    cell.classList.add("tile-" + t);
+    cell.classList.add(getTileCssClass(t));
     cell.innerHTML = "";
   }
 
@@ -3396,7 +3409,7 @@ function updateArenaNow() {
     if (!p.onTable) return;
 
     // se cair em wall/void, ajusta pra floor mais próximo (bem simples)
-    if (getTile(p.x, p.y) !== "floor") {
+    if (getTileBaseType(getTile(p.x, p.y)) !== "floor") {
       const found = findNearestFloor(p.x, p.y);
       if (found) {
         p.x = found.x;
@@ -3860,7 +3873,7 @@ document.addEventListener("keydown", (e) => {
 
   // colisão
   const tile = data.scenes[room].tiles[tileIndex(nx, ny)] || "floor";
-  if (tile !== "floor") {
+  if (getTileBaseType(tile) !== "floor") {
     // feedback leve: pisca a célula destino
     flashCell(nx, ny);
     return;
@@ -5402,7 +5415,94 @@ function menuSend(idx) {
 }
 
 /* ================= MASTER MODE / SCENE UI ================= */
-const TILE_TYPES = ["floor", "grass", "stone", "wall", "woodwall", "stonewall", "void"];
+const BASE_TILE_TYPES = ["floor", "grass", "stone", "wall", "woodwall", "stonewall", "void"];
+let TILE_TYPES = [...BASE_TILE_TYPES];
+const DEFAULT_BIOME_TILE_LIBRARY = {
+  version: 3,
+  biomes: {
+    oceano_olirion: [
+      { id: "tile_ocean_deep", label: "Oceano profundo", emoji: "🌊", cssClass: "tile-void", baseTile: "void", spawnWeight: 3 },
+      { id: "tile_ocean_shallow", label: "Águas rasas", emoji: "🌊", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 4 },
+      { id: "tile_reef", label: "Recife", emoji: "🪸", cssClass: "tile-stone", baseTile: "stone", spawnWeight: 2 },
+      { id: "tile_coast_sand", label: "Costa arenosa", emoji: "🏖️", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 2 },
+      { id: "tile_coast_rock", label: "Costa rochosa", emoji: "🪨", cssClass: "tile-stone", baseTile: "stone", spawnWeight: 2 },
+      { id: "tile_tide_pool", label: "Poça de maré", emoji: "💧", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 1 },
+    ],
+    vaels_forest: [
+      { id: "tile_forest_dense", label: "Floresta densa", emoji: "🌲", cssClass: "tile-woodwall", baseTile: "woodwall", spawnWeight: 3 },
+      { id: "tile_forest_light", label: "Floresta aberta", emoji: "🌳", cssClass: "tile-grass", baseTile: "grass", spawnWeight: 3 },
+      { id: "tile_river", label: "Rio corrente", emoji: "🌊", cssClass: "tile-void", baseTile: "void", spawnWeight: 2 },
+      { id: "tile_river_shallow", label: "Rio raso", emoji: "💧", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 2 },
+      { id: "tile_meadow", label: "Clareira", emoji: "🌾", cssClass: "tile-grass", baseTile: "grass", spawnWeight: 2 },
+      { id: "tile_moss_ground", label: "Solo musgoso", emoji: "🍃", cssClass: "tile-grass", baseTile: "grass", spawnWeight: 2 },
+      { id: "tile_swamp_edge", label: "Borda alagada", emoji: "🪵", cssClass: "tile-woodwall", baseTile: "woodwall", spawnWeight: 1 },
+    ],
+    mistico_cristalino: [
+      { id: "tile_crystal_field", label: "Campo cristalino", emoji: "💎", cssClass: "tile-stone", baseTile: "stone", spawnWeight: 2 },
+      { id: "tile_mystic_soil", label: "Solo alterado", emoji: "🟣", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 3 },
+      { id: "tile_spiral_rock", label: "Rocha espiral", emoji: "🌀", cssClass: "tile-stonewall", baseTile: "stonewall", spawnWeight: 2 },
+      { id: "tile_broken_plateau", label: "Planalto fraturado", emoji: "🪨", cssClass: "tile-stone", baseTile: "stone", spawnWeight: 2 },
+      { id: "tile_melkhor_growth", label: "Crescimento de Melkhorita", emoji: "✨", cssClass: "tile-grass", baseTile: "grass", spawnWeight: 1 },
+      { id: "tile_arcane_fissure", label: "Fissura energética", emoji: "⚡", cssClass: "tile-void", baseTile: "void", spawnWeight: 1 },
+    ],
+    saramaz_savana: [
+      { id: "tile_dry_grass", label: "Grama seca", emoji: "🌾", cssClass: "tile-grass", baseTile: "grass", spawnWeight: 3 },
+      { id: "tile_cracked_earth", label: "Terra rachada", emoji: "🟤", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 3 },
+      { id: "tile_dust_road", label: "Estrada poeirenta", emoji: "🛤️", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 2 },
+      { id: "tile_acacia_tree", label: "Árvore isolada", emoji: "🌳", cssClass: "tile-woodwall", baseTile: "woodwall", spawnWeight: 1 },
+      { id: "tile_oasis", label: "Oásis", emoji: "💧", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 1 },
+      { id: "tile_sandy_patch", label: "Areia leve", emoji: "🏜️", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 2 },
+    ],
+    cordilheira_sul: [
+      { id: "tile_rocky_slope", label: "Encosta rochosa", emoji: "🪨", cssClass: "tile-stone", baseTile: "stone", spawnWeight: 3 },
+      { id: "tile_high_cliff", label: "Penhasco", emoji: "🧗", cssClass: "tile-wall", baseTile: "wall", spawnWeight: 2 },
+      { id: "tile_mountain_peak", label: "Pico", emoji: "⛰️", cssClass: "tile-stonewall", baseTile: "stonewall", spawnWeight: 1 },
+      { id: "tile_mountain_path", label: "Trilha montanhosa", emoji: "🛤️", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 2 },
+      { id: "tile_mineral_vein", label: "Veio mineral", emoji: "⛏️", cssClass: "tile-stone", baseTile: "stone", spawnWeight: 2 },
+      { id: "tile_snow_patch", label: "Neve isolada", emoji: "❄️", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 1 },
+    ],
+    arquipelago_sul: [
+      { id: "tile_island_grass", label: "Grama tropical", emoji: "🌿", cssClass: "tile-grass", baseTile: "grass", spawnWeight: 3 },
+      { id: "tile_palm_tree", label: "Palmeira", emoji: "🌴", cssClass: "tile-woodwall", baseTile: "woodwall", spawnWeight: 2 },
+      { id: "tile_volcanic_rock", label: "Rocha vulcânica", emoji: "🌋", cssClass: "tile-stone", baseTile: "stone", spawnWeight: 2 },
+      { id: "tile_lagoon", label: "Lagoa", emoji: "💧", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 2 },
+      { id: "tile_white_sand", label: "Areia branca", emoji: "🏖️", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 2 },
+    ],
+    neutral: [
+      { id: "tile_road_stone", label: "Estrada pavimentada", emoji: "🛣️", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 2 },
+      { id: "tile_bridge_wood", label: "Ponte de madeira", emoji: "🌉", cssClass: "tile-woodwall", baseTile: "woodwall", spawnWeight: 1 },
+      { id: "tile_ruins", label: "Ruínas", emoji: "🏚️", cssClass: "tile-stonewall", baseTile: "stonewall", spawnWeight: 1 },
+      { id: "tile_settlement", label: "Assentamento", emoji: "🏘️", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 1 },
+      { id: "tile_farmland", label: "Plantação", emoji: "🌱", cssClass: "tile-grass", baseTile: "grass", spawnWeight: 1 },
+    ],
+    estruturas_humanas: [
+      { id: "tile_house_floor", label: "Chão de casa", emoji: "🪵", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 3 },
+      { id: "tile_house_wood_floor", label: "Piso de madeira", emoji: "🟫", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 2 },
+      { id: "tile_house_wall_wood", label: "Parede de madeira", emoji: "🪵", cssClass: "tile-woodwall", baseTile: "woodwall", spawnWeight: 3 },
+      { id: "tile_house_wall_stone", label: "Parede de pedra", emoji: "🧱", cssClass: "tile-stonewall", baseTile: "stonewall", spawnWeight: 2 },
+      { id: "tile_city_road", label: "Rua urbana", emoji: "🛣️", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 2 },
+      { id: "tile_plaza_stone", label: "Praça pavimentada", emoji: "⬜", cssClass: "tile-stone", baseTile: "stone", spawnWeight: 1 },
+      { id: "floor", label: "Chão (legado)", emoji: "🟦", cssClass: "tile-floor", baseTile: "floor", spawnWeight: 1 },
+      { id: "wall", label: "Parede (legado)", emoji: "🧱", cssClass: "tile-wall", baseTile: "wall", spawnWeight: 1 },
+      { id: "woodwall", label: "Muro madeira (legado)", emoji: "🪵", cssClass: "tile-woodwall", baseTile: "woodwall", spawnWeight: 1 },
+      { id: "stonewall", label: "Muro pedra (legado)", emoji: "🧱", cssClass: "tile-stonewall", baseTile: "stonewall", spawnWeight: 1 },
+    ],
+  },
+};
+const DEFAULT_TILE_LIBRARY = [
+  { id: "floor", label: "Chão", icon: "🟦", cssClass: "tile-floor", baseTile: "floor" },
+  { id: "grass", label: "Grama", icon: "🌿", cssClass: "tile-grass", baseTile: "grass" },
+  { id: "stone", label: "Pedra", icon: "🪨", cssClass: "tile-stone", baseTile: "stone" },
+  { id: "wall", label: "Parede", icon: "🧱", cssClass: "tile-wall", baseTile: "wall" },
+  { id: "woodwall", label: "Muro Madeira", icon: "🪵", cssClass: "tile-woodwall", baseTile: "woodwall" },
+  { id: "stonewall", label: "Muro Pedra", icon: "🧱", cssClass: "tile-stonewall", baseTile: "stonewall" },
+  { id: "void", label: "Vazio", icon: "⬛", cssClass: "tile-void", baseTile: "void" },
+];
+const BIOME_TILE_LIBRARY_ORDER = ["oceano_olirion", "vaels_forest", "mistico_cristalino", "saramaz_savana", "cordilheira_sul", "arquipelago_sul", "neutral", "estruturas_humanas"];
+let worldBiomeTileLibraryCache = null;
+let worldBiomeTileLibraryPromise = null;
+let tileLibraryForRender = DEFAULT_TILE_LIBRARY;
+let tileMetadataById = new Map(DEFAULT_TILE_LIBRARY.map((entry) => [entry.id, entry]));
 let isMaster = false;
 let paintTool = "floor";
 let brushSize = 1;
@@ -5624,7 +5724,7 @@ function setSceneSection(section) {
 window.setSceneSection = setSceneSection;
 
 function setTool(tool) {
-  paintTool = TILE_TYPES.includes(tool) ? tool : "floor";
+  paintTool = tileMetadataById.has(tool) ? tool : "floor";
   TILE_TYPES.forEach((type) => {
     const btn = document.getElementById(`tool${type.charAt(0).toUpperCase()}${type.slice(1)}`);
     if (btn) btn.classList.toggle("active", type === paintTool);
@@ -5642,6 +5742,7 @@ window.setBrushSize = setBrushSize;
 
 function syncSceneUIFromStorage() {
   ensureScene();
+  renderTileLibrary();
   const s = load().scenes[room];
   document.getElementById("bgScale").value = s.bgScale;
   document.getElementById("bgOpacity").value = s.bgOpacity;
@@ -5954,6 +6055,97 @@ function rgbToHex(rgb = [0, 0, 0]) {
   return `#${rgb
     .map((value) => Math.max(0, Math.min(255, Math.round(value) || 0)).toString(16).padStart(2, "0"))
     .join("")}`;
+}
+
+function sanitizeTileEntry(entry, fallback = null) {
+  const tileId = String(entry?.id || "").trim();
+  if (!tileId) return null;
+  const fallbackBaseTile = String(fallback?.baseTile || "").trim();
+  const rawBaseTile = String(entry?.baseTile || fallbackBaseTile || "floor").trim();
+  const baseTile = BASE_TILE_TYPES.includes(rawBaseTile) ? rawBaseTile : "floor";
+  const label = String(entry?.label || fallback?.label || tileId).trim();
+  const icon = String(entry?.emoji || entry?.icon || fallback?.icon || "🧱").trim() || "🧱";
+  const cssClass = String(entry?.cssClass || fallback?.cssClass || `tile-${baseTile}`).trim();
+  const spawnWeightRaw = entry?.spawnWeight;
+  const spawnWeight = spawnWeightRaw === undefined || spawnWeightRaw === null ? undefined : Math.max(1, parseFloat(spawnWeightRaw) || 1);
+  return {
+    id: tileId,
+    label: label || tileId,
+    icon,
+    cssClass,
+    baseTile,
+    ...(spawnWeight === undefined ? {} : { spawnWeight }),
+  };
+}
+
+function normalizeTileLibraryList(list = []) {
+  const seen = new Set();
+  return list
+    .map((entry) => sanitizeTileEntry(entry, DEFAULT_TILE_LIBRARY.find((item) => item.id === String(entry?.id || "").trim())))
+    .filter((entry) => entry && !seen.has(entry.id) && seen.add(entry.id));
+}
+
+function normalizeBiomeTileLibrary(raw) {
+  const normalized = {
+    version: parseInt(raw?.version, 10) || 1,
+    biomes: {},
+  };
+  BIOME_TILE_LIBRARY_ORDER.forEach((biome) => {
+    const entries = normalizeTileLibraryList(raw?.biomes?.[biome] || []);
+    normalized.biomes[biome] = entries.length ? entries : [];
+  });
+  return normalized;
+}
+
+function buildTileLibraryFromBiomeConfig(config = DEFAULT_BIOME_TILE_LIBRARY) {
+  const merged = [];
+  const seen = new Set();
+  BIOME_TILE_LIBRARY_ORDER.forEach((biome) => {
+    (config?.biomes?.[biome] || []).forEach((entry) => {
+      if (!entry || seen.has(entry.id)) return;
+      seen.add(entry.id);
+      merged.push(entry);
+    });
+  });
+  return merged.length ? merged : DEFAULT_TILE_LIBRARY;
+}
+
+function syncTileMetadataRegistry(tileList = []) {
+  const metadata = new Map(DEFAULT_TILE_LIBRARY.map((entry) => [entry.id, entry]));
+  tileList.forEach((entry) => {
+    if (!entry?.id) return;
+    metadata.set(entry.id, entry);
+  });
+  tileMetadataById = metadata;
+  TILE_TYPES = Array.from(metadata.keys());
+}
+
+function renderTileLibrary() {
+  const wrap = document.getElementById("tileLibraryButtons");
+  if (!wrap) return;
+  const tools = Array.isArray(tileLibraryForRender) && tileLibraryForRender.length ? tileLibraryForRender : DEFAULT_TILE_LIBRARY;
+  wrap.innerHTML = tools
+    .map((entry) => `<button class="toolBtn" id="tool${entry.id.charAt(0).toUpperCase()}${entry.id.slice(1)}" onclick="setTool('${entry.id}')">${entry.icon} ${escapeHtml(entry.label)}</button>`)
+    .join("");
+  setTool(paintTool);
+}
+
+async function loadWorldBiomeTileLibrary() {
+  if (worldBiomeTileLibraryCache) return worldBiomeTileLibraryCache;
+  if (!worldBiomeTileLibraryPromise) {
+    worldBiomeTileLibraryPromise = fetch("data/world/biome-tiles.json", { cache: "no-store" })
+      .then((resp) => (resp.ok ? resp.json() : null))
+      .catch(() => null)
+      .then((raw) => {
+        const normalized = normalizeBiomeTileLibrary(raw || DEFAULT_BIOME_TILE_LIBRARY);
+        const mergedLibrary = buildTileLibraryFromBiomeConfig(normalized);
+        tileLibraryForRender = mergedLibrary.length ? mergedLibrary : DEFAULT_TILE_LIBRARY;
+        syncTileMetadataRegistry(tileLibraryForRender);
+        worldBiomeTileLibraryCache = normalized;
+        return worldBiomeTileLibraryCache;
+      });
+  }
+  return worldBiomeTileLibraryPromise;
 }
 
 async function loadWorldBiomeColorTable() {
@@ -6525,7 +6717,7 @@ bindSceneInputs();
 bindWorldBuilderInputs();
 
 function fillAll(type) {
-  const fillType = TILE_TYPES.includes(type) ? type : "floor";
+  const fillType = tileMetadataById.has(type) ? type : "floor";
   let data = load();
   const s = data.scenes[room];
   s.tiles = new Array(s.cols * s.rows).fill(fillType);
@@ -6533,7 +6725,7 @@ function fillAll(type) {
   document.querySelectorAll(".cell").forEach((cell) => {
     clearTileClasses(cell);
     cell.classList.remove("paint-floor", "paint-wall", "paint-void");
-    cell.classList.add("tile-" + fillType);
+    cell.classList.add(getTileCssClass(fillType));
   });
   refreshTokenPlacements();
 }
@@ -6633,9 +6825,10 @@ function paintAtEvent(e, cell) {
       if (!targetCell) continue;
       targetCell.classList.remove("paint-floor", "paint-wall", "paint-void");
       clearTileClasses(targetCell);
-      targetCell.classList.add("tile-" + t);
-      if (t === "floor" || t === "wall" || t === "void") {
-        targetCell.classList.add("paint-" + t);
+      targetCell.classList.add(getTileCssClass(t));
+      const baseTile = getTileBaseType(t);
+      if (baseTile === "floor" || baseTile === "wall" || baseTile === "void") {
+        targetCell.classList.add("paint-" + baseTile);
       }
     }
   }
@@ -6665,6 +6858,7 @@ applySceneCSS();
 bindMapInteractions();
 setMapZoom(getSceneZoom(), false);
 updateArena();
+loadWorldBiomeTileLibrary().finally(() => renderTileLibrary());
 setDiceTrayOpen(false);
 initChatComposer();
 updateChat();
