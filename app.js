@@ -3282,11 +3282,14 @@ function createGrid() {
 }
 
 /* ================= RENDER ================= */
-function updateArena() {
+let arenaRenderScheduled = false;
+
+function updateArenaNow() {
   ensureScene();
   let data = load();
   let players = data.rooms[room];
   const s = data.scenes[room];
+  let didMutateSceneState = false;
 
   applySceneCSS();
 
@@ -3310,7 +3313,7 @@ function updateArena() {
     arena.appendChild(layerEl);
   });
 
-  let cells = [...document.querySelectorAll(".cell")];
+  const cells = arena.querySelectorAll(".cell");
   // aplica tiles nas células
   for (const cell of cells) {
     const x = parseInt(cell.dataset.x, 10);
@@ -3327,8 +3330,13 @@ function updateArena() {
     ensurePlayerSchema(p);
     recalcFromSheet(p);
 
-    p.x = Math.max(0, Math.min(s.cols - 1, Math.round(Number(p.x) || 0)));
-    p.y = Math.max(0, Math.min(s.rows - 1, Math.round(Number(p.y) || 0)));
+    const nextX = Math.max(0, Math.min(s.cols - 1, Math.round(Number(p.x) || 0)));
+    const nextY = Math.max(0, Math.min(s.rows - 1, Math.round(Number(p.y) || 0)));
+    if (nextX !== p.x || nextY !== p.y) {
+      p.x = nextX;
+      p.y = nextY;
+      didMutateSceneState = true;
+    }
 
     if (!p.onTable) return;
 
@@ -3338,6 +3346,7 @@ function updateArena() {
       if (found) {
         p.x = found.x;
         p.y = found.y;
+        didMutateSceneState = true;
       }
     }
 
@@ -3441,7 +3450,7 @@ function updateArena() {
     cell.appendChild(tokenStack);
   });
 
-  save(data);
+  if (didMutateSceneState) save(data);
   updateSidebar(players);
   renderCombatSpellSlots(players[currentUser]);
 
@@ -3464,6 +3473,15 @@ function updateArena() {
       renderInventoryModal(p);
     }
   }
+}
+
+function updateArena() {
+  if (arenaRenderScheduled) return;
+  arenaRenderScheduled = true;
+  window.requestAnimationFrame(() => {
+    arenaRenderScheduled = false;
+    updateArenaNow();
+  });
 }
 
 function getActionSourceBySlot(player, slotEntry) {
