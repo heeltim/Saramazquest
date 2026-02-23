@@ -6042,6 +6042,101 @@ const DEFAULT_WORLD_BIOME_COLOR_TABLE = {
   ],
 };
 
+
+const BIOME_TO_TILE_RULES = {
+  ocean: { defaultTile: "void", variants: [{ tile: "void", weight: 100 }] },
+  coast: { defaultTile: "stone", variants: [{ tile: "stone", weight: 65 }, { tile: "floor", weight: 35 }] },
+  plains: { defaultTile: "grass", variants: [{ tile: "grass", weight: 85 }, { tile: "floor", weight: 15 }] },
+  forest: { defaultTile: "grass", variants: [{ tile: "grass", weight: 70 }, { tile: "stone", weight: 30 }] },
+  desert: { defaultTile: "stone", variants: [{ tile: "stone", weight: 90 }, { tile: "floor", weight: 10 }] },
+  mountains: { defaultTile: "stonewall", variants: [{ tile: "stonewall", weight: 55 }, { tile: "stone", weight: 45 }] },
+  tundra: { defaultTile: "floor", variants: [{ tile: "floor", weight: 65 }, { tile: "stone", weight: 35 }] },
+  volcanic: { defaultTile: "stonewall", variants: [{ tile: "stonewall", weight: 70 }, { tile: "void", weight: 30 }] },
+  unknown: { defaultTile: "floor", variants: [{ tile: "floor", weight: 100 }] },
+};
+
+function seededRandom01(seedInput = "") {
+  const hashHex = hashText(String(seedInput));
+  const raw = parseInt(hashHex.slice(0, 8), 16);
+  return Number.isFinite(raw) ? raw / 0xffffffff : Math.random();
+}
+
+function pickWeightedTile(rule, seedInput = "") {
+  const fallbackTile = TILE_TYPES.includes(rule?.defaultTile) ? rule.defaultTile : "floor";
+  const variants = Array.isArray(rule?.variants)
+    ? rule.variants
+        .map((entry) => ({
+          tile: TILE_TYPES.includes(entry?.tile) ? entry.tile : null,
+          weight: Math.max(0, Number(entry?.weight) || 0),
+        }))
+        .filter((entry) => entry.tile && entry.weight > 0)
+    : [];
+  if (!variants.length) return fallbackTile;
+  const totalWeight = variants.reduce((sum, entry) => sum + entry.weight, 0);
+  if (totalWeight <= 0) return fallbackTile;
+  let cursor = seededRandom01(seedInput) * totalWeight;
+  for (const variant of variants) {
+    cursor -= variant.weight;
+    if (cursor <= 0) return variant.tile;
+  }
+  return variants[variants.length - 1].tile || fallbackTile;
+}
+
+function isWorldCellTerrainLocked(cellData) {
+  if (!cellData || typeof cellData !== "object") return false;
+  const boolLockKeys = ["terrainLock", "tileLock", "locked", "isLocked", "manualLock", "lockTerrain", "lockTile"];
+  if (boolLockKeys.some((key) => cellData[key] === true)) return true;
+  const sourceKeys = ["terrainSource", "tileSource", "terrainOverride", "tileOverride", "editSource"];
+  if (sourceKeys.some((key) => String(cellData[key] || "").toLowerCase() === "manual")) return true;
+  return false;
+}
+
+function generateTerrainFromWorldBiomes(scene, options = {}) {
+  if (!scene) return { updated: 0, skipped: 0, total: 0 };
+  const meta = normalizeWorldMapMetaWithScene(scene);
+  const cells = meta && typeof meta.cells === "object" ? meta.cells : {};
+  const sceneCols = Math.max(1, parseInt(scene.cols, 10) || DEFAULT_COLS);
+  const sceneRows = Math.max(1, parseInt(scene.rows, 10) || DEFAULT_ROWS);
+  const worldCols = Math.max(1, parseInt(meta?.cols, 10) || parseInt(scene.worldMap?.gridCols, 10) || sceneCols);
+  const worldRows = Math.max(1, parseInt(meta?.rows, 10) || parseInt(scene.worldMap?.gridRows, 10) || sceneRows);
+  const needed = sceneCols * sceneRows;
+  if (!Array.isArray(scene.tiles)) scene.tiles = [];
+  if (scene.tiles.length !== needed) {
+    scene.tiles = Array.from({ length: needed }, (_, i) => scene.tiles?.[i] || "floor");
+  }
+
+  const baseSeed = String(options.seed || meta?.classification?.signature || scene.worldMap?.imageUrl || "default");
+  let updated = 0;
+  let skipped = 0;
+  Object.entries(cells).forEach(([key, cellData]) => {
+    const [xRaw, yRaw] = String(key).split("_");
+    const worldX = parseInt(xRaw, 10);
+    const worldY = parseInt(yRaw, 10);
+    if (!Number.isFinite(worldX) || !Number.isFinite(worldY) || worldX < 0 || worldY < 0 || worldX >= worldCols || worldY >= worldRows) {
+      skipped += 1;
+      return;
+    }
+    if (isWorldCellTerrainLocked(cellData)) {
+      skipped += 1;
+      return;
+    }
+    const biome = String(cellData?.biome || cellData?.biomeDetection?.detectedBiome || "unknown").trim().toLowerCase();
+    const rule = BIOME_TO_TILE_RULES[biome] || BIOME_TO_TILE_RULES.unknown;
+    const tile = pickWeightedTile(rule, `${baseSeed}:${key}:${biome}`);
+    const sceneX = Math.min(sceneCols - 1, Math.max(0, Math.floor((worldX / worldCols) * sceneCols)));
+    const sceneY = Math.min(sceneRows - 1, Math.max(0, Math.floor((worldY / worldRows) * sceneRows)));
+    const idx = sceneY * sceneCols + sceneX;
+    if (!TILE_TYPES.includes(tile) || idx < 0 || idx >= scene.tiles.length) {
+      skipped += 1;
+      return;
+    }
+    scene.tiles[idx] = tile;
+    updated += 1;
+  });
+
+  return { updated, skipped, total: Object.keys(cells).length };
+}
+
 let worldBiomeColorTableCache = null;
 let worldBiomeColorTablePromise = null;
 let worldMapImageBuffer = { src: "", canvas: null, ctx: null, width: 0, height: 0 };
@@ -6574,14 +6669,36 @@ window.importWorldMapImage = function importWorldMapImage() {
     setWorldMapUploadStatus(`Mapa global carregado: ${file.name}`, "success");
     syncWorldMapToggleVisibility(scene);
     classifyWorldMapBiomes(scene, { force: true }).finally(() => {
+      let terrainData = load();
+      const terrainScene = terrainData.scenes[room];
+      const terrainSummary = generateTerrainFromWorldBiomes(terrainScene);
+      save(terrainData);
+      updateArena();
+      setWorldMapUploadStatus(`Mapa global carregado: ${file.name} · terreno gerado (${terrainSummary.updated}/${terrainSummary.total})`, "success");
       renderWorldMapWindow();
-      const selected = getSelectedWorldCell(scene);
+      const selected = getSelectedWorldCell(terrainScene);
       updateWorldMapDrawer(selected ? { x: selected.col - 1, y: selected.row - 1 } : null);
     });
     fileInput.value = "";
   };
   reader.onerror = () => setWorldMapUploadStatus("Falha ao carregar o arquivo de imagem.", "error");
   reader.readAsDataURL(file);
+};
+
+window.generateProceduralTerrainFromWorldBiomes = function generateProceduralTerrainFromWorldBiomes() {
+  let data = load();
+  const scene = data.scenes[room];
+  classifyWorldMapBiomes(scene, { force: false })
+    .then(() => {
+      const summary = generateTerrainFromWorldBiomes(scene);
+      save(data);
+      updateArena();
+      setWorldMapUploadStatus(`Terreno procedural atualizado (${summary.updated}/${summary.total} células).`, "success");
+      if (isWorldMapWindowOpen) renderWorldMapWindow();
+    })
+    .catch(() => {
+      setWorldMapUploadStatus("Não foi possível gerar o terreno procedural a partir dos biomas.", "error");
+    });
 };
 
 window.clearWorldMapImage = function clearWorldMapImage() {
@@ -6616,6 +6733,7 @@ function bindWorldBuilderInputs() {
   const setNameBtn = document.getElementById("worldCellSetNameBtn");
   const saveBtn = document.getElementById("worldCellSaveBtn");
   const clearBtn = document.getElementById("worldCellClearBtn");
+  const generateTerrainBtn = document.getElementById("worldGenerateTerrainBtn");
 
   bindWorldMapViewportInteractions();
 
@@ -6638,8 +6756,13 @@ function bindWorldBuilderInputs() {
     meta.classification = null;
     saveGlobalMapMeta(meta);
     classifyWorldMapBiomes(scene, { force: true }).finally(() => {
+      let terrainData = load();
+      const terrainScene = terrainData.scenes[room];
+      generateTerrainFromWorldBiomes(terrainScene);
+      save(terrainData);
+      updateArena();
       if (isWorldMapWindowOpen) renderWorldMapWindow();
-      const selected = getSelectedWorldCell(scene);
+      const selected = getSelectedWorldCell(terrainScene);
       updateWorldMapDrawer(selected ? { x: selected.col - 1, y: selected.row - 1 } : null);
     });
     if (isWorldMapWindowOpen) renderWorldMapWindow();
@@ -6672,6 +6795,10 @@ function bindWorldBuilderInputs() {
   if (clearBtn && !clearBtn.dataset.bound) {
     clearBtn.dataset.bound = "1";
     clearBtn.addEventListener("click", clearSelectedWorldCellMeta);
+  }
+  if (generateTerrainBtn && !generateTerrainBtn.dataset.bound) {
+    generateTerrainBtn.dataset.bound = "1";
+    generateTerrainBtn.addEventListener("click", () => window.generateProceduralTerrainFromWorldBiomes());
   }
 }
 
