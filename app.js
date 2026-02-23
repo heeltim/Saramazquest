@@ -179,6 +179,19 @@ const CHARACTER_TEMPLATES = [
   },
 ];
 const DEFAULT_SPRITE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif";
+const TOKEN_GRID_UNIT = 40;
+const TOKEN_CONDITION_LIBRARY = [
+  { id: "bleeding", icon: "🩸", label: "Sangrando" },
+  { id: "downed", icon: "🛌", label: "Caído" },
+  { id: "prone", icon: "↘️", label: "Derrubado" },
+  { id: "unconscious", icon: "😵", label: "Inconsciente" },
+  { id: "sleeping", icon: "💤", label: "Dormindo" },
+  { id: "poisoned", icon: "☠️", label: "Envenenado" },
+  { id: "blinded", icon: "🙈", label: "Cego" },
+  { id: "restrained", icon: "🕸️", label: "Restrito" },
+  { id: "stunned", icon: "💫", label: "Atordoado" },
+  { id: "dead", icon: "💀", label: "Morto" },
+];
 
 function isSpriteAvatar(avatar) {
   return !!avatar && typeof avatar === "object" && avatar.type === "sprite" && typeof avatar.url === "string";
@@ -1798,6 +1811,77 @@ function computeSheetBonusBreakdown(p) {
   };
 }
 
+function getTokenConditionMeta(conditionId) {
+  const hit = TOKEN_CONDITION_LIBRARY.find((cond) => cond.id === conditionId);
+  if (hit) return hit;
+  return { id: conditionId, icon: "❔", label: conditionId };
+}
+
+function openTokenSettings(name) {
+  const data = load();
+  const player = data.rooms?.[room]?.[name];
+  if (!player) return;
+  ensurePlayerSchema(player);
+
+  const scaleInput = prompt("Tamanho do token em células do grid (ex: 1 para padrão, 2 para criatura grande):", String(player.tokenScale || 1));
+  if (scaleInput === null) return;
+  const parsedScale = Math.max(1, Math.min(4, parseInt(scaleInput, 10) || 1));
+
+  const imageInput = prompt(
+    "URL da imagem do token (deixe vazio para usar o avatar atual):",
+    isSpriteAvatar(player.avatar) || isIconAvatar(player.avatar) ? (player.avatar.url || "") : "",
+  );
+  if (imageInput === null) return;
+
+  player.tokenScale = parsedScale;
+  const cleanedImage = String(imageInput || "").trim();
+  if (cleanedImage) {
+    player.avatar = createIconAvatar(cleanedImage, getAvatarEmoji(player.avatar), player.name || name);
+  }
+
+  save(data);
+  removeMenu();
+  updateArena();
+}
+
+function openTokenConditions(name) {
+  const data = load();
+  const player = data.rooms?.[room]?.[name];
+  if (!player) return;
+  ensurePlayerSchema(player);
+
+  const enabled = new Set(player.tokenConditions || []);
+  const options = TOKEN_CONDITION_LIBRARY.map((cond, index) => {
+    const mark = enabled.has(cond.id) ? "x" : " ";
+    return `${index + 1}. [${mark}] ${cond.icon} ${cond.label}`;
+  }).join("\n");
+
+  const raw = prompt(
+    `Condições de ${name}\nDigite os números separados por vírgula para alternar condições.\n${options}`,
+    "",
+  );
+  if (raw === null) return;
+
+  const indexes = raw
+    .split(",")
+    .map((entry) => parseInt(entry.trim(), 10) - 1)
+    .filter((idx) => Number.isInteger(idx) && idx >= 0 && idx < TOKEN_CONDITION_LIBRARY.length);
+
+  indexes.forEach((idx) => {
+    const condId = TOKEN_CONDITION_LIBRARY[idx].id;
+    if (enabled.has(condId)) enabled.delete(condId);
+    else enabled.add(condId);
+  });
+
+  player.tokenConditions = TOKEN_CONDITION_LIBRARY
+    .map((cond) => cond.id)
+    .filter((condId) => enabled.has(condId));
+
+  save(data);
+  removeMenu();
+  updateArena();
+}
+
 function ensurePlayerSchema(p) {
   if (p.hp === undefined) p.hp = 100;
   if (p.hpMax === undefined) p.hpMax = 100;
@@ -1869,6 +1953,11 @@ function ensurePlayerSchema(p) {
   if (p.color === undefined) p.color = randomColor();
   if (p.avatar === undefined) p.avatar = "🧙";
   p.avatar = normalizeAvatar(p.avatar);
+  p.tokenScale = Math.max(1, Math.min(4, parseInt(p.tokenScale, 10) || 1));
+  if (!Array.isArray(p.tokenConditions)) p.tokenConditions = [];
+  p.tokenConditions = p.tokenConditions
+    .map((entry) => String(entry || "").trim())
+    .filter((entry) => entry);
 
   const s = load().scenes[room];
   if (p.x === undefined) p.x = Math.floor(Math.random() * s.cols);
@@ -3070,6 +3159,12 @@ function updateArena() {
     let token = document.createElement("div");
     token.className = "token";
     token.style.background = p.color;
+    const tokenScale = Math.max(1, Math.min(4, parseInt(p.tokenScale, 10) || 1));
+    const tokenSize = tokenScale * TOKEN_GRID_UNIT;
+    tokenStack.style.width = `${tokenSize}px`;
+    tokenStack.style.height = `${tokenSize}px`;
+    token.style.width = `${tokenSize - 8}px`;
+    token.style.height = `${tokenSize - 8}px`;
     const avatarEmoji = getAvatarEmoji(p.avatar || name[0].toUpperCase());
     token.innerHTML = "";
     if (isSpriteAvatar(p.avatar) || isIconAvatar(p.avatar)) {
@@ -3120,6 +3215,21 @@ function updateArena() {
 
     tokenStack.appendChild(token);
     tokenStack.appendChild(resources);
+
+    if (p.tokenConditions?.length) {
+      const conditionWrap = document.createElement("div");
+      conditionWrap.className = "tokenConditionBadges";
+      p.tokenConditions.slice(0, 5).forEach((conditionId) => {
+        const meta = getTokenConditionMeta(conditionId);
+        const badge = document.createElement("span");
+        badge.className = "tokenConditionBadge";
+        badge.title = meta.label;
+        badge.textContent = meta.icon;
+        conditionWrap.appendChild(badge);
+      });
+      tokenStack.appendChild(conditionWrap);
+    }
+
     if (p.player_shop?.enabled) {
       const badge = document.createElement("div");
       badge.className = "playerShopTokenBadge";
@@ -3521,6 +3631,8 @@ function showMenu(name, element) {
     { icon: "📖", title: "Grimório", run: () => openGrimoire(name) },
     { icon: "❤️", title: "HP (+/-)", run: () => editStat(name, "hp") },
     { icon: "🔵", title: "MP (+/-)", run: () => editStat(name, "mana") },
+    { icon: "⚙️", title: "Token settings", run: () => openTokenSettings(name) },
+    { icon: "🩹", title: "Condições", run: () => openTokenConditions(name) },
     { icon: "🗑️", title: "Remover da mesa", run: () => removeFromTable(name) },
     ...(load().rooms?.[room]?.[name]?.player_shop?.enabled ? [{ icon: "🏪", title: "Abrir Loja", run: () => openPlayerShop(name, currentUser) }] : []),
   ];
