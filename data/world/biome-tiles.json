@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "biomes": {
+    "ocean": [
+      { "id": "floor", "label": "Água rasa", "emoji": "🟦", "cssClass": "tile-floor", "spawnWeight": 4 },
+      { "id": "void", "label": "Abismo", "emoji": "⬛", "cssClass": "tile-void", "spawnWeight": 1 }
+    ],
+    "coast": [
+      { "id": "floor", "label": "Areia úmida", "emoji": "🟦", "cssClass": "tile-floor", "spawnWeight": 3 },
+      { "id": "stone", "label": "Cascalho", "emoji": "🪨", "cssClass": "tile-stone", "spawnWeight": 2 },
+      { "id": "grass", "label": "Vegetação costeira", "emoji": "🌿", "cssClass": "tile-grass", "spawnWeight": 1 }
+    ],
+    "plains": [
+      { "id": "grass", "label": "Campo", "emoji": "🌿", "cssClass": "tile-grass", "spawnWeight": 4 },
+      { "id": "floor", "label": "Trilha", "emoji": "🟦", "cssClass": "tile-floor", "spawnWeight": 2 },
+      { "id": "stone", "label": "Pedregulho", "emoji": "🪨", "cssClass": "tile-stone", "spawnWeight": 1 }
+    ],
+    "forest": [
+      { "id": "grass", "label": "Mato", "emoji": "🌿", "cssClass": "tile-grass", "spawnWeight": 4 },
+      { "id": "woodwall", "label": "Troncos", "emoji": "🪵", "cssClass": "tile-woodwall", "spawnWeight": 2 },
+      { "id": "floor", "label": "Solo batido", "emoji": "🟦", "cssClass": "tile-floor", "spawnWeight": 1 }
+    ],
+    "desert": [
+      { "id": "floor", "label": "Areia", "emoji": "🟦", "cssClass": "tile-floor", "spawnWeight": 4 },
+      { "id": "stone", "label": "Rocha quente", "emoji": "🪨", "cssClass": "tile-stone", "spawnWeight": 2 },
+      { "id": "void", "label": "Duna profunda", "emoji": "⬛", "cssClass": "tile-void", "spawnWeight": 1 }
+    ],
+    "mountains": [
+      { "id": "stone", "label": "Escarpa", "emoji": "🪨", "cssClass": "tile-stone", "spawnWeight": 4 },
+      { "id": "wall", "label": "Penhasco", "emoji": "🧱", "cssClass": "tile-wall", "spawnWeight": 2 },
+      { "id": "stonewall", "label": "Muro rochoso", "emoji": "🧱", "cssClass": "tile-stonewall", "spawnWeight": 1 }
+    ],
+    "tundra": [
+      { "id": "floor", "label": "Neve compacta", "emoji": "🟦", "cssClass": "tile-floor", "spawnWeight": 3 },
+      { "id": "stone", "label": "Gelo duro", "emoji": "🪨", "cssClass": "tile-stone", "spawnWeight": 2 },
+      { "id": "void", "label": "Fenda", "emoji": "⬛", "cssClass": "tile-void", "spawnWeight": 1 }
+    ],
+    "volcanic": [
+      { "id": "stone", "label": "Basalto", "emoji": "🪨", "cssClass": "tile-stone", "spawnWeight": 3 },
+      { "id": "wall", "label": "Rocha vulcânica", "emoji": "🧱", "cssClass": "tile-wall", "spawnWeight": 2 },
+      { "id": "void", "label": "Lava", "emoji": "⬛", "cssClass": "tile-void", "spawnWeight": 1 }
+    ]
+  }
+}
