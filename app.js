@@ -179,7 +179,6 @@ const CHARACTER_TEMPLATES = [
   },
 ];
 const DEFAULT_SPRITE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif";
-const TEMP_GLOBAL_MAP_BG = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="960" viewBox="0 0 1600 960"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#20365f"/><stop offset="100%" stop-color="#0f1a32"/></linearGradient><radialGradient id="fog" cx="50%" cy="45%" r="70%"><stop offset="0%" stop-color="rgba(125,190,255,0.18)"/><stop offset="100%" stop-color="rgba(0,0,0,0)"/></radialGradient></defs><rect width="1600" height="960" fill="url(#bg)"/><rect width="1600" height="960" fill="url(#fog)"/><g opacity="0.35" stroke="#9cc8ff" stroke-width="2" fill="none"><path d="M120 220 C260 90, 500 80, 700 180 S1120 320, 1420 180"/><path d="M180 620 C420 470, 690 520, 980 660 S1320 790, 1500 640"/><path d="M300 360 C430 290, 550 300, 640 380"/></g><g fill="#9cc8ff" opacity="0.9"><circle cx="270" cy="190" r="8"/><circle cx="740" cy="170" r="10"/><circle cx="1190" cy="290" r="9"/><circle cx="960" cy="650" r="11"/><circle cx="440" cy="610" r="10"/></g><g fill="#d9ecff" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="700" opacity="0.92"><text x="296" y="170">Norte Gelado</text><text x="774" y="150">Vales Centrais</text><text x="1222" y="275">Costa Arcana</text><text x="992" y="636">Mar do Eclipse</text><text x="472" y="596">Terras Antigas</text></g></svg>`);
 
 function isSpriteAvatar(avatar) {
   return !!avatar && typeof avatar === "object" && avatar.type === "sprite" && typeof avatar.url === "string";
@@ -1615,11 +1614,6 @@ function ensureScene() {
   s.bgY = Number.isFinite(s.bgY) ? s.bgY : 0;
   s.bgScale = Number.isFinite(s.bgScale) ? s.bgScale : 120;
   s.bgOpacity = Number.isFinite(s.bgOpacity) ? s.bgOpacity : 65;
-  if (!s.bgUrl && getSceneLayerList(s).length === 0) {
-    s.bgUrl = TEMP_GLOBAL_MAP_BG;
-    s.bgScale = 100;
-    s.bgOpacity = 88;
-  }
   s.mapZoom = Number.isFinite(s.mapZoom) ? Math.max(0.5, Math.min(1.6, s.mapZoom)) : 1;
   s.gridStyle = ["square", "dots"].includes(s.gridStyle) ? s.gridStyle : "square";
   s.gridOpacity = Number.isFinite(s.gridOpacity) ? Math.max(0, Math.min(100, s.gridOpacity)) : 55;
@@ -1630,11 +1624,6 @@ function ensureScene() {
   syncSceneToActiveArtboard(s);
   const activeBoard = s.artboards.find((b) => b.id === s.activeArtboardId) || s.artboards[0];
   applyArtboardToScene(s, activeBoard);
-  if (!s.bgUrl && getSceneLayerList(s).length === 0) {
-    s.bgUrl = TEMP_GLOBAL_MAP_BG;
-    s.bgScale = 100;
-    s.bgOpacity = 88;
-  }
   normalizeSceneLayers(s);
 
   data.scenes[room] = s;
@@ -5270,12 +5259,6 @@ function syncSceneUIFromStorage() {
   const kindInput = document.getElementById("sceneLayerKind");
   if (kindInput && !kindInput.value) kindInput.value = "map";
   if (mapZoomInput) mapZoomInput.value = String(Math.round((s.mapZoom || 1) * 100));
-  setSceneBackgroundPreview(s.bgUrl || "");
-  if (s.bgUrl) {
-    setSceneBackgroundUploadStatus("Imagem do cenário ativa.", "success");
-  } else {
-    setSceneBackgroundUploadStatus("Nenhuma imagem selecionada.");
-  }
   renderArtboardControls();
   renderSceneLayerList();
   syncWorldBuilderUI();
@@ -5477,29 +5460,9 @@ window.applyArtboardSize = function applyArtboardSize() {
   syncSceneUIFromStorage();
 };
 
-window.applyTemporaryGlobalMap = function applyTemporaryGlobalMap() {
-  let data = load();
-  const scene = data.scenes[room];
-  scene.bgUrl = TEMP_GLOBAL_MAP_BG;
-  scene.bgScale = 100;
-  scene.bgOpacity = 88;
-  scene.bgX = 0;
-  scene.bgY = 0;
-  scene.gridStyle = "square";
-  scene.gridOpacity = Math.max(60, scene.gridOpacity || 0);
-  scene.gridLine = Math.max(1, scene.gridLine || 1);
-  scene.layers = getSceneLayerList(scene).filter((layer) => layer.kind !== "map");
-  normalizeSceneLayers(scene);
-  syncSceneToActiveArtboard(scene);
-  save(data);
-  createGrid();
-  updateArena();
-  syncSceneUIFromStorage();
-  setSceneSection("grid");
-};
 
-function setSceneBackgroundUploadStatus(message, state = "idle") {
-  const status = document.getElementById("sceneBgUploadStatus");
+function setWorldMapUploadStatus(message, state = "idle") {
+  const status = document.getElementById("worldMapStatus");
   if (!status) return;
   status.textContent = message;
   status.classList.remove("is-loading", "is-success", "is-error");
@@ -5521,66 +5484,152 @@ function setSceneBackgroundPreview(src = "") {
   wrap.hidden = false;
 }
 
-window.importSceneBackground = function importSceneBackground() {
-  const fileInput = document.getElementById("sceneBgFile");
+let isWorldMapWindowOpen = false;
+
+function syncWorldMapToggleVisibility(scene) {
+  const toggle = document.getElementById("worldMapToggle");
+  if (!toggle) return;
+  const hasWorldMap = !!scene?.worldMap?.imageUrl;
+  toggle.hidden = !hasWorldMap;
+  if (!hasWorldMap && isWorldMapWindowOpen) closeWorldMapWindow();
+}
+
+function renderWorldMapWindow() {
+  const els = getWorldMapElements();
+  const scene = load().scenes[room];
+  const wm = scene.worldMap;
+  if (!els.window || !els.image || !els.overlay) return;
+
+  const hasMap = !!wm.imageUrl;
+  if (!hasMap) {
+    els.window.classList.add("collapsed");
+    els.window.setAttribute("aria-hidden", "true");
+    isWorldMapWindowOpen = false;
+    return;
+  }
+
+  els.image.src = wm.imageUrl;
+  els.overlay.style.setProperty("--grid-cols", String(wm.gridCols || 8));
+  els.overlay.style.setProperty("--grid-rows", String(wm.gridRows || 6));
+  els.overlay.innerHTML = "";
+  const total = (wm.gridCols || 8) * (wm.gridRows || 6);
+  for (let i = 0; i < total; i++) {
+    const cell = document.createElement("button");
+    cell.type = "button";
+    cell.className = "worldMapCell";
+    cell.style.border = "1px solid rgba(138, 190, 255, 0.35)";
+    cell.style.background = "transparent";
+    cell.style.cursor = "pointer";
+    cell.style.padding = "0";
+    cell.setAttribute("aria-label", `Célula ${i + 1}`);
+    els.overlay.appendChild(cell);
+  }
+
+  els.window.classList.toggle("collapsed", !isWorldMapWindowOpen);
+  els.window.setAttribute("aria-hidden", isWorldMapWindowOpen ? "false" : "true");
+}
+
+window.toggleWorldMapWindow = function toggleWorldMapWindow() {
+  const scene = load().scenes[room];
+  if (!scene?.worldMap?.imageUrl) return;
+  isWorldMapWindowOpen = !isWorldMapWindowOpen;
+  renderWorldMapWindow();
+};
+
+window.closeWorldMapWindow = function closeWorldMapWindow() {
+  isWorldMapWindowOpen = false;
+  renderWorldMapWindow();
+};
+
+window.importWorldMapImage = function importWorldMapImage() {
+  const fileInput = document.getElementById("worldMapUpload");
   const file = fileInput?.files?.[0];
   if (!file) {
-    setSceneBackgroundUploadStatus("Selecione uma imagem para o cenário.", "error");
-    return alert("Selecione uma imagem para o cenário.");
+    setWorldMapUploadStatus("Selecione uma imagem para o mapa global.", "error");
+    return;
   }
   if (!file.type || !file.type.startsWith("image/")) {
-    setSceneBackgroundUploadStatus("Arquivo inválido. Use uma imagem.", "error");
-    return alert("Arquivo inválido. Use uma imagem.");
+    setWorldMapUploadStatus("Arquivo inválido. Use uma imagem.", "error");
+    return;
   }
 
-  setSceneBackgroundUploadStatus(`Carregando ${file.name}...`, "loading");
-
+  setWorldMapUploadStatus(`Carregando ${file.name}...`, "loading");
   const reader = new FileReader();
   reader.onload = () => {
     const src = String(reader.result || "");
     if (!src) {
-      setSceneBackgroundUploadStatus("Não foi possível ler a imagem.", "error");
-      return alert("Não foi possível ler a imagem.");
+      setWorldMapUploadStatus("Não foi possível ler a imagem.", "error");
+      return;
     }
     let data = load();
     const scene = data.scenes[room];
-    scene.bgUrl = src;
-    scene.bgScale = Math.max(90, Number(scene.bgScale) || 100);
-    scene.bgOpacity = Math.max(85, Number(scene.bgOpacity) || 88);
-    scene.bgX = Number(scene.bgX) || 0;
-    scene.bgY = Number(scene.bgY) || 0;
-    scene.gridStyle = scene.gridStyle || "square";
-    scene.gridOpacity = Math.max(50, Number(scene.gridOpacity) || 55);
-    scene.gridLine = Math.max(1, Number(scene.gridLine) || 1);
-    syncSceneToActiveArtboard(scene);
+    const colsInput = document.getElementById("worldGridCols");
+    const rowsInput = document.getElementById("worldGridRows");
+    scene.worldMap.imageUrl = src;
+    scene.worldMap.gridCols = Math.max(2, Math.min(64, parseInt(colsInput?.value, 10) || scene.worldMap.gridCols || 8));
+    scene.worldMap.gridRows = Math.max(2, Math.min(64, parseInt(rowsInput?.value, 10) || scene.worldMap.gridRows || 6));
     save(data);
-    createGrid();
-    updateArena();
-    syncSceneUIFromStorage();
-    setSceneBackgroundUploadStatus(`Imagem carregada: ${file.name}`, "success");
     setSceneBackgroundPreview(src);
-    setSceneSection("grid");
+    setWorldMapUploadStatus(`Mapa global carregado: ${file.name}`, "success");
+    syncWorldMapToggleVisibility(scene);
+    renderWorldMapWindow();
     fileInput.value = "";
   };
-  reader.onerror = () => {
-    setSceneBackgroundUploadStatus("Falha ao carregar o arquivo de imagem.", "error");
-    alert("Falha ao carregar o arquivo de imagem.");
-  };
+  reader.onerror = () => setWorldMapUploadStatus("Falha ao carregar o arquivo de imagem.", "error");
   reader.readAsDataURL(file);
 };
 
-window.clearSceneBackground = function clearSceneBackground() {
+window.clearWorldMapImage = function clearWorldMapImage() {
   let data = load();
   const scene = data.scenes[room];
-  scene.bgUrl = "";
-  syncSceneToActiveArtboard(scene);
+  scene.worldMap.imageUrl = "";
   save(data);
-  createGrid();
-  updateArena();
-  syncSceneUIFromStorage();
   setSceneBackgroundPreview("");
-  setSceneBackgroundUploadStatus("Imagem removida. Nenhuma imagem selecionada.");
+  setWorldMapUploadStatus("Nenhum mapa global carregado.");
+  syncWorldMapToggleVisibility(scene);
+  closeWorldMapWindow();
 };
+
+function syncWorldBuilderUI() {
+  const scene = load().scenes[room];
+  const wm = scene.worldMap;
+  const cols = document.getElementById("worldGridCols");
+  const rows = document.getElementById("worldGridRows");
+  if (cols) cols.value = String(wm.gridCols || 8);
+  if (rows) rows.value = String(wm.gridRows || 6);
+  setSceneBackgroundPreview(wm.imageUrl || "");
+  setWorldMapUploadStatus(wm.imageUrl ? "Mapa global ativo." : "Nenhum mapa global carregado.", wm.imageUrl ? "success" : "idle");
+  syncWorldMapToggleVisibility(scene);
+}
+
+function bindWorldBuilderInputs() {
+  const upload = document.getElementById("worldMapUpload");
+  const cols = document.getElementById("worldGridCols");
+  const rows = document.getElementById("worldGridRows");
+  if (upload && !upload.dataset.bound) {
+    upload.dataset.bound = "1";
+    upload.addEventListener("change", () => {
+      const file = upload.files?.[0];
+      setWorldMapUploadStatus(file ? `Imagem selecionada: ${file.name}` : "Nenhum mapa global carregado.");
+    });
+  }
+  function updateGridSize() {
+    let data = load();
+    const scene = data.scenes[room];
+    scene.worldMap.gridCols = Math.max(2, Math.min(64, parseInt(cols?.value, 10) || scene.worldMap.gridCols || 8));
+    scene.worldMap.gridRows = Math.max(2, Math.min(64, parseInt(rows?.value, 10) || scene.worldMap.gridRows || 6));
+    save(data);
+    if (isWorldMapWindowOpen) renderWorldMapWindow();
+  }
+  if (cols && !cols.dataset.bound) {
+    cols.dataset.bound = "1";
+    cols.addEventListener("input", updateGridSize);
+  }
+  if (rows && !rows.dataset.bound) {
+    rows.dataset.bound = "1";
+    rows.addEventListener("input", updateGridSize);
+  }
+}
 
 function bindSceneInputs() {
   const bgScale = document.getElementById("bgScale");
@@ -5590,7 +5639,6 @@ function bindSceneInputs() {
   const gridStyle = document.getElementById("gridStyle");
   const gridOpacity = document.getElementById("gridOpacity");
   const gridLine = document.getElementById("gridLine");
-  const sceneBgFile = document.getElementById("sceneBgFile");
 
   if (artboardSelect && !artboardSelect.dataset.bound) {
     artboardSelect.dataset.bound = "1";
@@ -5630,17 +5678,6 @@ function bindSceneInputs() {
   gridStyle.addEventListener("change", upd);
   gridOpacity.addEventListener("input", upd);
   gridLine.addEventListener("input", upd);
-  if (sceneBgFile && !sceneBgFile.dataset.bound) {
-    sceneBgFile.dataset.bound = "1";
-    sceneBgFile.addEventListener("change", () => {
-      const file = sceneBgFile.files?.[0];
-      if (!file) {
-        setSceneBackgroundUploadStatus("Nenhuma imagem selecionada.");
-        return;
-      }
-      setSceneBackgroundUploadStatus(`Imagem selecionada: ${file.name}`);
-    });
-  }
 
 }
 bindSceneInputs();

@@ -101,19 +101,10 @@
           type="button"
           title="Abrir mapa global"
           onclick="toggleWorldMapWindow()"
+          hidden
         >
           🧭 Mapa
         </button>
-        <div id="masterSceneBar" aria-label="Barra fixa de mestre">
-          <button
-            id="sceneDockToggle"
-            type="button"
-            class="toolBtn"
-            onclick="toggleSceneDock()"
-          >
-            🎬 Mestre 1: ON
-          </button>
-        </div>
         <div id="scenePanel">
           <div class="scenePanelHead">
             <div>
@@ -147,7 +138,6 @@
                   <button class="toolBtn" type="button" onclick="createArtboard()">+ Cenário</button>
                   <button class="toolBtn" type="button" onclick="renameArtboard()">Renomear</button>
                   <button class="toolBtn" type="button" onclick="deleteArtboard()">Remover</button>
-                  <button class="toolBtn" type="button" onclick="applyTemporaryGlobalMap()">🗺️ Mapa provisório</button>
                 </div>
 
                 <div class="field full sceneSizeField">
@@ -160,17 +150,21 @@
                 </div>
 
                 <div class="field full sceneBgImportField">
-                  <label>Criação planetária (imagem base do mapa global)</label>
+                  <label>Criação planetária (mapa do aventureiro - atalho M)</label>
                   <div class="sceneBgImportGrid">
-                    <input id="sceneBgFile" type="file" accept="image/*" />
-                    <button class="toolBtn" type="button" onclick="importSceneBackground()">Carregar imagem do cenário</button>
-                    <button class="toolBtn" type="button" onclick="clearSceneBackground()">Remover imagem</button>
+                    <input id="worldMapUpload" type="file" accept="image/*" />
+                    <button class="toolBtn" type="button" onclick="importWorldMapImage()">Carregar mapa global</button>
+                    <button class="toolBtn" type="button" onclick="clearWorldMapImage()">Remover mapa global</button>
                   </div>
-                  <div id="sceneBgUploadStatus" class="sceneUploadStatus" aria-live="polite">Nenhuma imagem selecionada.</div>
+                  <div class="sceneBgImportGrid">
+                    <label>Colunas do grid <input id="worldGridCols" type="number" min="2" max="64" value="8" /></label>
+                    <label>Linhas do grid <input id="worldGridRows" type="number" min="2" max="64" value="6" /></label>
+                  </div>
+                  <div id="worldMapStatus" class="sceneUploadStatus" aria-live="polite">Nenhum mapa global carregado.</div>
                   <div id="sceneBgPreviewWrap" class="sceneBgPreviewWrap" hidden>
-                    <img id="sceneBgPreview" class="sceneBgPreview" alt="Pré-visualização da imagem do cenário" />
+                    <img id="sceneBgPreview" class="sceneBgPreview" alt="Pré-visualização do mapa global" />
                   </div>
-                  <div class="sceneHint">A imagem carregada aqui aparece no mapa global e o grid fica sobreposto automaticamente.</div>
+                  <div class="sceneHint">Esse mapa aparece apenas na janela flutuante de mapa (atalho <kbd>M</kbd>). O cenário do artboard deve ser importado na aba Camadas (Camada Mapa).</div>
                 </div>
               </section>
 
