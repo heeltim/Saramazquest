@@ -1829,6 +1829,36 @@ function getTileBaseType(tileId = "") {
   return tileMetadataById.get(tileId)?.baseTile || "floor";
 }
 
+const DEFAULT_TILE_PALETTE_BY_BASE = {
+  floor: { base: "#2a3248", highlight: "#3a4667", shadow: "#1a2236" },
+  grass: { base: "#4f8d46", highlight: "#7dc76f", shadow: "#2f5b2a" },
+  stone: { base: "#6e7583", highlight: "#9ea5b3", shadow: "#454b57" },
+  wall: { base: "#6f3a3a", highlight: "#a95c5c", shadow: "#3e2020" },
+  woodwall: { base: "#7a5a3a", highlight: "#a27a52", shadow: "#4a341f" },
+  stonewall: { base: "#616772", highlight: "#8b919b", shadow: "#3d424d" },
+  void: { base: "#1a1d24", highlight: "#2b3039", shadow: "#0b0d12" },
+};
+
+function getTileRenderPalette(tileId = "floor") {
+  const metadata = tileMetadataById.get(tileId) || {};
+  const baseTile = getTileBaseType(tileId);
+  const fallback = DEFAULT_TILE_PALETTE_BY_BASE[baseTile] || DEFAULT_TILE_PALETTE_BY_BASE.floor;
+  const metaColors = typeof sanitizeTileColors === "function" ? sanitizeTileColors(metadata?.colors || {}) : {};
+  return {
+    base: metaColors.base || fallback.base,
+    highlight: metaColors.highlight || fallback.highlight,
+    shadow: metaColors.shadow || fallback.shadow,
+  };
+}
+
+function applyTileVisual(cell, tileId = "floor") {
+  if (!cell) return;
+  const palette = getTileRenderPalette(tileId);
+  cell.style.setProperty("--tile-base-color", palette.base || "transparent");
+  cell.style.setProperty("--tile-highlight-color", palette.highlight || palette.base || "transparent");
+  cell.style.setProperty("--tile-shadow-color", palette.shadow || palette.base || "transparent");
+}
+
 function clearTileClasses(cell) {
   TILE_TYPES.forEach((type) => {
     cell.classList.remove(`tile-${type}`);
@@ -3448,6 +3478,7 @@ function updateArenaNow() {
     const t = tileMetadataById.has(rawTile) ? rawTile : "floor";
     clearTileClasses(cell);
     cell.classList.add(getTileCssClass(t));
+    applyTileVisual(cell, t);
     cell.innerHTML = "";
   }
 
@@ -6123,10 +6154,21 @@ window.applyArtboardSize = function applyArtboardSize() {
   const nextRows = Math.max(6, Math.min(80, parseInt(rowsInput.value, 10) || DEFAULT_ROWS));
   let data = load();
   const scene = data.scenes[room];
+  ensureSceneArtboards(scene);
+
   scene.cols = nextCols;
   scene.rows = nextRows;
   const needed = nextCols * nextRows;
   scene.tiles = Array.from({ length: needed }, (_, i) => scene.tiles?.[i] || "floor");
+
+  const idx = scene.artboards.findIndex((board) => board.id === scene.activeArtboardId);
+  if (idx >= 0) {
+    const active = scene.artboards[idx];
+    const synced = extractArtboardFromScene(scene, active.name || `Cenário ${idx + 1}`);
+    synced.id = active.id;
+    scene.artboards[idx] = synced;
+  }
+
   save(data);
   createGrid();
   updateArena();
@@ -6193,23 +6235,23 @@ function saveGlobalMapMeta(meta) {
   localStorage.setItem(getGlobalMapMetaStorageKey(), JSON.stringify(meta));
 }
 
-const WORLD_BIOME_CLASSIFIER_VERSION = 2;
+const WORLD_BIOME_CLASSIFIER_VERSION = 3;
 const DEFAULT_WORLD_BIOME_COLOR_TABLE = {
-  version: 2,
+  version: 3,
   metric: "rgb",
   biomes: [
-    { biome: "ocean", color: [36, 92, 140], tolerance: 90 },
-    { biome: "coast", color: [201, 168, 106], tolerance: 84 },
-    { biome: "plains", color: [140, 176, 96], tolerance: 80 },
-    { biome: "forest", color: [62, 122, 82], tolerance: 80 },
-    { biome: "desert", color: [184, 139, 58], tolerance: 84 },
-    { biome: "mountains", color: [138, 143, 149], tolerance: 74 },
-    { biome: "tundra", color: [188, 204, 214], tolerance: 70 },
-    { biome: "volcanic", color: [58, 58, 58], tolerance: 70 },
-    { biome: "mystic", color: [94, 76, 138], tolerance: 76 },
-    { biome: "islands", color: [62, 143, 87], tolerance: 78 },
-    { biome: "ruins", color: [92, 90, 87], tolerance: 72 },
-    { biome: "structures", color: [85, 90, 97], tolerance: 72 },
+    { biome: "ocean", color: [29, 75, 145], tolerance: 90 },
+    { biome: "coast", color: [230, 195, 119], tolerance: 84 },
+    { biome: "plains", color: [182, 217, 82], tolerance: 80 },
+    { biome: "forest", color: [47, 125, 45], tolerance: 80 },
+    { biome: "desert", color: [224, 177, 58], tolerance: 84 },
+    { biome: "mountains", color: [180, 154, 103], tolerance: 74 },
+    { biome: "tundra", color: [230, 215, 184], tolerance: 70 },
+    { biome: "volcanic", color: [107, 45, 23], tolerance: 70 },
+    { biome: "mystic", color: [106, 61, 140], tolerance: 76 },
+    { biome: "islands", color: [60, 203, 103], tolerance: 78 },
+    { biome: "ruins", color: [163, 143, 122], tolerance: 72 },
+    { biome: "structures", color: [138, 143, 156], tolerance: 72 },
   ],
 };
 
@@ -6334,6 +6376,14 @@ function rgbToHex(rgb = [0, 0, 0]) {
     .join("")}`;
 }
 
+function sanitizeTileColors(colors = {}) {
+  if (!colors || typeof colors !== "object") return {};
+  const entries = ["base", "highlight", "shadow"]
+    .map((key) => [key, String(colors?.[key] || "").trim()])
+    .filter(([, value]) => /^#[0-9a-f]{6}$/i.test(value));
+  return Object.fromEntries(entries);
+}
+
 function sanitizeTileEntry(entry, fallback = null) {
   const tileId = String(entry?.id || "").trim();
   if (!tileId) return null;
@@ -6355,8 +6405,23 @@ function sanitizeTileEntry(entry, fallback = null) {
     baseTile,
     biome,
     sourceTag,
+    colors: sanitizeTileColors(entry?.colors || fallback?.colors),
     ...(spawnWeight === undefined ? {} : { spawnWeight }),
   };
+}
+
+function buildTileCatalogColorMap(catalog = null) {
+  const colorsByTileId = new Map();
+  (catalog?.categories || []).forEach((category) => {
+    (category?.tiles || []).forEach((tile) => {
+      const tileId = String(tile?.id || "").trim();
+      if (!tileId) return;
+      const colors = sanitizeTileColors(tile?.colors || {});
+      if (!Object.keys(colors).length) return;
+      colorsByTileId.set(tileId, colors);
+    });
+  });
+  return colorsByTileId;
 }
 
 function normalizeTileLibraryList(list = []) {
@@ -6442,8 +6507,15 @@ function renderTileLibrary() {
       const cards = items
         .map((entry) => {
           const activeClass = entry.id === paintTool ? " active" : "";
+          const colorSwatches = [entry?.colors?.base, entry?.colors?.highlight, entry?.colors?.shadow]
+            .filter(Boolean)
+            .map((color) => `<span class="tileSwatch" style="background:${escapeHtml(color)}" title="${escapeHtml(color)}"></span>`)
+            .join("");
+          const cardMeta = `${TILE_BIOME_LABELS[biome] || biome} · ${entry.sourceTag || biome}`;
           return `<button type="button" class="toolBtn tileCard${activeClass}" data-tile-id="${escapeHtml(entry.id)}">
             <span class="tileCardMain">${escapeHtml(entry.icon)} ${escapeHtml(entry.label)}</span>
+            <span class="tileCardMeta">${escapeHtml(cardMeta)}</span>
+            ${colorSwatches ? `<span class="tileCardSwatches">${colorSwatches}</span>` : ""}
             </button>`;
         })
         .join("");
@@ -6473,9 +6545,22 @@ async function loadWorldBiomeTileLibrary() {
         const normalized = normalizeBiomeTileLibrary(raw || DEFAULT_BIOME_TILE_LIBRARY);
         const mergedLibrary = buildTileLibraryFromBiomeConfig(normalized);
         tileLibraryForRender = mergedLibrary.length ? mergedLibrary : DEFAULT_TILE_LIBRARY;
-        syncTileMetadataRegistry(tileLibraryForRender);
-        worldBiomeTileLibraryCache = normalized;
-        return worldBiomeTileLibraryCache;
+        return loadTileCatalog().then((catalog) => {
+          const colorsByTileId = buildTileCatalogColorMap(catalog);
+          tileLibraryForRender = tileLibraryForRender.map((entry) => {
+            const mergedColors = {
+              ...sanitizeTileColors(colorsByTileId.get(entry.id) || {}),
+              ...sanitizeTileColors(entry.colors || {}),
+            };
+            return {
+              ...entry,
+              colors: mergedColors,
+            };
+          });
+          syncTileMetadataRegistry(tileLibraryForRender);
+          worldBiomeTileLibraryCache = normalized;
+          return worldBiomeTileLibraryCache;
+        });
       });
   }
   return worldBiomeTileLibraryPromise;
@@ -7127,6 +7212,7 @@ function fillAll(type) {
     clearTileClasses(cell);
     cell.classList.remove("paint-floor", "paint-wall", "paint-void");
     cell.classList.add(getTileCssClass(fillType));
+    applyTileVisual(cell, fillType);
   });
   refreshTokenPlacements();
 }
@@ -7227,6 +7313,7 @@ function paintAtEvent(e, cell) {
       targetCell.classList.remove("paint-floor", "paint-wall", "paint-void");
       clearTileClasses(targetCell);
       targetCell.classList.add(getTileCssClass(t));
+      applyTileVisual(targetCell, t);
       const baseTile = getTileBaseType(t);
       if (baseTile === "floor" || baseTile === "wall" || baseTile === "void") {
         targetCell.classList.add("paint-" + baseTile);
