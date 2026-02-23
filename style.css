@@ -2058,12 +2058,12 @@ select option {
 /* ================= SCENE PANEL ================= */
 #scenePanel {
   display: none;
-  position: absolute;
-  top: 144px;
-  left: 12px;
-  z-index: 5;
-  width: min(360px, calc(100% - 24px));
-  max-height: calc(100% - 156px);
+  position: fixed;
+  top: 118px;
+  left: 14px;
+  z-index: 40;
+  width: min(380px, calc(100vw - 28px));
+  max-height: calc(100dvh - 132px);
   background: linear-gradient(180deg, rgba(28, 33, 48, 0.95), rgba(18, 22, 33, 0.92));
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
@@ -2077,6 +2077,26 @@ select option {
 
 .scenePanelHead {
   margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.sceneCloseBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.sceneCloseBtn:hover {
+  border-color: rgba(255, 120, 120, 0.8);
+  background: rgba(255, 120, 120, 0.16);
 }
 
 .sceneDockLayout {
@@ -2633,8 +2653,13 @@ kbd {
 }
 
 .layerImportGrid input[type="file"],
-.layerImportGrid select {
+.layerImportGrid select,
+.layerImportGrid .toolBtn {
   grid-column: span 2;
+}
+
+.layerImportGrid input[type="file"] {
+  font-size: 12px;
 }
 
 .layerSnapToggle {

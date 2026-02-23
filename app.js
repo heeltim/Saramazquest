@@ -5050,6 +5050,90 @@ function toggleSceneDock() {
   if (dockBtn) dockBtn.textContent = isSceneDockOpen ? "🎬 Mestre 1: ON" : "🎬 Mestre 1: OFF";
 }
 
+
+function closeSceneDock() {
+  isSceneDockOpen = false;
+  const panel = document.getElementById("scenePanel");
+  const dockBtn = document.getElementById("sceneDockToggle");
+  if (panel) panel.classList.remove("on");
+  if (dockBtn) dockBtn.textContent = "🎬 Mestre 1: OFF";
+}
+window.closeSceneDock = closeSceneDock;
+
+function importSceneLayer() {
+  const fileInput = document.getElementById("sceneLayerFile");
+  const kindInput = document.getElementById("sceneLayerKind");
+  const snapInput = document.getElementById("sceneLayerSnap");
+  if (!fileInput || !fileInput.files?.length) {
+    alert("Selecione uma imagem para importar.");
+    return;
+  }
+  const file = fileInput.files[0];
+  if (!file.type || !file.type.startsWith("image/")) {
+    alert("Arquivo inválido. Envie uma imagem.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const src = String(reader.result || "");
+    if (!src) return;
+
+    const preview = new Image();
+    preview.onload = () => {
+      let data = load();
+      const scene = data.scenes[room];
+      const kind = ["map", "objects", "foreground"].includes(kindInput?.value) ? kindInput.value : "objects";
+      const lockToGrid = !!snapInput?.checked;
+      const cols = Math.max(1, scene.cols || DEFAULT_COLS);
+      const rows = Math.max(1, scene.rows || DEFAULT_ROWS);
+      const ratio = Math.max(0.05, preview.naturalWidth / Math.max(1, preview.naturalHeight));
+
+      let width = kind === "map" ? cols : Math.max(2, Math.round(cols * 0.4));
+      let height = Math.max(1, Math.round(width / ratio));
+      if (height > rows) {
+        height = rows;
+        width = Math.max(1, Math.round(height * ratio));
+      }
+      width = Math.max(1, Math.min(cols, width));
+      height = Math.max(1, Math.min(rows, height));
+
+      const layer = normalizeSceneLayer({
+        id: `layer_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        name: file.name.replace(/\.[a-z0-9]+$/i, "") || "Camada",
+        kind,
+        src,
+        x: 0,
+        y: 0,
+        width,
+        height,
+        opacity: 100,
+        visible: true,
+        lockToGrid,
+        z: getSceneLayerList(scene).length,
+      }, getSceneLayerList(scene).length);
+
+      if (lockToGrid) clampSceneLayerToGrid(layer, scene);
+      getSceneLayerList(scene).push(layer);
+      normalizeSceneLayers(scene);
+      save(data);
+      updateArena();
+      renderSceneLayerList();
+      fileInput.value = "";
+      setSceneSection("layers");
+    };
+    preview.onerror = () => {
+      alert("Não foi possível carregar a imagem selecionada.");
+    };
+    preview.src = src;
+  };
+  reader.onerror = () => {
+    alert("Falha ao ler o arquivo de imagem.");
+  };
+  reader.readAsDataURL(file);
+}
+window.importSceneLayer = importSceneLayer;
+
 function setSceneSection(section) {
   sceneSection = section;
   document.querySelectorAll(".sceneSection").forEach((el) => {
