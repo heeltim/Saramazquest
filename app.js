@@ -6162,10 +6162,21 @@ window.applyArtboardSize = function applyArtboardSize() {
   const nextRows = Math.max(6, Math.min(80, parseInt(rowsInput.value, 10) || DEFAULT_ROWS));
   let data = load();
   const scene = data.scenes[room];
+  ensureSceneArtboards(scene);
+
   scene.cols = nextCols;
   scene.rows = nextRows;
   const needed = nextCols * nextRows;
   scene.tiles = Array.from({ length: needed }, (_, i) => scene.tiles?.[i] || "floor");
+
+  const idx = scene.artboards.findIndex((board) => board.id === scene.activeArtboardId);
+  if (idx >= 0) {
+    const active = scene.artboards[idx];
+    const synced = extractArtboardFromScene(scene, active.name || `Cenário ${idx + 1}`);
+    synced.id = active.id;
+    scene.artboards[idx] = synced;
+  }
+
   save(data);
   createGrid();
   updateArena();
