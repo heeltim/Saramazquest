@@ -186,26 +186,9 @@
           </div>
 
           <div class="sceneGrid">
-            <div class="field full">
-              <label>Background (URL) — cole um link direto de imagem</label>
-              <input id="bgUrl" placeholder="Ex: https://.../mapa.png" />
-            </div>
-
-            <div class="field full">
-              <label>Ou carregue um arquivo (local)</label>
-              <input id="bgFile" type="file" accept="image/*" />
-              <div class="sceneHint">
-                Dica: arquivo local funciona só no seu PC; se quiser que
-                “multiplayer” veja igual, use URL.
-              </div>
-            </div>
-
             <div class="field full layerEditorField">
-              <label>Camadas de imagem (estilo mesa virtual)</label>
-              <div class="layerImportGrid">
-                <input id="sceneLayerUrl" placeholder="URL da imagem para camada" />
-                <button class="toolBtn" type="button" onclick="addSceneLayerFromUrl()">Adicionar por URL</button>
-                <input id="sceneLayerFile" type="file" accept="image/*" />
+              <label>Camadas de imagem</label>
+              <div class="layerImportGrid compact">
                 <select id="sceneLayerKind">
                   <option value="map">Camada Mapa</option>
                   <option value="objects">Camada Objetos</option>
@@ -230,7 +213,6 @@
               <select id="gridStyle">
                 <option value="square">Linhas quadradas</option>
                 <option value="hex">Linhas hexagonais</option>
-                <option value="dots">Pontinhos (grid quadrado)</option>
               </select>
             </div>
 
@@ -255,7 +237,7 @@
 
             <div class="field full">
               <label>Ferramenta de Tiles (pintar módulos)</label>
-              <div class="toolRow">
+              <div class="toolRow toolRowScrollable">
                 <button
                   class="toolBtn active"
                   id="toolFloor"

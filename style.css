@@ -635,10 +635,10 @@ body {
   background: transparent;
 }
 .cell.tile-wall {
-  background: rgba(255, 80, 80, 0.1);
+  background: linear-gradient(135deg, rgba(255, 80, 80, 0.08), rgba(255, 80, 80, 0.02));
 }
 .cell.tile-void {
-  background: rgba(0, 0, 0, 0.22);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.06));
 }
 
 /* highlight do editor */
@@ -1841,6 +1841,8 @@ select option {
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 14px;
   padding: 12px;
+  max-height: 38vh;
+  overflow-y: auto;
 }
 #scenePanel.on {
   display: block;
@@ -1878,6 +1880,15 @@ select option {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+}
+.toolRowScrollable {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+}
+.toolRowScrollable .toolBtn {
+  flex: 0 0 auto;
 }
 .toolBtn {
   padding: 8px 10px;
