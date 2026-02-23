@@ -1142,6 +1142,14 @@ const SHOP_DB = {
 };
 const PROFESSION_XP_PER_LEVEL = 100;
 const MAX_PRODUCTION_PROFESSIONS = 2;
+const DEFAULT_PROFESSION_RULES = {
+  professions: {
+    culinaria: { allowedItemTags: ["consumable"], allowedRecipeTags: ["food", "drink", "consumable"], toolItemIds: ["kit_de_aventureiro"] },
+    alquimia: { allowedItemTags: ["consumable", "utility"], allowedRecipeTags: ["potion", "elixir", "alchemical", "consumable"], toolItemIds: ["kit_medico"] },
+    ferraria: { allowedItemTags: ["weapon", "armor", "shield"], allowedRecipeTags: ["weapon", "armor", "shield", "smithing"], toolItemIds: ["kit_de_artesao"] },
+  },
+};
+let PROFESSION_RULES = DEFAULT_PROFESSION_RULES;
 const PROFESSIONS_DB = {
   professions: [
     { id: "culinaria", nome: "Culinária", descricao: "Prepara refeições e banquetes.", ui: { cor_hex: "#d97706" }, actions: ["coletar", "craftar", "vender"] },
@@ -1356,6 +1364,19 @@ async function loadShopCatalogs() {
   if (engine) {
     const craftableItems = (SHOP_DB.arsenal?.items || []).filter((item) => ["weapon", "armor", "shield"].includes(item.type));
     engine.seedCatalog(craftableItems, MANUAL_RECIPES_DB.recipes || []);
+  }
+}
+
+async function loadProfessionRules() {
+  try {
+    const resp = await fetch("data/professions.json", { cache: "no-store" });
+    if (!resp.ok) return;
+    const json = await resp.json();
+    if (json && typeof json === "object" && json.professions && typeof json.professions === "object") {
+      PROFESSION_RULES = json;
+    }
+  } catch (_) {
+    // fallback silencioso
   }
 }
 
@@ -6647,17 +6668,12 @@ updateArena();
 setDiceTrayOpen(false);
 initChatComposer();
 updateChat();
-loadItemCatalog()
-  .then(() => {
-    refreshReagentIndexFromItems();
-    return loadShopCatalogs();
-  })
-  .then(() => {
-    if (!invTargetName) return;
-    const p = load().rooms[room][invTargetName];
-    if (!p) return;
-    renderShop(p);
-  });
+Promise.all([loadShopCatalogs(), loadProfessionRules()]).then(() => {
+  if (!invTargetName) return;
+  const p = load().rooms[room][invTargetName];
+  if (!p) return;
+  renderShop(p);
+});
 
 /* realtime local */
 window.addEventListener("storage", () => {
@@ -6699,6 +6715,108 @@ function getProfessionLevelFromXp(xp) {
 
 function getShopEntryById(itemId) {
   return getItem(itemId);
+}
+
+function normalizeRecipeTags(recipe, itemEntry) {
+  const outputType = recipe?.output?.type || itemEntry?.type || "item";
+  return new Set([recipe?.profissao_id, recipe?.output?.item_id, outputType, itemEntry?.type, ...(recipe?.tags || [])].filter(Boolean));
+}
+
+function getProfessionRules(professionId) {
+  return PROFESSION_RULES?.professions?.[professionId] || { allowedItemTags: [], allowedRecipeTags: [], toolItemIds: [] };
+}
+
+function getRecipeItemCandidates(professionId) {
+  const manualRecipes = (PROFESSIONS_DB.recipes || [])
+    .filter((r) => r.profissao_id === professionId)
+    .map((r) => {
+      const shopEntry = getShopEntryById(r.output?.item_id);
+      const tags = normalizeRecipeTags(r, shopEntry);
+      return {
+        source: "manual",
+        special: true,
+        recipeId: r.id,
+        recipeName: r.nome,
+        professionId,
+        outputItemId: r.output.item_id,
+        outputQty: r.output?.qtd || 1,
+        outputType: r.output?.type || shopEntry?.type || "item",
+        reagents: (r.reagentes || []).map((req) => ({ ...req })),
+        downtimeDays: r.tempo_dias || 1,
+        minLevel: r.nivel_profissao_min || 1,
+        xpGain: r.xp_gain || 0,
+        tags,
+      };
+    });
+
+  const rules = getProfessionRules(professionId);
+  const allowedItemTags = new Set(rules.allowedItemTags || []);
+  const allowedRecipeTags = new Set(rules.allowedRecipeTags || []);
+  const procedural = [];
+  for (const shop of Object.values(SHOP_DB)) {
+    for (const item of (shop.items || [])) {
+      if (!item?.id || !item?.type || item.type === "upgrade") continue;
+      if (allowedItemTags.size > 0 && !allowedItemTags.has(item.type)) continue;
+      const tags = new Set([item.type, item.id, professionId, ...(item.tags || [])]);
+      if (allowedRecipeTags.size > 0 && ![...tags].some((t) => allowedRecipeTags.has(t))) continue;
+      if (manualRecipes.some((m) => m.outputItemId === item.id)) continue;
+      const matchingReagents = PROFESSIONS_DB.reagents
+        .filter((reg) => reg.categoria === professionId)
+        .slice(0, 2)
+        .map((reg) => ({ id: reg.id, qtd: reg.raridade === "raro" ? 2 : 1 }));
+      if (matchingReagents.length === 0) continue;
+      procedural.push({
+        source: "procedural",
+        special: false,
+        recipeId: `proc_${professionId}_${item.id}`,
+        recipeName: `Forjar ${item.name}`,
+        professionId,
+        outputItemId: item.id,
+        outputQty: 1,
+        outputType: item.type,
+        reagents: matchingReagents,
+        downtimeDays: 1,
+        minLevel: 1,
+        xpGain: 0,
+        tags,
+      });
+    }
+  }
+
+  return [...manualRecipes, ...procedural];
+}
+
+function getCraftBlockReasons(p, candidate) {
+  const reasons = [];
+  const prog = p.professions_progress[candidate.professionId] || { level: 1, xp: 0 };
+  if (!Array.isArray(p.production_professions) || !p.production_professions.includes(candidate.professionId)) {
+    reasons.push("Profissão incompatível.");
+  }
+  if (prog.level < (candidate.minLevel || 1)) reasons.push(`Nível da profissão insuficiente (mín. ${candidate.minLevel || 1}).`);
+  if ((p.downtime_days || 0) < (candidate.downtimeDays || 1)) reasons.push("Downtime insuficiente.");
+  const missingReagents = (candidate.reagents || [])
+    .filter((req) => (p.reagents_inventory[req.id] || 0) < req.qtd)
+    .map((req) => `${REAGENT_BY_ID[req.id]?.nome || req.id} x${req.qtd}`);
+  if (missingReagents.length > 0) reasons.push(`Falta reagente: ${missingReagents.join(", ")}.`);
+  const tools = getProfessionRules(candidate.professionId).toolItemIds || [];
+  if (tools.length > 0) {
+    const hasTool = (p.inventory || []).some((entry) => {
+      const it = resolveInventoryItem(entry);
+      return it && tools.includes(it.baseId || it.id);
+    });
+    if (!hasTool) reasons.push("Ferramenta ausente.");
+  }
+  if (!getShopEntryById(candidate.outputItemId)) reasons.push("Item de saída não existe no banco de itens.");
+  return reasons;
+}
+
+function canCraftRecipe(p, candidate) {
+  const reasons = getCraftBlockReasons(p, candidate);
+  return { canCraft: reasons.length === 0, reasons };
+}
+
+function findCraftCandidateByItemId(professionId, itemId) {
+  return getRecipeItemCandidates(professionId).find((c) => c.outputItemId === itemId) || null;
 }
 
 function addReagentToPlayer(p, reagentId, qty) {
@@ -6808,61 +6926,30 @@ function collectProfession(professionId) {
   updateArena();
 }
 
-function getProfessionRecipes(professionId) {
-  const engine = window.ProceduralRecipesEngine;
-  if (engine) return engine.listRecipesForProfession(professionId);
-  return (MANUAL_RECIPES_DB.recipes || []).filter((r) => r.profissao_id === professionId);
-}
-
-function craftRecipe(itemId) {
+function craftRecipe(itemId, professionId = selectedProfessionId) {
   if (!professionTargetName) return;
   const data = load();
   const p = data.rooms[room][professionTargetName];
   if (!p) return;
   ensurePlayerSchema(p);
-
-  const professionId = selectedProfessionId;
-  const engine = window.ProceduralRecipesEngine;
-  if (!engine) return alert("Engine de receitas indisponível.");
-  const prog = p.professions_progress[professionId] || { level: 1, xp: 0 };
-  const actorState = {
-    professionId,
-    professionLevel: prog.level || 1,
-    downtimeDays: p.downtime_days || 0,
-    reagentsInventory: p.reagents_inventory,
-    produceItem: (craftedItemId) => {
-      const shopEntry = getShopEntryById(craftedItemId);
-      if (!shopEntry) throw new Error("Item de saída não existe no banco de itens.");
-      const itemRuntimeId = createInventoryItemFromShopEntry(shopEntry);
-      const res = addItemToPlayer(p, itemRuntimeId);
-      if (!res.ok) throw new Error(res.msg || "Inventário cheio.");
-    },
-  };
-
-  const check = engine.canCraft(itemId, actorState.reagentsInventory, professionId, actorState.professionLevel, actorState.downtimeDays);
-  if (!check.ok) {
-    if (check.reason === "level") return alert("Nível de profissão insuficiente.");
-    if (check.reason === "downtime") return alert("Downtime insuficiente.");
-    if (check.reason === "reagents") return alert("Reagentes insuficientes.");
-    return alert("Receita indisponível para essa profissão.");
+  const candidate = findCraftCandidateByItemId(professionId, itemId);
+  if (!candidate) return alert("Receita não encontrada para o item alvo.");
+  const check = canCraftRecipe(p, candidate);
+  if (!check.canCraft) return alert(check.reasons.join("\n"));
+  if (!consumeReagentsFromPlayer(p, candidate.reagents || [])) return alert("Reagentes insuficientes.");
+  p.downtime_days -= (candidate.downtimeDays || 1);
+  const shopEntry = getShopEntryById(candidate.outputItemId);
+  for (let i = 0; i < (candidate.outputQty || 1); i += 1) {
+    const itemRuntimeId = createInventoryItemFromShopEntry(shopEntry);
+    const res = addItemToPlayer(p, itemRuntimeId);
+    if (!res.ok) break;
   }
-
-  let crafted;
-  try {
-    crafted = engine.craft(itemId, actorState);
-  } catch (err) {
-    return alert(err?.message || "Falha ao craftar.");
-  }
-  if (!crafted.ok) return alert("Falha ao craftar.");
-  const recipe = crafted.recipe;
-
-  p.downtime_days = actorState.downtimeDays;
-  const craftXp = (recipe.reagentes || []).reduce((sum, req) => {
+  const craftXp = (candidate.reagents || []).reduce((sum, req) => {
     const raridade = REAGENT_BY_ID[req.id]?.raridade;
     return sum + (PROFESSION_XP_BY_RARITY[raridade] || 0) * (req.qtd || 1);
-  }, 0) || recipe.xp_gain || 0;
-  gainProfessionXp(p, professionId, craftXp);
-  professionDebugLog({ reagentes_ganhos: [], xp_ganho: craftXp, downtime_gasto: recipe.tempo_dias || 1, craft_output: recipe.output.item_id, saldo_ouro: p.gold });
+  }, 0) || candidate.xpGain || 0;
+  gainProfessionXp(p, candidate.professionId, craftXp);
+  professionDebugLog({ reagentes_ganhos: [], xp_ganho: craftXp, downtime_gasto: candidate.downtimeDays || 1, craft_output: candidate.outputItemId, saldo_ouro: p.gold });
   save(data);
   renderProfessionsModal(p);
   updateArena();
@@ -6909,9 +6996,22 @@ function renderProfessionsModal(p) {
   const panel = document.getElementById("professionsPanel");
   if (!panel) return;
   const profTabs = PROFESSIONS_DB.professions.map((prof) => `<button class="smallBtn ${selectedProfessionId === prof.id ? "smallBtnPrimary" : ""}" onclick="selectedProfessionId='${prof.id}'; renderProfessionsModal(load().rooms[room][professionTargetName]);">${prof.nome}</button>`).join("");
-  const recipes = getProfessionRecipes(selectedProfessionId);
+  const recipeCards = getRecipeItemCandidates(selectedProfessionId);
   const reagentsHtml = Object.entries(p.reagents_inventory || {}).map(([rid, qty]) => `<div class="reagentRow"><span>${REAGENT_BY_ID[rid]?.nome || rid}</span><strong>x${qty}</strong></div>`).join("") || '<div class="invDesc">Sem reagentes.</div>';
   const productionOptions = ["culinaria", "alquimia", "ferraria"].map((id) => `<label><input type="checkbox" ${p.production_professions.includes(id) ? "checked" : ""} onchange="toggleProductionProfession('${id}', this.checked)"> ${PROFESSION_BY_ID[id].nome}</label>`).join(" ");
+  const recipesHtml = recipeCards.map((card) => {
+    const check = canCraftRecipe(p, card);
+    const item = getShopEntryById(card.outputItemId);
+    const reagents = (card.reagents || []).map((req) => `${REAGENT_BY_ID[req.id]?.nome || req.id} x${req.qtd}`).join(", ") || "Sem reagentes";
+    const reasons = check.reasons.length > 0 ? `<div class="invDesc">${check.reasons.join(" ")}</div>` : "";
+    return `<div class="profRecipeCard">
+      <div class="profHeader"><strong>${item?.name || card.recipeName}</strong><span class="profBadge">${iconForShopItem(item || { type: card.outputType })} ${item?.type || card.outputType}</span></div>
+      <div class="invDesc">Item final: ${(item?.name || card.outputItemId)} x${card.outputQty}${card.special ? ' <span class="profSpecialBadge">Especial</span>' : ''}</div>
+      <div class="invDesc">Reagentes: ${reagents}</div>
+      ${reasons}
+      <button class="smallBtn ${check.canCraft ? "smallBtnPrimary" : ""}" onclick="craftRecipe('${card.outputItemId}','${card.professionId}')" ${check.canCraft ? "" : "disabled"}>Craftar</button>
+    </div>`;
+  }).join("") || '<div class="invDesc">Sem receitas.</div>';
   panel.innerHTML = `
     <div class="profSection"><strong>Downtime:</strong> ${p.downtime_days}</div>
     <div class="profSection">${profTabs}</div>
@@ -6921,7 +7021,7 @@ function renderProfessionsModal(p) {
     </div>
     ${PROFESSIONS_DB.professions.map((prof) => `<div class="profSection"><div class="profHeader"><strong>${prof.nome}</strong><span class="profBadge">Nv ${p.professions_progress[prof.id]?.level || 1} • XP ${p.professions_progress[prof.id]?.xp || 0}</span></div></div>`).join("")}
     <div class="profSection"><strong>Ações</strong><div class="profActions"><button class="smallBtn smallBtnPrimary" onclick="collectProfession('${selectedProfessionId}')">Coletar</button><button class="smallBtn smallBtnPrimary" onclick="sellFirstReagent()">Vender</button></div></div>
-    <div class="profSection"><strong>Receitas (${PROFESSION_BY_ID[selectedProfessionId]?.nome || ''})</strong>${recipes.map((r) => `<div class="reagentRow"><span>${r.nome} → ${r.output.item_id}</span><button class="smallBtn" onclick="craftRecipe('${r.output.item_id}')">Craftar</button></div>`).join('') || '<div class="invDesc">Sem receitas.</div>'}</div>
+    <div class="profSection"><strong>Receitas (${PROFESSION_BY_ID[selectedProfessionId]?.nome || ''})</strong>${recipesHtml}</div>
     <div class="profSection"><strong>Inventário de reagentes</strong>${reagentsHtml}</div>
     <div class="profSection"><strong>Mercador / Loja do jogador</strong><button class="smallBtn" onclick="togglePlayerShopEnabled()">${p.player_shop.enabled ? "Desativar" : "Ativar"} loja</button><button class="smallBtn" onclick="openPlayerShop('${professionTargetName}','${currentUser}')">Abrir Loja</button></div>
   `;
