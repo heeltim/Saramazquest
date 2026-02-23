@@ -1117,6 +1117,19 @@ const ITEM_DB = {
   },
 
 };
+
+let ITEM_CATALOG = [];
+let ITEM_CATALOG_BY_ID = {};
+
+function getItem(itemId) {
+  if (!itemId) return null;
+  return ITEM_DB[itemId] || ITEM_CATALOG_BY_ID[itemId] || null;
+}
+
+function getReagentItems() {
+  return ITEM_CATALOG.filter((item) => Array.isArray(item.tags) && item.tags.includes("reagent"));
+}
+
 const SHOP_TABS = [
   { id: "taberna", label: "Taberna" },
   { id: "arsenal", label: "Arsenal" },
@@ -1170,7 +1183,7 @@ const PROFESSIONS_DB = {
   ],
   recipes: [],
 };
-const REAGENT_BY_ID = Object.fromEntries(PROFESSIONS_DB.reagents.map((r) => [r.id, r]));
+let REAGENT_BY_ID = Object.fromEntries(PROFESSIONS_DB.reagents.map((r) => [r.id, r]));
 const PROFESSION_BY_ID = Object.fromEntries(PROFESSIONS_DB.professions.map((r) => [r.id, r]));
 let MANUAL_RECIPES_DB = { recipes: [] };
 let selectedProfessionId = "culinaria";
@@ -1294,6 +1307,19 @@ function load() {
 }
 function save(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+async function loadItemCatalog() {
+  try {
+    const resp = await fetch("data/items.json", { cache: "no-store" });
+    if (!resp.ok) return;
+    const json = await resp.json();
+    const items = Array.isArray(json?.items) ? json.items : [];
+    ITEM_CATALOG = items;
+    ITEM_CATALOG_BY_ID = Object.fromEntries(items.map((item) => [item.id, item]));
+  } catch (_) {
+    // fallback silencioso
+  }
 }
 
 async function loadShopCatalogs() {
@@ -4894,9 +4920,24 @@ function renderInventoryModal(p) {
 
 function resolveInventoryItem(entry) {
   if (!entry) return null;
-  if (typeof entry === "string") return ITEM_DB[entry] || null;
+  if (typeof entry === "string") return getItem(entry) || null;
   if (typeof entry === "object") return entry;
   return null;
+}
+
+function resolveShopItemEntry(entry) {
+  if (!entry) return null;
+  if (entry.itemId) {
+    const base = getItem(entry.itemId);
+    if (!base) return null;
+    return { ...base, id: entry.itemId, priceGold: entry.priceGold ?? base.priceGold ?? 0 };
+  }
+  return entry.id ? { ...entry, priceGold: entry.priceGold ?? 0 } : null;
+}
+
+function getShopEntries(shopId) {
+  const shop = SHOP_DB[shopId] || { items: [] };
+  return (shop.items || []).map(resolveShopItemEntry).filter(Boolean);
 }
 
 function renderInvList(p) {
@@ -4979,8 +5020,7 @@ function renderShop(p) {
     arsenalSubTabs.innerHTML = "";
   }
 
-  const shop = SHOP_DB[selectedShopId] || { items: [] };
-  let rows = shop.items || [];
+  let rows = getShopEntries(selectedShopId);
   if (selectedShopId === "arsenal") rows = rows.filter((it) => it.type === selectedArsenalType);
 
   list.innerHTML = rows
@@ -5068,8 +5108,7 @@ function buyItem(itemId) {
   ensurePlayerSchema(p);
   recalcFromSheet(p);
 
-  const shop = SHOP_DB[selectedShopId] || { items: [] };
-  const shopEntry = (shop.items || []).find((s) => s.id === itemId);
+  const shopEntry = getShopEntries(selectedShopId).find((s) => s.id === itemId);
   if (!shopEntry) return;
 
   const price = shopEntry.priceGold ?? 0;
@@ -5109,8 +5148,7 @@ function startApplyUpgrade(upgradeId) {
 
 function renderSmithApplyBox(p) {
   const box = document.getElementById("smithApplyBox");
-  const ferreiro = SHOP_DB.ferreiro || { items: [] };
-  const upgrade = (ferreiro.items || []).find((u) => u.id === pendingUpgradeId);
+  const upgrade = getShopEntries("ferreiro").find((u) => u.id === pendingUpgradeId);
   if (!upgrade) {
     box.innerHTML = `<div class="invDesc">Escolha uma melhoria e clique em Aplicar.</div>`;
     return;
@@ -5145,8 +5183,7 @@ function confirmApplyUpgrade(upgradeId, inventoryIndex) {
   const p = data.rooms[room][invTargetName];
   if (!p) return;
 
-  const ferreiro = SHOP_DB.ferreiro || { items: [] };
-  const upgrade = (ferreiro.items || []).find((u) => u.id === upgradeId);
+  const upgrade = getShopEntries("ferreiro").find((u) => u.id === upgradeId);
   if (!upgrade) return;
 
   const price = upgrade.priceGold ?? 0;
@@ -6401,12 +6438,17 @@ updateArena();
 setDiceTrayOpen(false);
 initChatComposer();
 updateChat();
-loadShopCatalogs().then(() => {
-  if (!invTargetName) return;
-  const p = load().rooms[room][invTargetName];
-  if (!p) return;
-  renderShop(p);
-});
+loadItemCatalog()
+  .then(() => {
+    refreshReagentIndexFromItems();
+    return loadShopCatalogs();
+  })
+  .then(() => {
+    if (!invTargetName) return;
+    const p = load().rooms[room][invTargetName];
+    if (!p) return;
+    renderShop(p);
+  });
 
 /* realtime local */
 window.addEventListener("storage", () => {
@@ -6447,11 +6489,7 @@ function getProfessionLevelFromXp(xp) {
 }
 
 function getShopEntryById(itemId) {
-  for (const shop of Object.values(SHOP_DB)) {
-    const found = (shop.items || []).find((it) => it.id === itemId);
-    if (found) return found;
-  }
-  return null;
+  return getItem(itemId);
 }
 
 function addReagentToPlayer(p, reagentId, qty) {
