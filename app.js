@@ -6334,6 +6334,14 @@ function rgbToHex(rgb = [0, 0, 0]) {
     .join("")}`;
 }
 
+function sanitizeTileColors(colors = {}) {
+  if (!colors || typeof colors !== "object") return {};
+  const entries = ["base", "highlight", "shadow"]
+    .map((key) => [key, String(colors?.[key] || "").trim()])
+    .filter(([, value]) => /^#[0-9a-f]{6}$/i.test(value));
+  return Object.fromEntries(entries);
+}
+
 function sanitizeTileEntry(entry, fallback = null) {
   const tileId = String(entry?.id || "").trim();
   if (!tileId) return null;
@@ -6355,8 +6363,23 @@ function sanitizeTileEntry(entry, fallback = null) {
     baseTile,
     biome,
     sourceTag,
+    colors: sanitizeTileColors(entry?.colors || fallback?.colors),
     ...(spawnWeight === undefined ? {} : { spawnWeight }),
   };
+}
+
+function buildTileCatalogColorMap(catalog = null) {
+  const colorsByTileId = new Map();
+  (catalog?.categories || []).forEach((category) => {
+    (category?.tiles || []).forEach((tile) => {
+      const tileId = String(tile?.id || "").trim();
+      if (!tileId) return;
+      const colors = sanitizeTileColors(tile?.colors || {});
+      if (!Object.keys(colors).length) return;
+      colorsByTileId.set(tileId, colors);
+    });
+  });
+  return colorsByTileId;
 }
 
 function normalizeTileLibraryList(list = []) {
@@ -6442,8 +6465,15 @@ function renderTileLibrary() {
       const cards = items
         .map((entry) => {
           const activeClass = entry.id === paintTool ? " active" : "";
+          const colorSwatches = [entry?.colors?.base, entry?.colors?.highlight, entry?.colors?.shadow]
+            .filter(Boolean)
+            .map((color) => `<span class="tileSwatch" style="background:${escapeHtml(color)}" title="${escapeHtml(color)}"></span>`)
+            .join("");
+          const cardMeta = `${TILE_BIOME_LABELS[biome] || biome} · ${entry.sourceTag || biome}`;
           return `<button type="button" class="toolBtn tileCard${activeClass}" data-tile-id="${escapeHtml(entry.id)}">
             <span class="tileCardMain">${escapeHtml(entry.icon)} ${escapeHtml(entry.label)}</span>
+            <span class="tileCardMeta">${escapeHtml(cardMeta)}</span>
+            ${colorSwatches ? `<span class="tileCardSwatches">${colorSwatches}</span>` : ""}
             </button>`;
         })
         .join("");
@@ -6473,9 +6503,22 @@ async function loadWorldBiomeTileLibrary() {
         const normalized = normalizeBiomeTileLibrary(raw || DEFAULT_BIOME_TILE_LIBRARY);
         const mergedLibrary = buildTileLibraryFromBiomeConfig(normalized);
         tileLibraryForRender = mergedLibrary.length ? mergedLibrary : DEFAULT_TILE_LIBRARY;
-        syncTileMetadataRegistry(tileLibraryForRender);
-        worldBiomeTileLibraryCache = normalized;
-        return worldBiomeTileLibraryCache;
+        return loadTileCatalog().then((catalog) => {
+          const colorsByTileId = buildTileCatalogColorMap(catalog);
+          tileLibraryForRender = tileLibraryForRender.map((entry) => {
+            const mergedColors = {
+              ...sanitizeTileColors(colorsByTileId.get(entry.id) || {}),
+              ...sanitizeTileColors(entry.colors || {}),
+            };
+            return {
+              ...entry,
+              colors: mergedColors,
+            };
+          });
+          syncTileMetadataRegistry(tileLibraryForRender);
+          worldBiomeTileLibraryCache = normalized;
+          return worldBiomeTileLibraryCache;
+        });
       });
   }
   return worldBiomeTileLibraryPromise;
