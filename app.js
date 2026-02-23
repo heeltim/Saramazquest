@@ -5427,7 +5427,7 @@ function menuSend(idx) {
 }
 
 /* ================= MASTER MODE / SCENE UI ================= */
-const TILE_TYPES = ["floor", "grass", "stone", "wall", "woodwall", "stonewall", "void"];
+let TILE_TYPES = ["floor", "grass", "stone", "wall", "woodwall", "stonewall", "void"];
 const TILE_LIBRARY_META = {
   floor: { icon: "🟦", label: "Chão", biome: "neutral", sourceTag: "base", tags: ["chao", "piso", "base"] },
   grass: { icon: "🌿", label: "Grama", biome: "forest", sourceTag: "nature", tags: ["grama", "campo", "nature"] },
@@ -5449,10 +5449,29 @@ const TILE_BIOME_LABELS = {
   neutral: "Neutros",
   structures: "Estruturas",
 };
-const DEFAULT_TILE_LIBRARY_FILTER = { biome: "all", text: "" };
+const DEFAULT_TILE_LIBRARY = TILE_TYPES.map((type) => ({
+  id: type,
+  label: TILE_LIBRARY_META[type]?.label || type,
+  icon: TILE_LIBRARY_META[type]?.icon || "🧩",
+  cssClass: `tile-${type}`,
+  baseTile: type,
+  biome: TILE_LIBRARY_META[type]?.biome || "neutral",
+  sourceTag: TILE_LIBRARY_META[type]?.sourceTag || "base",
+}));
+const BASE_TILE_TYPES = [...TILE_TYPES];
+const BIOME_TILE_LIBRARY_ORDER = Object.keys(TILE_BIOME_LABELS).filter((key) => key !== "all");
+const DEFAULT_BIOME_TILE_LIBRARY = {
+  version: 1,
+  biomes: Object.fromEntries(BIOME_TILE_LIBRARY_ORDER.map((biome) => [biome, []])),
+};
+const DEFAULT_TILE_LIBRARY_FILTER = { text: "" };
 const TILE_CATEGORY_ORDER = ["ocean", "forest", "mystic", "saramaz", "mountains", "islands", "neutral", "structures"];
 let tileCatalogCache = null;
 let tileCatalogPromise = null;
+let tileLibraryForRender = [...DEFAULT_TILE_LIBRARY];
+let tileMetadataById = new Map(DEFAULT_TILE_LIBRARY.map((entry) => [entry.id, entry]));
+let worldBiomeTileLibraryCache = null;
+let worldBiomeTileLibraryPromise = null;
 let isMaster = false;
 let paintTool = "floor";
 let brushSize = 1;
@@ -5682,12 +5701,8 @@ function normalizeSearchToken(value) {
 }
 
 function normalizeTileLibraryFilter(raw = {}) {
-  const biome = String(raw?.biome || "all").trim().toLowerCase();
-  const text = String(raw?.text || "").slice(0, 60);
-  const allowedBiomes = new Set(["all", ...Object.keys(TILE_BIOME_LABELS)]);
   return {
-    biome: allowedBiomes.has(biome) ? biome : "all",
-    text,
+    text: String(raw?.text || "").slice(0, 60),
   };
 }
 
@@ -5761,22 +5776,15 @@ function getTileLibraryEntries(catalog = null) {
 
 async function renderTileLibrary() {
   const library = document.getElementById("tileLibraryButtons");
-  const biomeFilter = document.getElementById("tileBiomeFilter");
   const searchFilter = document.getElementById("tileSearchFilter");
   const emptyState = document.getElementById("tileLibraryEmpty");
-  if (!library || !biomeFilter || !searchFilter) return;
+  if (!library || !searchFilter) return;
 
   const catalog = await loadTileCatalog();
   const entries = getTileLibraryEntries(catalog);
   const persisted = loadTileLibraryFilter();
-  const selectedBiome = biomeFilter.value || persisted.biome;
   const searchTerm = normalizeSearchToken(searchFilter.value || persisted.text);
 
-  const biomeValues = [...new Set(entries.map((entry) => entry.biome))];
-  biomeFilter.innerHTML = `<option value="all">${TILE_BIOME_LABELS.all}</option>${biomeValues
-    .map((biome) => `<option value="${escapeHtml(biome)}">${escapeHtml(TILE_BIOME_LABELS[biome] || biome)}</option>`)
-    .join("")}`;
-  biomeFilter.value = biomeValues.includes(selectedBiome) || selectedBiome === "all" ? selectedBiome : "all";
   searchFilter.value = String(searchFilter.value || persisted.text || "");
 
   const groups = new Map();
@@ -5784,9 +5792,8 @@ async function renderTileLibrary() {
     const searchPool = [entry.type, entry.label, entry.biomeLabel, entry.sourceTag, ...(entry.tags || [])]
       .map(normalizeSearchToken)
       .join(" ");
-    const biomeOk = biomeFilter.value === "all" || entry.biome === biomeFilter.value;
     const textOk = !searchTerm || searchPool.includes(searchTerm);
-    if (!biomeOk || !textOk) return;
+    if (!textOk) return;
     if (!groups.has(entry.biome)) groups.set(entry.biome, []);
     groups.get(entry.biome).push(entry);
   });
@@ -5824,7 +5831,7 @@ async function renderTileLibrary() {
         })
         .join("");
       return `
-        <details class="tileBiomeGroup" ${biomeFilter.value === "all" ? "" : "open"}>
+        <details class="tileBiomeGroup" open>
           <summary class="tileBiomeTitle">${escapeHtml(TILE_BIOME_LABELS[biome] || items[0]?.biomeLabel || biome)} <small>(${items.length})</small></summary>
           <div class="tileCardGrid">${cards}</div>
         </details>
@@ -5838,7 +5845,7 @@ async function renderTileLibrary() {
   });
 
   if (emptyState) emptyState.hidden = groups.size > 0;
-  saveTileLibraryFilter({ biome: biomeFilter.value, text: searchFilter.value });
+  saveTileLibraryFilter({ text: searchFilter.value });
 }
 
 function setTool(tool) {
@@ -6285,12 +6292,16 @@ function sanitizeTileEntry(entry, fallback = null) {
   const cssClass = String(entry?.cssClass || fallback?.cssClass || `tile-${baseTile}`).trim();
   const spawnWeightRaw = entry?.spawnWeight;
   const spawnWeight = spawnWeightRaw === undefined || spawnWeightRaw === null ? undefined : Math.max(1, parseFloat(spawnWeightRaw) || 1);
+  const biome = String(entry?.biome || fallback?.biome || "neutral").trim().toLowerCase() || "neutral";
+  const sourceTag = String(entry?.sourceTag || fallback?.sourceTag || biome).trim() || biome;
   return {
     id: tileId,
     label: label || tileId,
     icon,
     cssClass,
     baseTile,
+    biome,
+    sourceTag,
     ...(spawnWeight === undefined ? {} : { spawnWeight }),
   };
 }
@@ -6321,7 +6332,7 @@ function buildTileLibraryFromBiomeConfig(config = DEFAULT_BIOME_TILE_LIBRARY) {
     (config?.biomes?.[biome] || []).forEach((entry) => {
       if (!entry || seen.has(entry.id)) return;
       seen.add(entry.id);
-      merged.push(entry);
+      merged.push({ ...entry, biome, sourceTag: entry.sourceTag || biome });
     });
   });
   return merged.length ? merged : DEFAULT_TILE_LIBRARY;
@@ -6339,11 +6350,57 @@ function syncTileMetadataRegistry(tileList = []) {
 
 function renderTileLibrary() {
   const wrap = document.getElementById("tileLibraryButtons");
+  const searchFilter = document.getElementById("tileSearchFilter");
+  const emptyState = document.getElementById("tileLibraryEmpty");
   if (!wrap) return;
+
   const tools = Array.isArray(tileLibraryForRender) && tileLibraryForRender.length ? tileLibraryForRender : DEFAULT_TILE_LIBRARY;
-  wrap.innerHTML = tools
-    .map((entry) => `<button class="toolBtn" id="tool${entry.id.charAt(0).toUpperCase()}${entry.id.slice(1)}" onclick="setTool('${entry.id}')">${entry.icon} ${escapeHtml(entry.label)}</button>`)
+  const persisted = loadTileLibraryFilter();
+  const searchTerm = normalizeSearchToken(searchFilter?.value || persisted.text);
+  if (searchFilter) searchFilter.value = String(searchFilter.value || persisted.text || "");
+
+  const groups = new Map();
+  tools.forEach((entry) => {
+    const biome = String(entry.biome || "neutral").trim().toLowerCase() || "neutral";
+    const biomeLabel = TILE_BIOME_LABELS[biome] || biome;
+    const searchPool = [entry.id, entry.label, biomeLabel, entry.sourceTag || biome]
+      .map(normalizeSearchToken)
+      .join(" ");
+    if (searchTerm && !searchPool.includes(searchTerm)) return;
+    if (!groups.has(biome)) groups.set(biome, []);
+    groups.get(biome).push(entry);
+  });
+
+  const sortedGroups = [...groups.entries()].sort((a, b) => {
+    const ai = TILE_CATEGORY_ORDER.indexOf(a[0]);
+    const bi = TILE_CATEGORY_ORDER.indexOf(b[0]);
+    return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+  });
+
+  wrap.innerHTML = sortedGroups
+    .map(([biome, items]) => {
+      const cards = items
+        .map((entry) => {
+          const activeClass = entry.id === paintTool ? " active" : "";
+          return `<button type="button" class="toolBtn tileCard${activeClass}" data-tile-id="${escapeHtml(entry.id)}">
+            <span class="tileCardMain">${escapeHtml(entry.icon)} ${escapeHtml(entry.label)}</span>
+            <span class="tileCardMeta">${escapeHtml(TILE_BIOME_LABELS[biome] || biome)} · ${escapeHtml(entry.sourceTag || biome)}</span>
+          </button>`;
+        })
+        .join("");
+      return `<details class="tileBiomeGroup" open>
+        <summary class="tileBiomeTitle">${escapeHtml(TILE_BIOME_LABELS[biome] || biome)} <small>(${items.length})</small></summary>
+        <div class="tileCardGrid">${cards}</div>
+      </details>`;
+    })
     .join("");
+
+  wrap.querySelectorAll(".tileCard").forEach((btn) => {
+    btn.addEventListener("click", () => setTool(btn.dataset.tileId || "floor"));
+  });
+
+  if (emptyState) emptyState.hidden = groups.size > 0;
+  saveTileLibraryFilter({ text: searchFilter?.value || "" });
   setTool(paintTool);
 }
 
@@ -6961,16 +7018,8 @@ function bindSceneInputs() {
   gridOpacity.addEventListener("input", upd);
   gridLine.addEventListener("input", upd);
 
-  const tileBiomeFilter = document.getElementById("tileBiomeFilter");
   const tileSearchFilter = document.getElementById("tileSearchFilter");
   const persistedFilter = loadTileLibraryFilter();
-  if (tileBiomeFilter) {
-    tileBiomeFilter.value = persistedFilter.biome;
-    if (!tileBiomeFilter.dataset.bound) {
-      tileBiomeFilter.dataset.bound = "1";
-      tileBiomeFilter.addEventListener("change", renderTileLibrary);
-    }
-  }
   if (tileSearchFilter) {
     tileSearchFilter.value = persistedFilter.text;
     if (!tileSearchFilter.dataset.bound) {
