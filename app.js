@@ -1117,6 +1117,19 @@ const ITEM_DB = {
   },
 
 };
+
+let ITEM_CATALOG = [];
+let ITEM_CATALOG_BY_ID = {};
+
+function getItem(itemId) {
+  if (!itemId) return null;
+  return ITEM_DB[itemId] || ITEM_CATALOG_BY_ID[itemId] || null;
+}
+
+function getReagentItems() {
+  return ITEM_CATALOG.filter((item) => Array.isArray(item.tags) && item.tags.includes("reagent"));
+}
+
 const SHOP_TABS = [
   { id: "taberna", label: "Taberna" },
   { id: "arsenal", label: "Arsenal" },
@@ -1176,19 +1189,11 @@ const PROFESSIONS_DB = {
     { id: "metal_arcano", nome: "Metal Arcano", categoria: "ferraria", raridade: "raro", stack_max: 99, valor_venda_gp_min: 1.4, valor_venda_gp_max: 1.5 },
     { id: "fragmento_draconico", nome: "Fragmento Dracônico", categoria: "ferraria", raridade: "raro", stack_max: 99, valor_venda_gp_min: 1.4, valor_venda_gp_max: 1.5 },
   ],
-  recipes: [
-    { id: "cul_ensopado", profissao_id: "culinaria", nome: "Ensopado Simples", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "carne_comum", qtd: 1 }, { id: "raiz_silvestre", qtd: 1 }], output: { type: "item", item_id: "refeicao_simples", qtd: 1 }, xp_gain: 10 },
-    { id: "cul_peixe_grelhado", profissao_id: "culinaria", nome: "Peixe Grelhado", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "peixe_rio", qtd: 1 }, { id: "sal_grosso", qtd: 1 }], output: { type: "item", item_id: "refeicao_boa", qtd: 1 }, xp_gain: 10 },
-    { id: "cul_banquete_vigoroso", profissao_id: "culinaria", nome: "Banquete Vigoroso", nivel_profissao_min: 5, tempo_dias: 1, reagentes: [{ id: "carne_bestial", qtd: 1 }, { id: "especiaria_exotica", qtd: 1 }], output: { type: "item", item_id: "banquete", qtd: 1 }, xp_gain: 40 },
-    { id: "alq_pocao_cura_fraca", profissao_id: "alquimia", nome: "Poção de Cura Fraca", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "erva_curativa", qtd: 1 }, { id: "flor_azul", qtd: 1 }], output: { type: "item", item_id: "balsamo_restaurador", qtd: 1 }, xp_gain: 10 },
-    { id: "alq_elixir_mental", profissao_id: "alquimia", nome: "Elixir Mental", nivel_profissao_min: 3, tempo_dias: 1, reagentes: [{ id: "raiz_mistica", qtd: 1 }, { id: "po_de_cristal", qtd: 1 }], output: { type: "item", item_id: "vinho_elfico", qtd: 1 }, xp_gain: 25 },
-    { id: "fer_espada_simples", profissao_id: "ferraria", nome: "Espada Simples", nivel_profissao_min: 1, tempo_dias: 1, reagentes: [{ id: "minerio_ferro", qtd: 1 }, { id: "carvao", qtd: 1 }], output: { type: "item", item_id: "punhal_de_combate", qtd: 1 }, xp_gain: 10 },
-    { id: "fer_arma_reforcada", profissao_id: "ferraria", nome: "Arma Reforçada", nivel_profissao_min: 3, tempo_dias: 1, reagentes: [{ id: "aco_refinado", qtd: 1 }, { id: "liga_rara", qtd: 1 }], output: { type: "item", item_id: "espada_longa", qtd: 1 }, xp_gain: 25 },
-    { id: "fer_armadura_resistente", profissao_id: "ferraria", nome: "Armadura Resistente", nivel_profissao_min: 5, tempo_dias: 1, reagentes: [{ id: "metal_arcano", qtd: 1 }, { id: "fragmento_draconico", qtd: 1 }], output: { type: "item", item_id: "cota_metalica", qtd: 1 }, xp_gain: 40 },
-  ],
+  recipes: [],
 };
-const REAGENT_BY_ID = Object.fromEntries(PROFESSIONS_DB.reagents.map((r) => [r.id, r]));
+let REAGENT_BY_ID = Object.fromEntries(PROFESSIONS_DB.reagents.map((r) => [r.id, r]));
 const PROFESSION_BY_ID = Object.fromEntries(PROFESSIONS_DB.professions.map((r) => [r.id, r]));
+let MANUAL_RECIPES_DB = { recipes: [] };
 let selectedProfessionId = "culinaria";
 let professionTargetName = null;
 let selectedShopId = "taberna";
@@ -1312,6 +1317,19 @@ function save(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
+async function loadItemCatalog() {
+  try {
+    const resp = await fetch("data/items.json", { cache: "no-store" });
+    if (!resp.ok) return;
+    const json = await resp.json();
+    const items = Array.isArray(json?.items) ? json.items : [];
+    ITEM_CATALOG = items;
+    ITEM_CATALOG_BY_ID = Object.fromEntries(items.map((item) => [item.id, item]));
+  } catch (_) {
+    // fallback silencioso
+  }
+}
+
 async function loadShopCatalogs() {
   const files = {
     taberna: "data/shops/shop_taberna.json",
@@ -1331,6 +1349,22 @@ async function loadShopCatalogs() {
       }
     })
   );
+
+  try {
+    const manualResp = await fetch("data/recipes.manual.json", { cache: "no-store" });
+    if (manualResp.ok) {
+      const manualJson = await manualResp.json();
+      if (manualJson && Array.isArray(manualJson.recipes)) MANUAL_RECIPES_DB = manualJson;
+    }
+  } catch (_) {
+    // fallback silencioso
+  }
+
+  const engine = window.ProceduralRecipesEngine;
+  if (engine) {
+    const craftableItems = (SHOP_DB.arsenal?.items || []).filter((item) => ["weapon", "armor", "shield"].includes(item.type));
+    engine.seedCatalog(craftableItems, MANUAL_RECIPES_DB.recipes || []);
+  }
 }
 
 async function loadProfessionRules() {
@@ -4907,9 +4941,24 @@ function renderInventoryModal(p) {
 
 function resolveInventoryItem(entry) {
   if (!entry) return null;
-  if (typeof entry === "string") return ITEM_DB[entry] || null;
+  if (typeof entry === "string") return getItem(entry) || null;
   if (typeof entry === "object") return entry;
   return null;
+}
+
+function resolveShopItemEntry(entry) {
+  if (!entry) return null;
+  if (entry.itemId) {
+    const base = getItem(entry.itemId);
+    if (!base) return null;
+    return { ...base, id: entry.itemId, priceGold: entry.priceGold ?? base.priceGold ?? 0 };
+  }
+  return entry.id ? { ...entry, priceGold: entry.priceGold ?? 0 } : null;
+}
+
+function getShopEntries(shopId) {
+  const shop = SHOP_DB[shopId] || { items: [] };
+  return (shop.items || []).map(resolveShopItemEntry).filter(Boolean);
 }
 
 function renderInvList(p) {
@@ -4992,8 +5041,7 @@ function renderShop(p) {
     arsenalSubTabs.innerHTML = "";
   }
 
-  const shop = SHOP_DB[selectedShopId] || { items: [] };
-  let rows = shop.items || [];
+  let rows = getShopEntries(selectedShopId);
   if (selectedShopId === "arsenal") rows = rows.filter((it) => it.type === selectedArsenalType);
 
   list.innerHTML = rows
@@ -5081,8 +5129,7 @@ function buyItem(itemId) {
   ensurePlayerSchema(p);
   recalcFromSheet(p);
 
-  const shop = SHOP_DB[selectedShopId] || { items: [] };
-  const shopEntry = (shop.items || []).find((s) => s.id === itemId);
+  const shopEntry = getShopEntries(selectedShopId).find((s) => s.id === itemId);
   if (!shopEntry) return;
 
   const price = shopEntry.priceGold ?? 0;
@@ -5122,8 +5169,7 @@ function startApplyUpgrade(upgradeId) {
 
 function renderSmithApplyBox(p) {
   const box = document.getElementById("smithApplyBox");
-  const ferreiro = SHOP_DB.ferreiro || { items: [] };
-  const upgrade = (ferreiro.items || []).find((u) => u.id === pendingUpgradeId);
+  const upgrade = getShopEntries("ferreiro").find((u) => u.id === pendingUpgradeId);
   if (!upgrade) {
     box.innerHTML = `<div class="invDesc">Escolha uma melhoria e clique em Aplicar.</div>`;
     return;
@@ -5158,8 +5204,7 @@ function confirmApplyUpgrade(upgradeId, inventoryIndex) {
   const p = data.rooms[room][invTargetName];
   if (!p) return;
 
-  const ferreiro = SHOP_DB.ferreiro || { items: [] };
-  const upgrade = (ferreiro.items || []).find((u) => u.id === upgradeId);
+  const upgrade = getShopEntries("ferreiro").find((u) => u.id === upgradeId);
   if (!upgrade) return;
 
   const price = upgrade.priceGold ?? 0;
@@ -5850,7 +5895,7 @@ function getGlobalMapMetaStorageKey() {
 }
 
 function loadGlobalMapMeta() {
-  const fallback = { cols: 40, rows: 25, cells: {}, currentCell: null };
+  const fallback = { cols: 40, rows: 25, cells: {}, currentCell: null, classification: null };
   try {
     const raw = JSON.parse(localStorage.getItem(getGlobalMapMetaStorageKey()) || "{}");
     return {
@@ -5858,6 +5903,7 @@ function loadGlobalMapMeta() {
       rows: Math.max(2, Math.min(64, parseInt(raw.rows, 10) || 25)),
       cells: raw && typeof raw.cells === "object" ? raw.cells : {},
       currentCell: typeof raw.currentCell === "string" ? raw.currentCell : null,
+      classification: raw && typeof raw.classification === "object" ? raw.classification : null,
     };
   } catch {
     return fallback;
@@ -5866,6 +5912,195 @@ function loadGlobalMapMeta() {
 
 function saveGlobalMapMeta(meta) {
   localStorage.setItem(getGlobalMapMetaStorageKey(), JSON.stringify(meta));
+}
+
+const WORLD_BIOME_CLASSIFIER_VERSION = 1;
+const DEFAULT_WORLD_BIOME_COLOR_TABLE = {
+  version: 1,
+  metric: "rgb",
+  biomes: [
+    { biome: "ocean", color: [40, 85, 150], tolerance: 88 },
+    { biome: "coast", color: [170, 185, 130], tolerance: 82 },
+    { biome: "plains", color: [100, 150, 88], tolerance: 78 },
+    { biome: "forest", color: [55, 112, 68], tolerance: 78 },
+    { biome: "desert", color: [210, 186, 120], tolerance: 82 },
+    { biome: "mountains", color: [134, 126, 120], tolerance: 72 },
+    { biome: "tundra", color: [188, 204, 214], tolerance: 70 },
+    { biome: "volcanic", color: [82, 60, 55], tolerance: 68 },
+  ],
+};
+
+let worldBiomeColorTableCache = null;
+let worldBiomeColorTablePromise = null;
+let worldMapImageBuffer = { src: "", canvas: null, ctx: null, width: 0, height: 0 };
+
+function hashText(input = "") {
+  let hash = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16);
+}
+
+function rgbDistance(a, b) {
+  const dr = (a[0] || 0) - (b[0] || 0);
+  const dg = (a[1] || 0) - (b[1] || 0);
+  const db = (a[2] || 0) - (b[2] || 0);
+  return Math.sqrt(dr * dr + dg * dg + db * db);
+}
+
+function rgbToHex(rgb = [0, 0, 0]) {
+  return `#${rgb
+    .map((value) => Math.max(0, Math.min(255, Math.round(value) || 0)).toString(16).padStart(2, "0"))
+    .join("")}`;
+}
+
+async function loadWorldBiomeColorTable() {
+  if (worldBiomeColorTableCache) return worldBiomeColorTableCache;
+  if (!worldBiomeColorTablePromise) {
+    worldBiomeColorTablePromise = fetch("data/world/biome-colors.json", { cache: "no-store" })
+      .then((resp) => (resp.ok ? resp.json() : null))
+      .catch(() => null)
+      .then((raw) => {
+        if (!raw || !Array.isArray(raw.biomes) || !raw.biomes.length) {
+          worldBiomeColorTableCache = DEFAULT_WORLD_BIOME_COLOR_TABLE;
+          return worldBiomeColorTableCache;
+        }
+        worldBiomeColorTableCache = {
+          version: parseInt(raw.version, 10) || 1,
+          metric: String(raw.metric || "rgb").toLowerCase(),
+          biomes: raw.biomes
+            .map((entry) => ({
+              biome: String(entry?.biome || "").trim(),
+              color: [
+                Math.max(0, Math.min(255, parseInt(entry?.color?.[0], 10) || 0)),
+                Math.max(0, Math.min(255, parseInt(entry?.color?.[1], 10) || 0)),
+                Math.max(0, Math.min(255, parseInt(entry?.color?.[2], 10) || 0)),
+              ],
+              tolerance: Math.max(1, parseFloat(entry?.tolerance) || 72),
+            }))
+            .filter((entry) => entry.biome),
+        };
+        if (!worldBiomeColorTableCache.biomes.length) worldBiomeColorTableCache = DEFAULT_WORLD_BIOME_COLOR_TABLE;
+        return worldBiomeColorTableCache;
+      });
+  }
+  return worldBiomeColorTablePromise;
+}
+
+async function ensureWorldMapImageBuffer(src = "") {
+  if (!src) return null;
+  if (worldMapImageBuffer.src === src && worldMapImageBuffer.canvas && worldMapImageBuffer.ctx) return worldMapImageBuffer;
+  const img = new Image();
+  img.decoding = "async";
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = reject;
+    img.src = src;
+  });
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, img.naturalWidth || img.width || 1);
+  canvas.height = Math.max(1, img.naturalHeight || img.height || 1);
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return null;
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  worldMapImageBuffer = {
+    src,
+    canvas,
+    ctx,
+    width: canvas.width,
+    height: canvas.height,
+  };
+  return worldMapImageBuffer;
+}
+
+function sampleAverageCellColor(ctx, x, y, w, h) {
+  const safeW = Math.max(1, Math.round(w));
+  const safeH = Math.max(1, Math.round(h));
+  const imageData = ctx.getImageData(Math.max(0, Math.floor(x)), Math.max(0, Math.floor(y)), safeW, safeH).data;
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  let total = 0;
+  const targetSamples = 900;
+  const pixelCount = safeW * safeH;
+  const step = Math.max(1, Math.floor(Math.sqrt(pixelCount / targetSamples)));
+  for (let py = 0; py < safeH; py += step) {
+    for (let px = 0; px < safeW; px += step) {
+      const idx = (py * safeW + px) * 4;
+      const alpha = imageData[idx + 3] / 255;
+      r += imageData[idx] * alpha;
+      g += imageData[idx + 1] * alpha;
+      b += imageData[idx + 2] * alpha;
+      total += alpha || 1;
+    }
+  }
+  return [Math.round(r / total), Math.round(g / total), Math.round(b / total)];
+}
+
+function detectBiomeFromColor(avgColor, colorTable) {
+  const fallback = { biome: "unknown", distance: 999, confidence: 0 };
+  if (!colorTable?.biomes?.length) return fallback;
+  let best = fallback;
+  colorTable.biomes.forEach((entry) => {
+    const dist = rgbDistance(avgColor, entry.color);
+    const confidence = Math.max(0, 1 - dist / Math.max(1, entry.tolerance));
+    if (dist < best.distance) {
+      best = {
+        biome: entry.biome,
+        distance: dist,
+        confidence,
+      };
+    }
+  });
+  return best;
+}
+
+async function classifyWorldMapBiomes(scene, options = {}) {
+  if (!scene?.worldMap?.imageUrl) return null;
+  const wm = scene.worldMap;
+  const meta = normalizeWorldMapMetaWithScene(scene);
+  const imageHash = hashText(wm.imageUrl);
+  const signature = `${WORLD_BIOME_CLASSIFIER_VERSION}:${wm.gridCols}x${wm.gridRows}:${imageHash}`;
+  if (!options.force && meta.classification?.signature === signature) return { skipped: true, signature };
+
+  const imageBuffer = await ensureWorldMapImageBuffer(wm.imageUrl);
+  const colorTable = await loadWorldBiomeColorTable();
+  if (!imageBuffer?.ctx || !imageBuffer.width || !imageBuffer.height || !colorTable?.biomes?.length) return null;
+
+  const cellWidth = imageBuffer.width / wm.gridCols;
+  const cellHeight = imageBuffer.height / wm.gridRows;
+  for (let y = 0; y < wm.gridRows; y++) {
+    for (let x = 0; x < wm.gridCols; x++) {
+      const key = `${x}_${y}`;
+      const cellData = meta.cells[key] && typeof meta.cells[key] === "object" ? meta.cells[key] : {};
+      const avgColor = sampleAverageCellColor(imageBuffer.ctx, x * cellWidth, y * cellHeight, cellWidth, cellHeight);
+      const detected = detectBiomeFromColor(avgColor, colorTable);
+      const hasBiomeOverride = String(cellData.biomeSource || "").toLowerCase() === "manual";
+      if (!hasBiomeOverride) {
+        cellData.biome = detected.biome;
+        cellData.biomeSource = "auto";
+      }
+      cellData.biomeDetection = {
+        detectedBiome: detected.biome,
+        confidence: Number(detected.confidence.toFixed(3)),
+        distance: Number(detected.distance.toFixed(2)),
+        sampledColor: rgbToHex(avgColor),
+        version: WORLD_BIOME_CLASSIFIER_VERSION,
+      };
+      meta.cells[key] = cellData;
+    }
+  }
+
+  meta.classification = {
+    version: WORLD_BIOME_CLASSIFIER_VERSION,
+    colorTableVersion: colorTable.version || 1,
+    signature,
+    updatedAt: Date.now(),
+  };
+  saveGlobalMapMeta(meta);
+  return { signature, updated: true };
 }
 
 function normalizeWorldMapMetaWithScene(scene) {
@@ -5902,13 +6137,15 @@ function resetWorldMapView() {
 
 function updateWorldMapDrawer(cell) {
   const coordEl = document.getElementById("worldMapSelectedCell");
+  const statusEl = document.getElementById("worldCellStatus");
   const nameInput = document.getElementById("worldCellName");
   const notesInput = document.getElementById("worldCellNotes");
   const hint = document.getElementById("worldMapWindowHint");
-  if (!coordEl || !nameInput || !notesInput || !hint) return;
+  if (!coordEl || !statusEl || !nameInput || !notesInput || !hint) return;
 
   if (!cell) {
     coordEl.textContent = "Célula: —";
+    statusEl.textContent = "Bioma detectado: —";
     nameInput.value = "";
     notesInput.value = "";
     hint.textContent = "Clique numa célula para consultar/editar metadados da região.";
@@ -5919,7 +6156,11 @@ function updateWorldMapDrawer(cell) {
   const meta = normalizeWorldMapMetaWithScene(scene);
   const key = `${cell.x}_${cell.y}`;
   const data = meta.cells[key] || {};
+  const detectedBiome = String(data.biomeDetection?.detectedBiome || "desconhecido");
+  const confidencePercent = Math.round((Number(data.biomeDetection?.confidence) || 0) * 100);
+  const isManualBiome = String(data.biome || "").trim() && data.biomeSource !== "auto";
   coordEl.textContent = `Célula: X=${cell.x}, Y=${cell.y}`;
+  statusEl.textContent = `Bioma detectado: ${detectedBiome} · confiança ${confidencePercent}%${isManualBiome ? " · override manual ativo" : ""}`;
   nameInput.value = String(data.name || "");
   notesInput.value = String(data.notes || "");
   hint.textContent = data.name ? `Região: ${data.name}` : "Sem nome definido para esta célula.";
@@ -5956,6 +6197,8 @@ function saveSelectedWorldCellMeta() {
   meta.cells[key] = {
     name: String(nameInput.value || "").trim(),
     biome: meta.cells[key]?.biome || "",
+    biomeSource: meta.cells[key]?.biomeSource || "auto",
+    biomeDetection: meta.cells[key]?.biomeDetection || null,
     linkedSceneId: meta.cells[key]?.linkedSceneId ?? null,
     notes: String(notesInput.value || "").trim(),
   };
@@ -6122,11 +6365,16 @@ window.importWorldMapImage = function importWorldMapImage() {
     const meta = normalizeWorldMapMetaWithScene(scene);
     meta.cols = scene.worldMap.gridCols;
     meta.rows = scene.worldMap.gridRows;
+    meta.classification = null;
     saveGlobalMapMeta(meta);
     setSceneBackgroundPreview(src);
     setWorldMapUploadStatus(`Mapa global carregado: ${file.name}`, "success");
     syncWorldMapToggleVisibility(scene);
-    renderWorldMapWindow();
+    classifyWorldMapBiomes(scene, { force: true }).finally(() => {
+      renderWorldMapWindow();
+      const selected = getSelectedWorldCell(scene);
+      updateWorldMapDrawer(selected ? { x: selected.col - 1, y: selected.row - 1 } : null);
+    });
     fileInput.value = "";
   };
   reader.onerror = () => setWorldMapUploadStatus("Falha ao carregar o arquivo de imagem.", "error");
@@ -6184,7 +6432,13 @@ function bindWorldBuilderInputs() {
     const meta = normalizeWorldMapMetaWithScene(scene);
     meta.cols = scene.worldMap.gridCols;
     meta.rows = scene.worldMap.gridRows;
+    meta.classification = null;
     saveGlobalMapMeta(meta);
+    classifyWorldMapBiomes(scene, { force: true }).finally(() => {
+      if (isWorldMapWindowOpen) renderWorldMapWindow();
+      const selected = getSelectedWorldCell(scene);
+      updateWorldMapDrawer(selected ? { x: selected.col - 1, y: selected.row - 1 } : null);
+    });
     if (isWorldMapWindowOpen) renderWorldMapWindow();
   }
   if (cols && !cols.dataset.bound) {
@@ -6460,11 +6714,7 @@ function getProfessionLevelFromXp(xp) {
 }
 
 function getShopEntryById(itemId) {
-  for (const shop of Object.values(SHOP_DB)) {
-    const found = (shop.items || []).find((it) => it.id === itemId);
-    if (found) return found;
-  }
-  return null;
+  return getItem(itemId);
 }
 
 function normalizeRecipeTags(recipe, itemEntry) {

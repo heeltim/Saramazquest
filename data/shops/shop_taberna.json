@@ -8,8 +8,15 @@
       "priceGold": 15,
       "type": "utility",
       "description": "Imobiliza alvo médio; exige teste para escapar.",
-      "weight": "1kg",
-      "category": "tool"
+      "weight": 1,
+      "category": "tool",
+      "displayWeight": "1kg",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "corda_15m",
@@ -17,8 +24,15 @@
       "priceGold": 1,
       "type": "utility",
       "description": "Auxilia escaladas, amarras e improvisos.",
-      "weight": "5kg",
-      "category": "utility"
+      "weight": 5,
+      "category": "utility",
+      "displayWeight": "5kg",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "pe_de_cabra",
@@ -26,8 +40,15 @@
       "priceGold": 2,
       "type": "utility",
       "description": "Bônus ao forçar portas e objetos.",
-      "weight": "2.5kg",
-      "category": "tool"
+      "weight": 2.5,
+      "category": "tool",
+      "displayWeight": "2.5kg",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "espelho_de_metal",
@@ -35,8 +56,15 @@
       "priceGold": 10,
       "type": "utility",
       "description": "Permite observar cantos sem exposição.",
-      "weight": "0.2kg",
-      "category": "utility"
+      "weight": 0.2,
+      "category": "utility",
+      "displayWeight": "0.2kg",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "mochila",
@@ -44,8 +72,15 @@
       "priceGold": 2,
       "type": "utility",
       "description": "Aumenta capacidade de carga organizada.",
-      "weight": "1kg",
-      "category": "equipment"
+      "weight": 1,
+      "category": "equipment",
+      "displayWeight": "1kg",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "algibeira",
@@ -53,8 +88,15 @@
       "priceGold": 1,
       "type": "utility",
       "description": "Guarda moedas e itens pequenos.",
-      "weight": "0.2kg",
-      "category": "equipment"
+      "weight": 0.2,
+      "category": "equipment",
+      "displayWeight": "0.2kg",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "vara_de_madeira_3m",
@@ -62,8 +104,15 @@
       "priceGold": 2,
       "type": "utility",
       "description": "Testa armadilhas e ativa mecanismos à distância.",
-      "weight": "4kg",
-      "category": "utility"
+      "weight": 4,
+      "category": "utility",
+      "displayWeight": "4kg",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "saco_de_lona",
@@ -71,8 +120,15 @@
       "priceGold": 1,
       "type": "utility",
       "description": "Transporte simples de itens.",
-      "weight": "0.2kg",
-      "category": "utility"
+      "weight": 0.2,
+      "category": "utility",
+      "displayWeight": "0.2kg",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "pederneira",
@@ -80,7 +136,13 @@
       "priceGold": 1,
       "type": "utility",
       "description": "Acende fogo facilmente.",
-      "category": "utility"
+      "category": "utility",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "lampiao",
@@ -88,8 +150,15 @@
       "priceGold": 7,
       "type": "utility",
       "description": "Ilumina área média por horas.",
-      "weight": "1kg",
-      "category": "light"
+      "weight": 1,
+      "category": "light",
+      "displayWeight": "1kg",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "tocha",
@@ -97,8 +166,15 @@
       "priceGold": 1,
       "type": "utility",
       "description": "Ilumina área pequena; pode causar dano leve.",
-      "weight": "0.5kg",
-      "category": "light"
+      "weight": 0.5,
+      "category": "light",
+      "displayWeight": "0.5kg",
+      "tags": [
+        "herb",
+        "profession:culinaria",
+        "biome:forest",
+        "wood"
+      ]
     },
     {
       "id": "kit_de_artesao",
@@ -106,8 +182,15 @@
       "priceGold": 30,
       "type": "utility",
       "description": "Necessário para fabricar e reparar itens.",
-      "weight": "4kg",
-      "category": "tool"
+      "weight": 4,
+      "category": "tool",
+      "displayWeight": "4kg",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "kit_de_ladrao",
@@ -115,8 +198,15 @@
       "priceGold": 30,
       "type": "utility",
       "description": "Permite abrir fechaduras e desarmar armadilhas.",
-      "weight": "0.5kg",
-      "category": "tool"
+      "weight": 0.5,
+      "category": "tool",
+      "displayWeight": "0.5kg",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "kit_de_disfarce",
@@ -124,8 +214,15 @@
       "priceGold": 50,
       "type": "utility",
       "description": "Bônus em disfarces e infiltração.",
-      "weight": "4kg",
-      "category": "tool"
+      "weight": 4,
+      "category": "tool",
+      "displayWeight": "4kg",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "kit_medico",
@@ -133,8 +230,15 @@
       "priceGold": 50,
       "type": "consumable",
       "description": "Estabiliza e trata ferimentos.",
-      "weight": "0.5kg",
-      "category": "consumable"
+      "weight": 0.5,
+      "category": "consumable",
+      "displayWeight": "0.5kg",
+      "tags": [
+        "metal",
+        "profession:alquimia",
+        "biome:plains",
+        "herb"
+      ]
     },
     {
       "id": "kit_de_aventureiro",
@@ -142,8 +246,15 @@
       "priceGold": 10,
       "type": "utility",
       "description": "Conjunto básico para exploração.",
-      "weight": "17kg",
-      "category": "pack"
+      "weight": 17,
+      "category": "pack",
+      "displayWeight": "17kg",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "balsamo_restaurador",
@@ -151,8 +262,14 @@
       "priceGold": 25,
       "type": "consumable",
       "description": "Recupera vida ao ser aplicado.",
-      "weight": "0.5kg",
-      "category": "consumable"
+      "weight": 0.5,
+      "category": "consumable",
+      "displayWeight": "0.5kg",
+      "tags": [
+        "herb",
+        "profession:alquimia",
+        "biome:plains"
+      ]
     },
     {
       "id": "mina_de_pressao",
@@ -160,7 +277,13 @@
       "priceGold": 800,
       "type": "utility",
       "description": "Explosão em área ao ser ativada.",
-      "category": "trap"
+      "category": "trap",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "barril_explosivo",
@@ -168,8 +291,15 @@
       "priceGold": 800,
       "type": "utility",
       "description": "Grande dano em área quando detonado.",
-      "weight": "10kg",
-      "category": "explosive"
+      "weight": 10,
+      "category": "explosive",
+      "displayWeight": "10kg",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "pena",
@@ -177,7 +307,13 @@
       "priceGold": 1,
       "type": "utility",
       "description": "Escrita formal.",
-      "category": "utility"
+      "category": "utility",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "pergaminho",
@@ -185,7 +321,13 @@
       "priceGold": 2,
       "type": "utility",
       "description": "Registro de mapas e textos.",
-      "category": "utility"
+      "category": "utility",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "tinta_frasco",
@@ -193,7 +335,13 @@
       "priceGold": 8,
       "type": "utility",
       "description": "Escrita permanente.",
-      "category": "utility"
+      "category": "utility",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "racao_de_viagem_dia",
@@ -201,7 +349,13 @@
       "priceGold": 5,
       "type": "consumable",
       "description": "Sustenta um dia em campo.",
-      "category": "consumable"
+      "category": "consumable",
+      "tags": [
+        "metal",
+        "profession:alquimia",
+        "biome:plains",
+        "herb"
+      ]
     },
     {
       "id": "refeicao_simples",
@@ -209,7 +363,15 @@
       "priceGold": 3,
       "type": "consumable",
       "description": "Remove penalidade leve por fome.",
-      "category": "food"
+      "category": "food",
+      "tags": [
+        "metal",
+        "profession:alquimia",
+        "biome:plains",
+        "herb"
+      ],
+      "weight": 0.5,
+      "displayWeight": "0.5kg"
     },
     {
       "id": "refeicao_boa",
@@ -217,7 +379,15 @@
       "priceGold": 1,
       "type": "consumable",
       "description": "Melhora moral temporária.",
-      "category": "food"
+      "category": "food",
+      "tags": [
+        "metal",
+        "profession:alquimia",
+        "biome:plains",
+        "herb"
+      ],
+      "weight": 0.7,
+      "displayWeight": "0.7kg"
     },
     {
       "id": "refeicao_especial",
@@ -225,7 +395,13 @@
       "priceGold": 10,
       "type": "consumable",
       "description": "Pequeno bônus temporário.",
-      "category": "food"
+      "category": "food",
+      "tags": [
+        "metal",
+        "profession:alquimia",
+        "biome:plains",
+        "herb"
+      ]
     },
     {
       "id": "banquete",
@@ -233,7 +409,15 @@
       "priceGold": 50,
       "type": "utility",
       "description": "Recupera fadiga leve do grupo.",
-      "category": "event"
+      "category": "event",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ],
+      "weight": 1.2,
+      "displayWeight": "1.2kg"
     },
     {
       "id": "cerveja",
@@ -241,7 +425,13 @@
       "priceGold": 1,
       "type": "consumable",
       "description": "Relaxa; risco leve de embriaguez.",
-      "category": "drink"
+      "category": "drink",
+      "tags": [
+        "metal",
+        "profession:alquimia",
+        "biome:plains",
+        "herb"
+      ]
     },
     {
       "id": "hidromel",
@@ -249,7 +439,13 @@
       "priceGold": 1,
       "type": "consumable",
       "description": "Forte e tradicional.",
-      "category": "drink"
+      "category": "drink",
+      "tags": [
+        "metal",
+        "profession:alquimia",
+        "biome:plains",
+        "herb"
+      ]
     },
     {
       "id": "rum",
@@ -257,7 +453,13 @@
       "priceGold": 5,
       "type": "consumable",
       "description": "Embriaguez moderada.",
-      "category": "drink"
+      "category": "drink",
+      "tags": [
+        "metal",
+        "profession:alquimia",
+        "biome:plains",
+        "herb"
+      ]
     },
     {
       "id": "vinho",
@@ -265,7 +467,12 @@
       "priceGold": 10,
       "type": "consumable",
       "description": "Uso social.",
-      "category": "drink"
+      "category": "drink",
+      "tags": [
+        "herb",
+        "profession:alquimia",
+        "biome:plains"
+      ]
     },
     {
       "id": "vinho_elfico",
@@ -273,7 +480,14 @@
       "priceGold": 60,
       "type": "consumable",
       "description": "Bônus social temporário.",
-      "category": "rare_drink"
+      "category": "rare_drink",
+      "tags": [
+        "herb",
+        "profession:alquimia",
+        "biome:plains"
+      ],
+      "weight": 0.8,
+      "displayWeight": "0.8kg"
     },
     {
       "id": "cerveja_negra",
@@ -281,7 +495,13 @@
       "priceGold": 30,
       "type": "consumable",
       "description": "Forte e encorpada.",
-      "category": "drink"
+      "category": "drink",
+      "tags": [
+        "metal",
+        "profession:alquimia",
+        "biome:plains",
+        "herb"
+      ]
     },
     {
       "id": "aguardente",
@@ -289,7 +509,13 @@
       "priceGold": 5,
       "type": "consumable",
       "description": "Embriaguez rápida.",
-      "category": "drink"
+      "category": "drink",
+      "tags": [
+        "metal",
+        "profession:alquimia",
+        "biome:plains",
+        "herb"
+      ]
     },
     {
       "id": "bumboo",
@@ -297,7 +523,13 @@
       "priceGold": 10,
       "type": "consumable",
       "description": "Exótica e forte.",
-      "category": "exotic_drink"
+      "category": "exotic_drink",
+      "tags": [
+        "metal",
+        "profession:alquimia",
+        "biome:plains",
+        "herb"
+      ]
     },
     {
       "id": "grog",
@@ -305,7 +537,13 @@
       "priceGold": 1,
       "type": "consumable",
       "description": "Comum em portos.",
-      "category": "drink"
+      "category": "drink",
+      "tags": [
+        "metal",
+        "profession:alquimia",
+        "biome:plains",
+        "herb"
+      ]
     },
     {
       "id": "rumfustiam",
@@ -313,7 +551,13 @@
       "priceGold": 15,
       "type": "consumable",
       "description": "Muito forte.",
-      "category": "drink"
+      "category": "drink",
+      "tags": [
+        "metal",
+        "profession:alquimia",
+        "biome:plains",
+        "herb"
+      ]
     },
     {
       "id": "quarto_simples",
@@ -321,7 +565,13 @@
       "priceGold": 5,
       "type": "utility",
       "description": "Descanso básico.",
-      "category": "service"
+      "category": "service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "quarto_confortavel",
@@ -329,7 +579,13 @@
       "priceGold": 5,
       "type": "utility",
       "description": "Recuperação normal.",
-      "category": "service"
+      "category": "service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "quarto_superior",
@@ -337,7 +593,13 @@
       "priceGold": 10,
       "type": "utility",
       "description": "Remove fadiga leve.",
-      "category": "service"
+      "category": "service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "suite_luxuosa",
@@ -345,7 +607,13 @@
       "priceGold": 50,
       "type": "utility",
       "description": "Recuperação completa leve.",
-      "category": "service"
+      "category": "service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "cao_de_guarda",
@@ -353,7 +621,13 @@
       "priceGold": 50,
       "type": "utility",
       "description": "Auxilia vigília e rastreamento.",
-      "category": "animal"
+      "category": "animal",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "cavalo",
@@ -361,7 +635,13 @@
       "priceGold": 75,
       "type": "utility",
       "description": "Aumenta deslocamento.",
-      "category": "mount"
+      "category": "mount",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "cavalo_de_guerra",
@@ -369,7 +649,13 @@
       "priceGold": 400,
       "type": "utility",
       "description": "Treinado para combate.",
-      "category": "mount"
+      "category": "mount",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "ponei",
@@ -377,7 +663,13 @@
       "priceGold": 5,
       "type": "utility",
       "description": "Montaria leve.",
-      "category": "mount"
+      "category": "mount",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "ponei_de_guerra",
@@ -385,7 +677,13 @@
       "priceGold": 30,
       "type": "utility",
       "description": "Montaria compacta de combate.",
-      "category": "mount"
+      "category": "mount",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "passaro_touro",
@@ -393,7 +691,13 @@
       "priceGold": 20,
       "type": "utility",
       "description": "Animal robusto e raro.",
-      "category": "exotic_animal"
+      "category": "exotic_animal",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "sela",
@@ -401,7 +705,13 @@
       "priceGold": 20,
       "type": "utility",
       "description": "Necessária para combate montado.",
-      "category": "equipment"
+      "category": "equipment",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "estabulo_dia",
@@ -409,7 +719,13 @@
       "priceGold": 5,
       "type": "utility",
       "description": "Abrigo para montaria.",
-      "category": "service"
+      "category": "service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "carroca",
@@ -417,7 +733,13 @@
       "priceGold": 30,
       "type": "utility",
       "description": "Veículo terrestre simples.",
-      "category": "vehicle"
+      "category": "vehicle",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "carruagem",
@@ -425,7 +747,13 @@
       "priceGold": 100,
       "type": "utility",
       "description": "Veículo terrestre confortável.",
-      "category": "vehicle"
+      "category": "vehicle",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "canoa",
@@ -433,7 +761,13 @@
       "priceGold": 50,
       "type": "utility",
       "description": "Veículo aquático leve.",
-      "category": "vehicle"
+      "category": "vehicle",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "balao_goblin",
@@ -441,7 +775,13 @@
       "priceGold": 200,
       "type": "utility",
       "description": "Veículo aéreo improvisado.",
-      "category": "vehicle"
+      "category": "vehicle",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "veleiro",
@@ -449,7 +789,13 @@
       "priceGold": 10000,
       "type": "utility",
       "description": "Embarcação marítima de médio porte.",
-      "category": "vehicle"
+      "category": "vehicle",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "transporte_terrestre",
@@ -458,7 +804,13 @@
       "type": "utility",
       "description": "Custo por km.",
       "priceUnit": "per_km",
-      "category": "service"
+      "category": "service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "transporte_maritimo",
@@ -467,7 +819,13 @@
       "type": "utility",
       "description": "Custo por km.",
       "priceUnit": "per_km",
-      "category": "service"
+      "category": "service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "transporte_aereo",
@@ -476,7 +834,13 @@
       "type": "utility",
       "description": "Custo por km.",
       "priceUnit": "per_km",
-      "category": "service"
+      "category": "service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "mensageiro",
@@ -485,7 +849,13 @@
       "type": "utility",
       "description": "Custo por km.",
       "priceUnit": "per_km",
-      "category": "service"
+      "category": "service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "conjuracao_nivel_1",
@@ -493,7 +863,13 @@
       "priceGold": 10,
       "type": "utility",
       "description": "Serviço mágico de nível 1.",
-      "category": "magic_service"
+      "category": "magic_service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "conjuracao_nivel_2",
@@ -501,7 +877,13 @@
       "priceGold": 60,
       "type": "utility",
       "description": "Serviço mágico de nível 2.",
-      "category": "magic_service"
+      "category": "magic_service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "conjuracao_nivel_3",
@@ -509,7 +891,13 @@
       "priceGold": 150,
       "type": "utility",
       "description": "Serviço mágico de nível 3.",
-      "category": "magic_service"
+      "category": "magic_service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "conjuracao_nivel_4",
@@ -517,7 +905,13 @@
       "priceGold": 280,
       "type": "utility",
       "description": "Serviço mágico de nível 4.",
-      "category": "magic_service"
+      "category": "magic_service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "conjuracao_nivel_5",
@@ -525,7 +919,13 @@
       "priceGold": 450,
       "type": "utility",
       "description": "Serviço mágico de nível 5.",
-      "category": "magic_service"
+      "category": "magic_service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "conjuracao_nivel_6",
@@ -533,7 +933,13 @@
       "priceGold": 660,
       "type": "utility",
       "description": "Serviço mágico de nível 6.",
-      "category": "magic_service"
+      "category": "magic_service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "conjuracao_nivel_7",
@@ -541,7 +947,13 @@
       "priceGold": 910,
       "type": "utility",
       "description": "Serviço mágico de nível 7.",
-      "category": "magic_service"
+      "category": "magic_service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "conjuracao_nivel_8",
@@ -549,7 +961,13 @@
       "priceGold": 1200,
       "type": "utility",
       "description": "Serviço mágico de nível 8.",
-      "category": "magic_service"
+      "category": "magic_service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     },
     {
       "id": "conjuracao_nivel_9",
@@ -557,7 +975,13 @@
       "priceGold": 1530,
       "type": "utility",
       "description": "Serviço mágico de nível 9.",
-      "category": "magic_service"
+      "category": "magic_service",
+      "tags": [
+        "metal",
+        "profession:culinaria",
+        "biome:plains",
+        "wood"
+      ]
     }
   ]
 }

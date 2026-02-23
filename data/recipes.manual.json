@@ -1,0 +1,88 @@
+{
+  "recipes": [
+    {
+      "id": "cul_ensopado",
+      "profissao_id": "culinaria",
+      "nome": "Ensopado Simples",
+      "nivel_profissao_min": 1,
+      "tempo_dias": 1,
+      "reagentes": [
+        { "id": "carne_comum", "qtd": 1 },
+        { "id": "raiz_silvestre", "qtd": 1 }
+      ],
+      "output": { "type": "item", "item_id": "refeicao_simples", "qtd": 1 },
+      "xp_gain": 10,
+      "manual_reason": "receita culinária especial"
+    },
+    {
+      "id": "cul_peixe_grelhado",
+      "profissao_id": "culinaria",
+      "nome": "Peixe Grelhado",
+      "nivel_profissao_min": 1,
+      "tempo_dias": 1,
+      "reagentes": [
+        { "id": "peixe_rio", "qtd": 1 },
+        { "id": "sal_grosso", "qtd": 1 }
+      ],
+      "output": { "type": "item", "item_id": "refeicao_boa", "qtd": 1 },
+      "xp_gain": 10,
+      "manual_reason": "receita culinária especial"
+    },
+    {
+      "id": "cul_banquete_vigoroso",
+      "profissao_id": "culinaria",
+      "nome": "Banquete Vigoroso",
+      "nivel_profissao_min": 5,
+      "tempo_dias": 1,
+      "reagentes": [
+        { "id": "carne_bestial", "qtd": 1 },
+        { "id": "especiaria_exotica", "qtd": 1 }
+      ],
+      "output": { "type": "item", "item_id": "banquete", "qtd": 1 },
+      "xp_gain": 40,
+      "manual_reason": "receita culinária especial"
+    },
+    {
+      "id": "alq_pocao_cura_fraca",
+      "profissao_id": "alquimia",
+      "nome": "Poção de Cura Fraca",
+      "nivel_profissao_min": 1,
+      "tempo_dias": 1,
+      "reagentes": [
+        { "id": "erva_curativa", "qtd": 1 },
+        { "id": "flor_azul", "qtd": 1 }
+      ],
+      "output": { "type": "item", "item_id": "balsamo_restaurador", "qtd": 1 },
+      "xp_gain": 10,
+      "manual_reason": "receita alquímica especial"
+    },
+    {
+      "id": "alq_elixir_mental",
+      "profissao_id": "alquimia",
+      "nome": "Elixir Mental",
+      "nivel_profissao_min": 3,
+      "tempo_dias": 1,
+      "reagentes": [
+        { "id": "raiz_mistica", "qtd": 1 },
+        { "id": "po_de_cristal", "qtd": 1 }
+      ],
+      "output": { "type": "item", "item_id": "vinho_elfico", "qtd": 1 },
+      "xp_gain": 25,
+      "manual_reason": "receita alquímica especial"
+    },
+    {
+      "id": "fer_lamina_draconica",
+      "profissao_id": "ferraria",
+      "nome": "Lâmina Dracônica (Quest)",
+      "nivel_profissao_min": 5,
+      "tempo_dias": 2,
+      "reagentes": [
+        { "id": "metal_arcano", "qtd": 2 },
+        { "id": "fragmento_draconico", "qtd": 1 }
+      ],
+      "output": { "type": "item", "item_id": "espada_longa", "qtd": 1 },
+      "xp_gain": 60,
+      "manual_reason": "drop especial craftável por quest"
+    }
+  ]
+}
