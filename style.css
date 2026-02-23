@@ -800,9 +800,22 @@ body {
     display: none;
   }
 
-  #arena[data-grid-style="square"] .cell {
+  #arena[data-grid-style="square"] .cell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
     border-right: var(--grid-line, 1px) solid rgba(255, 255, 255, 0.52);
     border-bottom: var(--grid-line, 1px) solid rgba(255, 255, 255, 0.52);
+    z-index: 5;
+  }
+
+  #arena[data-grid-style="square"] .cell[data-x="0"]::after {
+    border-left: var(--grid-line, 1px) solid rgba(255, 255, 255, 0.52);
+  }
+
+  #arena[data-grid-style="square"] .cell[data-y="0"]::after {
+    border-top: var(--grid-line, 1px) solid rgba(255, 255, 255, 0.52);
   }
 }
 
