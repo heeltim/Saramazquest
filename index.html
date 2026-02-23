@@ -147,6 +147,7 @@
                   <button class="toolBtn" type="button" onclick="createArtboard()">+ Cenário</button>
                   <button class="toolBtn" type="button" onclick="renameArtboard()">Renomear</button>
                   <button class="toolBtn" type="button" onclick="deleteArtboard()">Remover</button>
+                  <button class="toolBtn" type="button" onclick="applyTemporaryGlobalMap()">🗺️ Mapa provisório</button>
                 </div>
 
                 <div class="field full sceneSizeField">
@@ -158,35 +159,18 @@
                   </div>
                 </div>
 
-                <div class="field full worldBuilderField">
-                  <label>🌍 Criador planetário</label>
-                  <div class="worldBuilderGrid">
-                    <label class="toolBtn worldUploadBtn" for="worldMapUpload">📤 Upload do mapa global</label>
-                    <input id="worldMapUpload" type="file" accept="image/*" hidden />
-                    <button class="toolBtn" type="button" onclick="clearWorldMapImage()">Remover mapa</button>
-                    <button class="toolBtn" type="button" onclick="toggleWorldMapWindow()">Abrir visualização (M)</button>
+                <div class="field full sceneBgImportField">
+                  <label>Criação planetária (imagem base do mapa global)</label>
+                  <div class="sceneBgImportGrid">
+                    <input id="sceneBgFile" type="file" accept="image/*" />
+                    <button class="toolBtn" type="button" onclick="importSceneBackground()">Carregar imagem do cenário</button>
+                    <button class="toolBtn" type="button" onclick="clearSceneBackground()">Remover imagem</button>
                   </div>
-                  <div id="worldMapStatus" class="sceneHint">Nenhum mapa global configurado.</div>
-
-                  <div class="sceneSizeControls" style="margin-top: 8px;">
-                    <label>Grid Colunas <input id="worldGridCols" type="number" min="2" max="64" value="8" /></label>
-                    <label>Grid Linhas <input id="worldGridRows" type="number" min="2" max="64" value="6" /></label>
-                    <button class="toolBtn" type="button" onclick="applyWorldGridSize()">Aplicar Grid</button>
+                  <div id="sceneBgUploadStatus" class="sceneUploadStatus" aria-live="polite">Nenhuma imagem selecionada.</div>
+                  <div id="sceneBgPreviewWrap" class="sceneBgPreviewWrap" hidden>
+                    <img id="sceneBgPreview" class="sceneBgPreview" alt="Pré-visualização da imagem do cenário" />
                   </div>
-
-                  <div class="worldBuilderGrid" style="margin-top: 8px;">
-                    <button class="toolBtn" type="button" onclick="createScenarioFromWorldCell()">Criar cenário da célula selecionada</button>
-                    <div id="worldCellStatus" class="sceneHint">Selecione uma célula no mapa global.</div>
-                  </div>
-
-                  <div class="worldMarkerForm">
-                    <label>Marcador <input id="worldMarkerName" type="text" maxlength="32" placeholder="Ex: Capital de Vael" /></label>
-                    <label>Col <input id="worldMarkerCol" type="number" min="1" max="64" value="1" /></label>
-                    <label>Linha <input id="worldMarkerRow" type="number" min="1" max="64" value="1" /></label>
-                    <label class="full">Observação <input id="worldMarkerNote" type="text" maxlength="120" placeholder="Notas rápidas da região" /></label>
-                    <button class="toolBtn" type="button" onclick="addWorldMarker()">+ Adicionar marcador</button>
-                  </div>
-                  <div id="worldMarkerList" class="worldMarkerList"></div>
+                  <div class="sceneHint">A imagem carregada aqui aparece no mapa global e o grid fica sobreposto automaticamente.</div>
                 </div>
               </section>
 

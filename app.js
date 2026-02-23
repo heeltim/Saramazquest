@@ -179,6 +179,7 @@ const CHARACTER_TEMPLATES = [
   },
 ];
 const DEFAULT_SPRITE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif";
+const TEMP_GLOBAL_MAP_BG = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="960" viewBox="0 0 1600 960"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#20365f"/><stop offset="100%" stop-color="#0f1a32"/></linearGradient><radialGradient id="fog" cx="50%" cy="45%" r="70%"><stop offset="0%" stop-color="rgba(125,190,255,0.18)"/><stop offset="100%" stop-color="rgba(0,0,0,0)"/></radialGradient></defs><rect width="1600" height="960" fill="url(#bg)"/><rect width="1600" height="960" fill="url(#fog)"/><g opacity="0.35" stroke="#9cc8ff" stroke-width="2" fill="none"><path d="M120 220 C260 90, 500 80, 700 180 S1120 320, 1420 180"/><path d="M180 620 C420 470, 690 520, 980 660 S1320 790, 1500 640"/><path d="M300 360 C430 290, 550 300, 640 380"/></g><g fill="#9cc8ff" opacity="0.9"><circle cx="270" cy="190" r="8"/><circle cx="740" cy="170" r="10"/><circle cx="1190" cy="290" r="9"/><circle cx="960" cy="650" r="11"/><circle cx="440" cy="610" r="10"/></g><g fill="#d9ecff" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="700" opacity="0.92"><text x="296" y="170">Norte Gelado</text><text x="774" y="150">Vales Centrais</text><text x="1222" y="275">Costa Arcana</text><text x="992" y="636">Mar do Eclipse</text><text x="472" y="596">Terras Antigas</text></g></svg>`);
 
 function isSpriteAvatar(avatar) {
   return !!avatar && typeof avatar === "object" && avatar.type === "sprite" && typeof avatar.url === "string";
@@ -1614,6 +1615,11 @@ function ensureScene() {
   s.bgY = Number.isFinite(s.bgY) ? s.bgY : 0;
   s.bgScale = Number.isFinite(s.bgScale) ? s.bgScale : 120;
   s.bgOpacity = Number.isFinite(s.bgOpacity) ? s.bgOpacity : 65;
+  if (!s.bgUrl && getSceneLayerList(s).length === 0) {
+    s.bgUrl = TEMP_GLOBAL_MAP_BG;
+    s.bgScale = 100;
+    s.bgOpacity = 88;
+  }
   s.mapZoom = Number.isFinite(s.mapZoom) ? Math.max(0.5, Math.min(1.6, s.mapZoom)) : 1;
   s.gridStyle = ["square", "dots"].includes(s.gridStyle) ? s.gridStyle : "square";
   s.gridOpacity = Number.isFinite(s.gridOpacity) ? Math.max(0, Math.min(100, s.gridOpacity)) : 55;
@@ -1624,6 +1630,11 @@ function ensureScene() {
   syncSceneToActiveArtboard(s);
   const activeBoard = s.artboards.find((b) => b.id === s.activeArtboardId) || s.artboards[0];
   applyArtboardToScene(s, activeBoard);
+  if (!s.bgUrl && getSceneLayerList(s).length === 0) {
+    s.bgUrl = TEMP_GLOBAL_MAP_BG;
+    s.bgScale = 100;
+    s.bgOpacity = 88;
+  }
   normalizeSceneLayers(s);
 
   data.scenes[room] = s;
@@ -5134,6 +5145,90 @@ function importSceneLayer() {
 }
 window.importSceneLayer = importSceneLayer;
 
+
+function closeSceneDock() {
+  isSceneDockOpen = false;
+  const panel = document.getElementById("scenePanel");
+  const dockBtn = document.getElementById("sceneDockToggle");
+  if (panel) panel.classList.remove("on");
+  if (dockBtn) dockBtn.textContent = "🎬 Mestre 1: OFF";
+}
+window.closeSceneDock = closeSceneDock;
+
+function importSceneLayer() {
+  const fileInput = document.getElementById("sceneLayerFile");
+  const kindInput = document.getElementById("sceneLayerKind");
+  const snapInput = document.getElementById("sceneLayerSnap");
+  if (!fileInput || !fileInput.files?.length) {
+    alert("Selecione uma imagem para importar.");
+    return;
+  }
+  const file = fileInput.files[0];
+  if (!file.type || !file.type.startsWith("image/")) {
+    alert("Arquivo inválido. Envie uma imagem.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const src = String(reader.result || "");
+    if (!src) return;
+
+    const preview = new Image();
+    preview.onload = () => {
+      let data = load();
+      const scene = data.scenes[room];
+      const kind = ["map", "objects", "foreground"].includes(kindInput?.value) ? kindInput.value : "objects";
+      const lockToGrid = !!snapInput?.checked;
+      const cols = Math.max(1, scene.cols || DEFAULT_COLS);
+      const rows = Math.max(1, scene.rows || DEFAULT_ROWS);
+      const ratio = Math.max(0.05, preview.naturalWidth / Math.max(1, preview.naturalHeight));
+
+      let width = kind === "map" ? cols : Math.max(2, Math.round(cols * 0.4));
+      let height = Math.max(1, Math.round(width / ratio));
+      if (height > rows) {
+        height = rows;
+        width = Math.max(1, Math.round(height * ratio));
+      }
+      width = Math.max(1, Math.min(cols, width));
+      height = Math.max(1, Math.min(rows, height));
+
+      const layer = normalizeSceneLayer({
+        id: `layer_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        name: file.name.replace(/\.[a-z0-9]+$/i, "") || "Camada",
+        kind,
+        src,
+        x: 0,
+        y: 0,
+        width,
+        height,
+        opacity: 100,
+        visible: true,
+        lockToGrid,
+        z: getSceneLayerList(scene).length,
+      }, getSceneLayerList(scene).length);
+
+      if (lockToGrid) clampSceneLayerToGrid(layer, scene);
+      getSceneLayerList(scene).push(layer);
+      normalizeSceneLayers(scene);
+      save(data);
+      updateArena();
+      renderSceneLayerList();
+      fileInput.value = "";
+      setSceneSection("layers");
+    };
+    preview.onerror = () => {
+      alert("Não foi possível carregar a imagem selecionada.");
+    };
+    preview.src = src;
+  };
+  reader.onerror = () => {
+    alert("Falha ao ler o arquivo de imagem.");
+  };
+  reader.readAsDataURL(file);
+}
+window.importSceneLayer = importSceneLayer;
+
 function setSceneSection(section) {
   sceneSection = section;
   document.querySelectorAll(".sceneSection").forEach((el) => {
@@ -5175,6 +5270,12 @@ function syncSceneUIFromStorage() {
   const kindInput = document.getElementById("sceneLayerKind");
   if (kindInput && !kindInput.value) kindInput.value = "map";
   if (mapZoomInput) mapZoomInput.value = String(Math.round((s.mapZoom || 1) * 100));
+  setSceneBackgroundPreview(s.bgUrl || "");
+  if (s.bgUrl) {
+    setSceneBackgroundUploadStatus("Imagem do cenário ativa.", "success");
+  } else {
+    setSceneBackgroundUploadStatus("Nenhuma imagem selecionada.");
+  }
   renderArtboardControls();
   renderSceneLayerList();
   syncWorldBuilderUI();
@@ -5376,299 +5477,110 @@ window.applyArtboardSize = function applyArtboardSize() {
   syncSceneUIFromStorage();
 };
 
-
-let isWorldMapWindowOpen = false;
-
-function openWorldMapWindow() {
-  const els = getWorldMapElements();
-  if (!els.window) return;
-  isWorldMapWindowOpen = true;
-  els.window.classList.remove("collapsed");
-  els.window.setAttribute("aria-hidden", "false");
-  if (els.toggleBtn) els.toggleBtn.classList.add("active");
-  renderWorldMapWindow();
-}
-
-function closeWorldMapWindow() {
-  const els = getWorldMapElements();
-  if (!els.window) return;
-  isWorldMapWindowOpen = false;
-  els.window.classList.add("collapsed");
-  els.window.setAttribute("aria-hidden", "true");
-  if (els.toggleBtn) els.toggleBtn.classList.remove("active");
-}
-
-function toggleWorldMapWindow() {
-  if (isWorldMapWindowOpen) {
-    closeWorldMapWindow();
-  } else {
-    openWorldMapWindow();
-  }
-}
-window.toggleWorldMapWindow = toggleWorldMapWindow;
-window.closeWorldMapWindow = closeWorldMapWindow;
-
-function renderWorldMarkerList() {
-  const els = getWorldMapElements();
-  if (!els.markerList) return;
-  ensureScene();
-  const scene = load().scenes[room];
-  const wm = scene.worldMap;
-  if (!wm.markers.length) {
-    els.markerList.innerHTML = '<div class="sceneHint">Sem marcadores.</div>';
-    return;
-  }
-  els.markerList.innerHTML = wm.markers.map((marker) => (
-    `<div class="worldMarkerItem">`
-      + `<div><strong>${escapeHtml(marker.name)}</strong> <span class="sceneHint">(${marker.col},${marker.row})</span></div>`
-      + `<div class="sceneHint">${escapeHtml(marker.note || "Sem observação")}</div>`
-      + `<button class="toolBtn" type="button" data-marker-remove="${marker.id}">Remover</button>`
-    + `</div>`
-  )).join("");
-  els.markerList.querySelectorAll('[data-marker-remove]').forEach((btn) => {
-    btn.addEventListener('click', () => removeWorldMarker(btn.dataset.markerRemove));
-  });
-}
-
-function syncWorldBuilderUI() {
-  const els = getWorldMapElements();
-  ensureScene();
-  const scene = load().scenes[room];
-  const wm = scene.worldMap;
-  if (els.cols) els.cols.value = String(wm.gridCols);
-  if (els.rows) els.rows.value = String(wm.gridRows);
-  if (els.status) {
-    els.status.textContent = wm.imageUrl
-      ? `Mapa global carregado. Grid atual: ${wm.gridCols} x ${wm.gridRows}.`
-      : "Nenhum mapa global configurado.";
-  }
-  const selected = getSelectedWorldCell(scene);
-  if (els.cellStatus) {
-    if (selected) {
-      const key = getWorldCellKey(selected.col, selected.row);
-      const linked = wm.cellLinks[key];
-      const linkedBoard = scene.artboards.find((board) => board.id === linked);
-      els.cellStatus.textContent = linkedBoard
-        ? `Célula (${selected.col}, ${selected.row}) vinculada a: ${linkedBoard.name}`
-        : `Célula (${selected.col}, ${selected.row}) sem cenário vinculado.`;
-    } else {
-      els.cellStatus.textContent = "Selecione uma célula no mapa global.";
-    }
-  }
-  renderWorldMarkerList();
-}
-
-function renderWorldMapWindow() {
-  const els = getWorldMapElements();
-  if (!els.window || !els.image || !els.overlay || !els.markersLayer || !els.highlight) return;
-  ensureScene();
-  const scene = load().scenes[room];
-  const wm = scene.worldMap;
-
-  if (!wm.imageUrl) {
-    els.image.removeAttribute('src');
-    els.overlay.innerHTML = '';
-    els.markersLayer.innerHTML = '';
-    els.highlight.style.display = 'none';
-    if (els.windowHint) els.windowHint.textContent = 'Faça upload de um mapa global no painel de cenários.';
-    return;
-  }
-
-  els.image.src = wm.imageUrl;
-  if (els.windowHint) els.windowHint.textContent = 'Clique numa célula para selecionar região. Enter cria/entra no cenário.';
-
-  const cellsHtml = [];
-  for (let row = 1; row <= wm.gridRows; row++) {
-    for (let col = 1; col <= wm.gridCols; col++) {
-      const key = getWorldCellKey(col, row);
-      const linkedId = wm.cellLinks[key] || '';
-      const linkedBoard = scene.artboards.find((board) => board.id === linkedId);
-      const linkedLabel = linkedBoard ? ` → ${linkedBoard.name}` : '';
-      cellsHtml.push(`<button type="button" class="worldGridCell" data-col="${col}" data-row="${row}" title="Região ${col},${row}${escapeHtml(linkedLabel)}"></button>`);
-    }
-  }
-  els.overlay.style.gridTemplateColumns = `repeat(${wm.gridCols}, 1fr)`;
-  els.overlay.style.gridTemplateRows = `repeat(${wm.gridRows}, 1fr)`;
-  els.overlay.innerHTML = cellsHtml.join('');
-  els.overlay.querySelectorAll('.worldGridCell').forEach((btn) => {
-    btn.addEventListener('click', () => selectWorldCell(parseInt(btn.dataset.col, 10), parseInt(btn.dataset.row, 10), true));
-  });
-
-  els.markersLayer.innerHTML = wm.markers.map((marker) => {
-    const left = ((marker.col - 0.5) / wm.gridCols) * 100;
-    const top = ((marker.row - 0.5) / wm.gridRows) * 100;
-    return `<button type="button" class="worldMarkerPin" style="left:${left}%;top:${top}%;" title="${escapeHtml(marker.name)} — ${escapeHtml(marker.note || 'Sem observação')}" data-col="${marker.col}" data-row="${marker.row}">📍</button>`;
-  }).join('');
-  els.markersLayer.querySelectorAll('.worldMarkerPin').forEach((pin) => {
-    pin.addEventListener('click', (ev) => {
-      ev.stopPropagation();
-      selectWorldCell(parseInt(pin.dataset.col, 10), parseInt(pin.dataset.row, 10), true);
-    });
-  });
-
-  const selected = getSelectedWorldCell(scene);
-  if (!selected) {
-    els.highlight.style.display = 'none';
-  } else {
-    const w = 100 / wm.gridCols;
-    const h = 100 / wm.gridRows;
-    els.highlight.style.display = 'block';
-    els.highlight.style.left = `${(selected.col - 1) * w}%`;
-    els.highlight.style.top = `${(selected.row - 1) * h}%`;
-    els.highlight.style.width = `${w}%`;
-    els.highlight.style.height = `${h}%`;
-  }
-
-  syncWorldBuilderUI();
-}
-
-function selectWorldCell(col, row, render = false) {
+window.applyTemporaryGlobalMap = function applyTemporaryGlobalMap() {
   let data = load();
   const scene = data.scenes[room];
-  const wm = scene.worldMap;
-  wm.selectedCell = {
-    col: Math.max(1, Math.min(wm.gridCols, parseInt(col, 10) || 1)),
-    row: Math.max(1, Math.min(wm.gridRows, parseInt(row, 10) || 1)),
-  };
-  save(data);
-  syncWorldBuilderUI();
-  if (render || isWorldMapWindowOpen) renderWorldMapWindow();
-}
-
-function applyWorldGridSize() {
-  const els = getWorldMapElements();
-  if (!els.cols || !els.rows) return;
-  let data = load();
-  const scene = data.scenes[room];
-  const wm = scene.worldMap;
-  wm.gridCols = Math.max(2, Math.min(64, parseInt(els.cols.value, 10) || wm.gridCols));
-  wm.gridRows = Math.max(2, Math.min(64, parseInt(els.rows.value, 10) || wm.gridRows));
-  wm.markers = (wm.markers || []).map((marker, idx) => normalizeWorldMarker(marker, idx)).map((marker) => ({
-    ...marker,
-    col: Math.min(wm.gridCols, marker.col),
-    row: Math.min(wm.gridRows, marker.row),
-  }));
-  if (wm.selectedCell) {
-    wm.selectedCell.col = Math.min(wm.gridCols, wm.selectedCell.col);
-    wm.selectedCell.row = Math.min(wm.gridRows, wm.selectedCell.row);
-  }
-  save(data);
-  syncWorldBuilderUI();
-  if (isWorldMapWindowOpen) renderWorldMapWindow();
-}
-window.applyWorldGridSize = applyWorldGridSize;
-
-function removeWorldMarker(markerId) {
-  if (!markerId) return;
-  let data = load();
-  const scene = data.scenes[room];
-  const wm = scene.worldMap;
-  wm.markers = (wm.markers || []).filter((marker) => marker.id !== markerId);
-  save(data);
-  syncWorldBuilderUI();
-  if (isWorldMapWindowOpen) renderWorldMapWindow();
-}
-
-function addWorldMarker() {
-  const els = getWorldMapElements();
-  if (!els.markerName || !els.markerCol || !els.markerRow || !els.markerNote) return;
-  const name = String(els.markerName.value || '').trim();
-  if (!name) {
-    alert('Informe um nome para o marcador.');
-    return;
-  }
-  let data = load();
-  const scene = data.scenes[room];
-  const wm = scene.worldMap;
-  const marker = normalizeWorldMarker({
-    id: `wm_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-    name,
-    note: String(els.markerNote.value || '').trim(),
-    col: Math.max(1, Math.min(wm.gridCols, parseInt(els.markerCol.value, 10) || 1)),
-    row: Math.max(1, Math.min(wm.gridRows, parseInt(els.markerRow.value, 10) || 1)),
-  }, wm.markers.length);
-  wm.markers.push(marker);
-  save(data);
-  els.markerName.value = '';
-  els.markerNote.value = '';
-  syncWorldBuilderUI();
-  if (isWorldMapWindowOpen) renderWorldMapWindow();
-}
-window.addWorldMarker = addWorldMarker;
-
-function clearWorldMapImage() {
-  if (!confirm('Remover o mapa global e limpar vínculos de células?')) return;
-  let data = load();
-  const scene = data.scenes[room];
-  scene.worldMap.imageUrl = '';
-  scene.worldMap.cellLinks = {};
-  scene.worldMap.selectedCell = null;
-  scene.worldMap.markers = [];
-  save(data);
-  syncWorldBuilderUI();
-  if (isWorldMapWindowOpen) renderWorldMapWindow();
-}
-window.clearWorldMapImage = clearWorldMapImage;
-
-function createScenarioFromWorldCell() {
-  let data = load();
-  const scene = data.scenes[room];
-  ensureSceneArtboards(scene);
-  const selected = getSelectedWorldCell(scene);
-  if (!selected) {
-    alert('Selecione uma célula do mapa global antes de criar o cenário.');
-    return;
-  }
-  const key = getWorldCellKey(selected.col, selected.row);
-  const existingId = scene.worldMap.cellLinks[key];
-  const existingBoard = scene.artboards.find((board) => board.id === existingId);
-  if (existingBoard) {
-    syncSceneToActiveArtboard(scene);
-    scene.activeArtboardId = existingBoard.id;
-    applyArtboardToScene(scene, existingBoard);
-    save(data);
-    createGrid();
-    updateArena();
-    syncSceneUIFromStorage();
-    return;
-  }
-
+  scene.bgUrl = TEMP_GLOBAL_MAP_BG;
+  scene.bgScale = 100;
+  scene.bgOpacity = 88;
+  scene.bgX = 0;
+  scene.bgY = 0;
+  scene.gridStyle = "square";
+  scene.gridOpacity = Math.max(60, scene.gridOpacity || 0);
+  scene.gridLine = Math.max(1, scene.gridLine || 1);
+  scene.layers = getSceneLayerList(scene).filter((layer) => layer.kind !== "map");
+  normalizeSceneLayers(scene);
   syncSceneToActiveArtboard(scene);
-  const next = extractArtboardFromScene(scene, `Região ${selected.col}.${selected.row}`);
-  next.id = `board_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
-  next.name = `Região ${selected.col}.${selected.row}`;
-  scene.artboards.push(next);
-  scene.worldMap.cellLinks[key] = next.id;
-  scene.activeArtboardId = next.id;
-  applyArtboardToScene(scene, next);
   save(data);
   createGrid();
   updateArena();
   syncSceneUIFromStorage();
-}
-window.createScenarioFromWorldCell = createScenarioFromWorldCell;
+  setSceneSection("grid");
+};
 
-function bindWorldBuilderInputs() {
-  const els = getWorldMapElements();
-  if (els.upload && !els.upload.dataset.bound) {
-    els.upload.dataset.bound = '1';
-    els.upload.addEventListener('change', (event) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        let data = load();
-        const scene = data.scenes[room];
-        scene.worldMap.imageUrl = typeof reader.result === 'string' ? reader.result : '';
-        save(data);
-        syncWorldBuilderUI();
-        if (isWorldMapWindowOpen) renderWorldMapWindow();
-      };
-      reader.readAsDataURL(file);
-      event.target.value = '';
-    });
-  }
+function setSceneBackgroundUploadStatus(message, state = "idle") {
+  const status = document.getElementById("sceneBgUploadStatus");
+  if (!status) return;
+  status.textContent = message;
+  status.classList.remove("is-loading", "is-success", "is-error");
+  if (state === "loading") status.classList.add("is-loading");
+  if (state === "success") status.classList.add("is-success");
+  if (state === "error") status.classList.add("is-error");
 }
+
+function setSceneBackgroundPreview(src = "") {
+  const wrap = document.getElementById("sceneBgPreviewWrap");
+  const img = document.getElementById("sceneBgPreview");
+  if (!wrap || !img) return;
+  if (!src) {
+    img.removeAttribute("src");
+    wrap.hidden = true;
+    return;
+  }
+  img.src = src;
+  wrap.hidden = false;
+}
+
+window.importSceneBackground = function importSceneBackground() {
+  const fileInput = document.getElementById("sceneBgFile");
+  const file = fileInput?.files?.[0];
+  if (!file) {
+    setSceneBackgroundUploadStatus("Selecione uma imagem para o cenário.", "error");
+    return alert("Selecione uma imagem para o cenário.");
+  }
+  if (!file.type || !file.type.startsWith("image/")) {
+    setSceneBackgroundUploadStatus("Arquivo inválido. Use uma imagem.", "error");
+    return alert("Arquivo inválido. Use uma imagem.");
+  }
+
+  setSceneBackgroundUploadStatus(`Carregando ${file.name}...`, "loading");
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const src = String(reader.result || "");
+    if (!src) {
+      setSceneBackgroundUploadStatus("Não foi possível ler a imagem.", "error");
+      return alert("Não foi possível ler a imagem.");
+    }
+    let data = load();
+    const scene = data.scenes[room];
+    scene.bgUrl = src;
+    scene.bgScale = Math.max(90, Number(scene.bgScale) || 100);
+    scene.bgOpacity = Math.max(85, Number(scene.bgOpacity) || 88);
+    scene.bgX = Number(scene.bgX) || 0;
+    scene.bgY = Number(scene.bgY) || 0;
+    scene.gridStyle = scene.gridStyle || "square";
+    scene.gridOpacity = Math.max(50, Number(scene.gridOpacity) || 55);
+    scene.gridLine = Math.max(1, Number(scene.gridLine) || 1);
+    syncSceneToActiveArtboard(scene);
+    save(data);
+    createGrid();
+    updateArena();
+    syncSceneUIFromStorage();
+    setSceneBackgroundUploadStatus(`Imagem carregada: ${file.name}`, "success");
+    setSceneBackgroundPreview(src);
+    setSceneSection("grid");
+    fileInput.value = "";
+  };
+  reader.onerror = () => {
+    setSceneBackgroundUploadStatus("Falha ao carregar o arquivo de imagem.", "error");
+    alert("Falha ao carregar o arquivo de imagem.");
+  };
+  reader.readAsDataURL(file);
+};
+
+window.clearSceneBackground = function clearSceneBackground() {
+  let data = load();
+  const scene = data.scenes[room];
+  scene.bgUrl = "";
+  syncSceneToActiveArtboard(scene);
+  save(data);
+  createGrid();
+  updateArena();
+  syncSceneUIFromStorage();
+  setSceneBackgroundPreview("");
+  setSceneBackgroundUploadStatus("Imagem removida. Nenhuma imagem selecionada.");
+};
 
 function bindSceneInputs() {
   const bgScale = document.getElementById("bgScale");
@@ -5678,6 +5590,7 @@ function bindSceneInputs() {
   const gridStyle = document.getElementById("gridStyle");
   const gridOpacity = document.getElementById("gridOpacity");
   const gridLine = document.getElementById("gridLine");
+  const sceneBgFile = document.getElementById("sceneBgFile");
 
   if (artboardSelect && !artboardSelect.dataset.bound) {
     artboardSelect.dataset.bound = "1";
@@ -5717,6 +5630,17 @@ function bindSceneInputs() {
   gridStyle.addEventListener("change", upd);
   gridOpacity.addEventListener("input", upd);
   gridLine.addEventListener("input", upd);
+  if (sceneBgFile && !sceneBgFile.dataset.bound) {
+    sceneBgFile.dataset.bound = "1";
+    sceneBgFile.addEventListener("change", () => {
+      const file = sceneBgFile.files?.[0];
+      if (!file) {
+        setSceneBackgroundUploadStatus("Nenhuma imagem selecionada.");
+        return;
+      }
+      setSceneBackgroundUploadStatus(`Imagem selecionada: ${file.name}`);
+    });
+  }
 
 }
 bindSceneInputs();
