@@ -96,6 +96,14 @@
         >
           📖 Grimório
         </button>
+        <button
+          id="worldMapToggle"
+          type="button"
+          title="Abrir mapa global"
+          onclick="toggleWorldMapWindow()"
+        >
+          🧭 Mapa
+        </button>
         <div id="masterSceneBar" aria-label="Barra fixa de mestre">
           <button
             id="sceneDockToggle"
@@ -145,6 +153,37 @@
                     <label>Linhas <input id="sceneRows" type="number" min="6" max="80" value="12" /></label>
                     <button class="toolBtn" type="button" onclick="applyArtboardSize()">Aplicar</button>
                   </div>
+                </div>
+
+                <div class="field full worldBuilderField">
+                  <label>🌍 Criador planetário</label>
+                  <div class="worldBuilderGrid">
+                    <label class="toolBtn worldUploadBtn" for="worldMapUpload">📤 Upload do mapa global</label>
+                    <input id="worldMapUpload" type="file" accept="image/*" hidden />
+                    <button class="toolBtn" type="button" onclick="clearWorldMapImage()">Remover mapa</button>
+                    <button class="toolBtn" type="button" onclick="toggleWorldMapWindow()">Abrir visualização (M)</button>
+                  </div>
+                  <div id="worldMapStatus" class="sceneHint">Nenhum mapa global configurado.</div>
+
+                  <div class="sceneSizeControls" style="margin-top: 8px;">
+                    <label>Grid Colunas <input id="worldGridCols" type="number" min="2" max="64" value="8" /></label>
+                    <label>Grid Linhas <input id="worldGridRows" type="number" min="2" max="64" value="6" /></label>
+                    <button class="toolBtn" type="button" onclick="applyWorldGridSize()">Aplicar Grid</button>
+                  </div>
+
+                  <div class="worldBuilderGrid" style="margin-top: 8px;">
+                    <button class="toolBtn" type="button" onclick="createScenarioFromWorldCell()">Criar cenário da célula selecionada</button>
+                    <div id="worldCellStatus" class="sceneHint">Selecione uma célula no mapa global.</div>
+                  </div>
+
+                  <div class="worldMarkerForm">
+                    <label>Marcador <input id="worldMarkerName" type="text" maxlength="32" placeholder="Ex: Capital de Vael" /></label>
+                    <label>Col <input id="worldMarkerCol" type="number" min="1" max="64" value="1" /></label>
+                    <label>Linha <input id="worldMarkerRow" type="number" min="1" max="64" value="1" /></label>
+                    <label class="full">Observação <input id="worldMarkerNote" type="text" maxlength="120" placeholder="Notas rápidas da região" /></label>
+                    <button class="toolBtn" type="button" onclick="addWorldMarker()">+ Adicionar marcador</button>
+                  </div>
+                  <div id="worldMarkerList" class="worldMarkerList"></div>
                 </div>
               </section>
 
@@ -252,6 +291,22 @@
           <div class="sceneHint">
             Movimento: setas do teclado. Agora o token
             <strong>não entra</strong> em Parede/Vazio.
+          </div>
+        </div>
+
+        <div id="worldMapWindow" class="collapsed" aria-hidden="true">
+          <div class="worldMapTopRow">
+            <div>
+              <div class="diceHeader">🧭 Mapa global</div>
+              <div id="worldMapWindowHint" class="sceneHint">Clique numa célula para entrar/criar região.</div>
+            </div>
+            <button class="diceCloseBtn" type="button" onclick="closeWorldMapWindow()" title="Fechar mapa global">✕</button>
+          </div>
+          <div id="worldMapStage">
+            <img id="worldMapImage" alt="Mapa global" />
+            <div id="worldMapGridOverlay"></div>
+            <div id="worldMapMarkers"></div>
+            <div id="worldMapCellHighlight"></div>
           </div>
         </div>
         <div id="diceTray" class="collapsed" aria-hidden="true">
