@@ -1,0 +1,414 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "id": "ocean",
+      "label": "🌊 Oceano",
+      "tiles": [
+        {
+          "id": "tile_ocean_deep",
+          "label": "Oceano Profundo",
+          "paintType": "stone",
+          "sourceTag": "ocean",
+          "colors": {
+            "base": "#18324A",
+            "highlight": "#245C8C",
+            "shadow": "#0E1E2C"
+          }
+        },
+        {
+          "id": "tile_ocean_shallow",
+          "label": "Oceano Raso",
+          "paintType": "stone",
+          "sourceTag": "ocean",
+          "colors": {
+            "base": "#245C8C",
+            "highlight": "#3E86B5",
+            "shadow": "#173A55"
+          }
+        },
+        {
+          "id": "tile_reef",
+          "label": "Recife",
+          "paintType": "stone",
+          "sourceTag": "ocean",
+          "colors": {
+            "base": "#2C6B78",
+            "highlight": "#49A6B5",
+            "shadow": "#1E4D56"
+          }
+        },
+        {
+          "id": "tile_coast_sand",
+          "label": "Costa de Areia",
+          "paintType": "floor",
+          "sourceTag": "coast",
+          "colors": {
+            "base": "#C9A86A",
+            "highlight": "#E1C58C",
+            "shadow": "#9F824D"
+          }
+        },
+        {
+          "id": "tile_coast_rock",
+          "label": "Costa Rochosa",
+          "paintType": "stone",
+          "sourceTag": "coast",
+          "colors": {
+            "base": "#5F6A73",
+            "highlight": "#7B8892",
+            "shadow": "#3E474E"
+          }
+        }
+      ]
+    },
+    {
+      "id": "forest",
+      "label": "🌲 Floresta (Vaels)",
+      "tiles": [
+        {
+          "id": "tile_forest_dense",
+          "label": "Floresta Densa",
+          "paintType": "grass",
+          "sourceTag": "forest",
+          "colors": {
+            "base": "#244C32",
+            "highlight": "#3E7A52",
+            "shadow": "#162D1E"
+          },
+          "kind": "ground"
+        },
+        {
+          "id": "tile_forest_light",
+          "label": "Floresta Clara",
+          "paintType": "grass",
+          "sourceTag": "forest",
+          "colors": {
+            "base": "#3F6F48",
+            "highlight": "#5E9B66",
+            "shadow": "#27452D"
+          },
+          "kind": "ground"
+        },
+        {
+          "id": "tile_meadow",
+          "label": "Pradaria",
+          "paintType": "grass",
+          "sourceTag": "meadow",
+          "colors": {
+            "base": "#5C8F4E",
+            "highlight": "#8CCF6A",
+            "shadow": "#3D6134"
+          },
+          "kind": "ground"
+        },
+        {
+          "id": "tile_moss_ground",
+          "label": "Solo Musgoso",
+          "paintType": "grass",
+          "sourceTag": "moss",
+          "colors": {
+            "base": "#4B6A3A",
+            "highlight": "#6C8F50",
+            "shadow": "#2E4224"
+          },
+          "kind": "ground"
+        },
+        {
+          "id": "tile_river",
+          "label": "Rio",
+          "paintType": "stone",
+          "sourceTag": "river",
+          "colors": {
+            "base": "#2A5C8A",
+            "highlight": "#4C8BC2",
+            "shadow": "#1B3B5C"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mystic",
+      "label": "💎 Caídos Místicos",
+      "tiles": [
+        {
+          "id": "tile_crystal_field",
+          "label": "Campo de Cristal",
+          "paintType": "stone",
+          "sourceTag": "crystal",
+          "colors": {
+            "base": "#5E4C8A",
+            "highlight": "#8C7CE6",
+            "shadow": "#3A2D5C"
+          }
+        },
+        {
+          "id": "tile_mystic_soil",
+          "label": "Solo Místico",
+          "paintType": "floor",
+          "sourceTag": "mystic",
+          "colors": {
+            "base": "#40305F",
+            "highlight": "#6B5DA8",
+            "shadow": "#2A1F3C"
+          }
+        },
+        {
+          "id": "tile_spiral_rock",
+          "label": "Rocha Espiral",
+          "paintType": "stone",
+          "sourceTag": "mystic",
+          "colors": {
+            "base": "#5A5C73",
+            "highlight": "#8A8DAA",
+            "shadow": "#3A3C4C"
+          }
+        },
+        {
+          "id": "tile_broken_plateau",
+          "label": "Planalto Quebrado",
+          "paintType": "stone",
+          "sourceTag": "mystic",
+          "colors": {
+            "base": "#4B4E63",
+            "highlight": "#7A7D96",
+            "shadow": "#2E3040"
+          }
+        },
+        {
+          "id": "tile_arcane_fissure",
+          "label": "Fissura Arcana",
+          "paintType": "void",
+          "sourceTag": "arcane",
+          "colors": {
+            "base": "#3C2C6A",
+            "highlight": "#9A82FF",
+            "glow": "#BDA8FF"
+          }
+        }
+      ]
+    },
+    {
+      "id": "saramaz",
+      "label": "🌾 Saramaz",
+      "tiles": [
+        {
+          "id": "tile_dry_grass",
+          "label": "Grama Seca",
+          "paintType": "grass",
+          "sourceTag": "saramaz",
+          "colors": {
+            "base": "#B88B3A",
+            "highlight": "#D6B060",
+            "shadow": "#8C6A2A"
+          },
+          "kind": "ground"
+        },
+        {
+          "id": "tile_cracked_earth",
+          "label": "Terra Rachada",
+          "paintType": "floor",
+          "sourceTag": "saramaz",
+          "colors": {
+            "base": "#8A5E2B",
+            "highlight": "#B17C3E",
+            "shadow": "#5C3C1A"
+          }
+        },
+        {
+          "id": "tile_dust_road",
+          "label": "Estrada de Poeira",
+          "paintType": "floor",
+          "sourceTag": "road",
+          "colors": {
+            "base": "#9F7740",
+            "highlight": "#C89C5E",
+            "shadow": "#6F532C"
+          }
+        },
+        {
+          "id": "tile_oasis",
+          "label": "Oásis",
+          "paintType": "grass",
+          "sourceTag": "oasis",
+          "colors": {
+            "base": "#2E7F74",
+            "highlight": "#4FB3A5",
+            "shadow": "#1D5049"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mountains",
+      "label": "⛰️ Montanha",
+      "tiles": [
+        {
+          "id": "tile_rocky_slope",
+          "label": "Encosta Rochosa",
+          "paintType": "stone",
+          "sourceTag": "mountain",
+          "colors": {
+            "base": "#6E7075",
+            "highlight": "#9A9CA2",
+            "shadow": "#4A4C50"
+          }
+        },
+        {
+          "id": "tile_high_cliff",
+          "label": "Penhasco Alto",
+          "paintType": "stone",
+          "sourceTag": "mountain",
+          "colors": {
+            "base": "#4E5157",
+            "highlight": "#74777D",
+            "shadow": "#2E3035"
+          }
+        },
+        {
+          "id": "tile_mountain_peak",
+          "label": "Pico Montanhoso",
+          "paintType": "stone",
+          "sourceTag": "mountain",
+          "colors": {
+            "base": "#8C8F95",
+            "highlight": "#B2B5BB",
+            "shadow": "#64676C"
+          }
+        },
+        {
+          "id": "tile_mineral_vein",
+          "label": "Veio Mineral",
+          "paintType": "stone",
+          "sourceTag": "mineral",
+          "colors": {
+            "base": "#3D475C",
+            "highlight": "#6A85B6",
+            "shadow": "#2A3240"
+          }
+        }
+      ]
+    },
+    {
+      "id": "islands",
+      "label": "🏝️ Ilhas",
+      "tiles": [
+        {
+          "id": "tile_island_grass",
+          "label": "Grama de Ilha",
+          "paintType": "grass",
+          "sourceTag": "island",
+          "colors": {
+            "base": "#3E8F57",
+            "highlight": "#6BCF89",
+            "shadow": "#285C38"
+          },
+          "kind": "ground"
+        },
+        {
+          "id": "tile_palm_tree",
+          "label": "Palmeira",
+          "paintType": "woodwall",
+          "sourceTag": "flora",
+          "colors": {
+            "base": "#2F6A3E",
+            "highlight": "#4FA65C",
+            "shadow": "#1C3F26"
+          },
+          "icon": "🌴",
+          "visualMode": "icon",
+          "kind": "flora"
+        },
+        {
+          "id": "tile_volcanic_rock",
+          "label": "Rocha Vulcânica",
+          "paintType": "stone",
+          "sourceTag": "volcanic",
+          "colors": {
+            "base": "#3A3A3A",
+            "highlight": "#6A6A6A",
+            "shadow": "#1E1E1E"
+          }
+        }
+      ]
+    },
+    {
+      "id": "neutral",
+      "label": "🟢 Neutros",
+      "tiles": [
+        {
+          "id": "tile_road_stone",
+          "label": "Estrada de Pedra",
+          "paintType": "stone",
+          "sourceTag": "road",
+          "colors": {
+            "base": "#6C6F73",
+            "highlight": "#94989C",
+            "shadow": "#474A4E"
+          }
+        },
+        {
+          "id": "tile_farmland",
+          "label": "Fazenda",
+          "paintType": "floor",
+          "sourceTag": "farmland",
+          "colors": {
+            "base": "#7A5A2B",
+            "highlight": "#A97A3E",
+            "shadow": "#523A1B"
+          }
+        }
+      ]
+    },
+    {
+      "id": "structures",
+      "label": "🏛️ Estruturas",
+      "tiles": [
+        {
+          "id": "tile_wall_stone",
+          "label": "Parede de Pedra",
+          "paintType": "wall",
+          "sourceTag": "structure",
+          "colors": {
+            "base": "#4A4F55",
+            "highlight": "#6D747D",
+            "shadow": "#2B3035"
+          }
+        },
+        {
+          "id": "tile_wall_wood",
+          "label": "Paliçada",
+          "paintType": "woodwall",
+          "sourceTag": "structure",
+          "colors": {
+            "base": "#6F4E2E",
+            "highlight": "#946A3C",
+            "shadow": "#4A341E"
+          }
+        },
+        {
+          "id": "tile_wall_fort",
+          "label": "Muralha",
+          "paintType": "stonewall",
+          "sourceTag": "fortification",
+          "colors": {
+            "base": "#555A61",
+            "highlight": "#7D838C",
+            "shadow": "#353A40"
+          }
+        },
+        {
+          "id": "tile_ruins",
+          "label": "Ruínas",
+          "paintType": "stonewall",
+          "sourceTag": "ruins",
+          "colors": {
+            "base": "#5C5A57",
+            "highlight": "#807E7B",
+            "shadow": "#3A3836"
+          }
+        }
+      ]
+    }
+  ]
+}

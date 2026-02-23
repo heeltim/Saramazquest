@@ -1,14 +1,18 @@
 {
-  "version": 1,
-  "metric": "rgb",
+  "version": 2,
+  "updatedAt": "2026-02-23T00:00:00Z",
   "biomes": [
-    { "biome": "ocean", "color": [40, 85, 150], "tolerance": 88 },
-    { "biome": "coast", "color": [170, 185, 130], "tolerance": 82 },
-    { "biome": "plains", "color": [100, 150, 88], "tolerance": 78 },
-    { "biome": "forest", "color": [55, 112, 68], "tolerance": 78 },
-    { "biome": "desert", "color": [210, 186, 120], "tolerance": 82 },
-    { "biome": "mountains", "color": [134, 126, 120], "tolerance": 72 },
+    { "biome": "ocean", "color": [36, 92, 140], "tolerance": 90 },
+    { "biome": "coast", "color": [201, 168, 106], "tolerance": 84 },
+    { "biome": "plains", "color": [140, 176, 96], "tolerance": 80 },
+    { "biome": "forest", "color": [62, 122, 82], "tolerance": 80 },
+    { "biome": "desert", "color": [184, 139, 58], "tolerance": 84 },
+    { "biome": "mountains", "color": [138, 143, 149], "tolerance": 74 },
     { "biome": "tundra", "color": [188, 204, 214], "tolerance": 70 },
-    { "biome": "volcanic", "color": [82, 60, 55], "tolerance": 68 }
+    { "biome": "volcanic", "color": [58, 58, 58], "tolerance": 70 },
+    { "biome": "mystic", "color": [94, 76, 138], "tolerance": 76 },
+    { "biome": "islands", "color": [62, 143, 87], "tolerance": 78 },
+    { "biome": "ruins", "color": [92, 90, 87], "tolerance": 72 },
+    { "biome": "structures", "color": [85, 90, 97], "tolerance": 72 }
   ]
 }

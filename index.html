@@ -172,8 +172,24 @@
               <section class="sceneSection" data-scene-section="tiles">
                 <div class="field full">
                   <label>Biblioteca de Tiles</label>
-                  <div class="tileLibrary" id="tileLibraryButtons">
-                    <button class="toolBtn active" id="toolFloor" onclick="setTool('floor')">🟦 Chão</button>
+                  <div class="tileLibraryFilters">
+                    <label>
+                      Bioma
+                      <select id="tileBiomeFilter" aria-label="Filtrar tiles por bioma">
+                        <option value="all">Todos os biomas</option>
+                      </select>
+                    </label>
+                    <label>
+                      Buscar
+                      <input id="tileSearchFilter" type="search" placeholder="Buscar tile, tag ou biome" aria-label="Buscar tile por texto" />
+                    </label>
+                  </div>
+                  <div class="tileLibrary" id="tileLibraryButtons" aria-live="polite"></div>
+                  <div class="sceneHint" id="tileLibraryEmpty" hidden>Nenhum tile encontrado para os filtros atuais.</div>
+                  <div class="tileLibraryLegend">
+                    <span class="tileChip">Categorias recolhíveis</span>
+                    <span class="tileChip">Bioma + tag de origem</span>
+                    <span class="tileChip">Plantas/árvores usam preview por ícone</span>
                   </div>
                 </div>
 
