@@ -320,6 +320,28 @@
                 <button id="worldCellSaveBtn" class="toolBtn" type="button">Salvar</button>
                 <button id="worldCellClearBtn" class="toolBtn" type="button">Limpar</button>
               </div>
+              <hr class="sep" />
+              <div class="worldMapDrawerTitle">Marcadores</div>
+              <label>Nome do marcador
+                <input id="worldMarkerName" type="text" maxlength="32" placeholder="Ex: Torre Antiga" />
+              </label>
+              <div class="worldMapMarkerCoords">
+                <label>Coluna
+                  <input id="worldMarkerCol" type="number" min="1" value="1" />
+                </label>
+                <label>Linha
+                  <input id="worldMarkerRow" type="number" min="1" value="1" />
+                </label>
+              </div>
+              <label>Anotação
+                <textarea id="worldMarkerNote" rows="3" maxlength="120" placeholder="Detalhes rápidos do marcador"></textarea>
+              </label>
+              <div class="worldMapDrawerActions">
+                <button id="worldMarkerSaveBtn" class="toolBtn" type="button">Salvar marcador</button>
+                <button id="worldMarkerDeleteBtn" class="toolBtn" type="button">Remover</button>
+                <button id="worldMarkerClearBtn" class="toolBtn" type="button">Novo</button>
+              </div>
+              <div id="worldMarkerList" class="worldMapMarkerList" aria-live="polite"></div>
             </aside>
           </div>
         </div>

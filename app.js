@@ -1671,6 +1671,10 @@ function normalizeWorldMap(scene) {
     col: Math.max(1, Math.min(wm.gridCols, marker.col)),
     row: Math.max(1, Math.min(wm.gridRows, marker.row)),
   }));
+  wm.selectedMarkerId = String(wm.selectedMarkerId || "");
+  if (wm.selectedMarkerId && !wm.markers.some((marker) => marker.id === wm.selectedMarkerId)) {
+    wm.selectedMarkerId = "";
+  }
   if (!wm.cellLinks || typeof wm.cellLinks !== "object") wm.cellLinks = {};
   const safeLinks = {};
   Object.entries(wm.cellLinks).forEach(([key, value]) => {
@@ -6905,6 +6909,130 @@ function updateWorldMapDrawer(cell) {
   hint.textContent = data.name ? `Região: ${data.name}` : "Sem nome definido para esta célula.";
 }
 
+
+function getSelectedWorldMarker(scene) {
+  const wm = scene?.worldMap;
+  if (!wm?.selectedMarkerId) return null;
+  return wm.markers.find((marker) => marker.id === wm.selectedMarkerId) || null;
+}
+
+function syncWorldMarkerEditor() {
+  const els = getWorldMapElements();
+  const scene = load().scenes[room];
+  const wm = scene.worldMap;
+  if (!els.markerName || !els.markerCol || !els.markerRow || !els.markerNote) return;
+  const selectedMarker = getSelectedWorldMarker(scene);
+  if (selectedMarker) {
+    els.markerName.value = selectedMarker.name || "";
+    els.markerCol.value = String(selectedMarker.col || 1);
+    els.markerRow.value = String(selectedMarker.row || 1);
+    els.markerNote.value = selectedMarker.note || "";
+  } else {
+    els.markerName.value = "";
+    const selectedCell = getSelectedWorldCell(scene);
+    els.markerCol.value = String(selectedCell?.col || 1);
+    els.markerRow.value = String(selectedCell?.row || 1);
+    els.markerNote.value = "";
+  }
+
+  if (els.markerList) {
+    const markerButtons = wm.markers.map((marker) => {
+      const isActive = marker.id === wm.selectedMarkerId;
+      const safeTitle = escapeHtml(marker.name || "Marcador");
+      const safeNote = marker.note ? `<span class="note">${escapeHtml(marker.note)}</span>` : "";
+      return `<button type="button" class="worldMarkerListItem${isActive ? " active" : ""}" data-marker-id="${marker.id}"><strong>${safeTitle}</strong><span class="coords">C${marker.col} · L${marker.row}</span>${safeNote}</button>`;
+    }).join("");
+    els.markerList.innerHTML = markerButtons || '<div class="sceneHint">Sem marcadores ainda.</div>';
+    els.markerList.querySelectorAll("[data-marker-id]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        let data = load();
+        const sceneData = data.scenes[room];
+        sceneData.worldMap.selectedMarkerId = btn.dataset.markerId || "";
+        const marker = sceneData.worldMap.markers.find((entry) => entry.id === sceneData.worldMap.selectedMarkerId);
+        if (marker) sceneData.worldMap.selectedCell = { col: marker.col, row: marker.row };
+        save(data);
+        renderWorldMapWindow();
+      });
+    });
+  }
+}
+
+function saveWorldMarkerFromForm() {
+  const els = getWorldMapElements();
+  if (!els.markerName || !els.markerCol || !els.markerRow || !els.markerNote) return;
+
+  let data = load();
+  const scene = data.scenes[room];
+  const wm = scene.worldMap;
+  const selectedCell = getSelectedWorldCell(scene);
+
+  const draft = normalizeWorldMarker({
+    id: wm.selectedMarkerId || `wm_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    name: String(els.markerName.value || "").trim() || "Marcador",
+    note: String(els.markerNote.value || "").trim(),
+    col: Math.max(1, Math.min(wm.gridCols, parseInt(els.markerCol.value, 10) || selectedCell?.col || 1)),
+    row: Math.max(1, Math.min(wm.gridRows, parseInt(els.markerRow.value, 10) || selectedCell?.row || 1)),
+  });
+
+  const idx = wm.markers.findIndex((marker) => marker.id === wm.selectedMarkerId);
+  if (idx >= 0) {
+    wm.markers[idx] = draft;
+  } else {
+    wm.markers.push(draft);
+  }
+  wm.selectedMarkerId = draft.id;
+  wm.selectedCell = { col: draft.col, row: draft.row };
+  save(data);
+  renderWorldMapWindow();
+}
+
+function clearWorldMarkerSelection() {
+  let data = load();
+  const scene = data.scenes[room];
+  scene.worldMap.selectedMarkerId = "";
+  save(data);
+  syncWorldMarkerEditor();
+}
+
+function deleteWorldMarkerSelection() {
+  let data = load();
+  const scene = data.scenes[room];
+  const wm = scene.worldMap;
+  if (!wm.selectedMarkerId) return;
+  wm.markers = wm.markers.filter((marker) => marker.id !== wm.selectedMarkerId);
+  wm.selectedMarkerId = "";
+  save(data);
+  renderWorldMapWindow();
+}
+
+function renderWorldMapMarkers() {
+  const els = getWorldMapElements();
+  const scene = load().scenes[room];
+  const wm = scene.worldMap;
+  if (!els.markersLayer) return;
+  els.markersLayer.innerHTML = "";
+
+  wm.markers.forEach((marker) => {
+    const pin = document.createElement("button");
+    pin.type = "button";
+    pin.className = `worldMarkerPin${marker.id === wm.selectedMarkerId ? " active" : ""}`;
+    pin.textContent = "📍";
+    pin.title = `${marker.name} (C${marker.col}, L${marker.row})`;
+    pin.setAttribute("aria-label", pin.title);
+    pin.style.left = `${((marker.col - 0.5) / wm.gridCols) * 100}%`;
+    pin.style.top = `${((marker.row - 0.5) / wm.gridRows) * 100}%`;
+    pin.addEventListener("click", () => {
+      let data = load();
+      const sceneData = data.scenes[room];
+      sceneData.worldMap.selectedMarkerId = marker.id;
+      sceneData.worldMap.selectedCell = { col: marker.col, row: marker.row };
+      save(data);
+      renderWorldMapWindow();
+    });
+    els.markersLayer.appendChild(pin);
+  });
+}
+
 function setWorldMapSelectedCell(x, y) {
   let data = load();
   const scene = data.scenes[room];
@@ -7021,8 +7149,10 @@ function renderWorldMapWindow() {
   }
 
   syncWorldMapHighlight();
+  renderWorldMapMarkers();
   const selected = getSelectedWorldCell(scene);
   updateWorldMapDrawer(selected ? { x: selected.col - 1, y: selected.row - 1 } : null);
+  syncWorldMarkerEditor();
 
   els.window.classList.toggle("collapsed", !isWorldMapWindowOpen);
   els.window.setAttribute("aria-hidden", isWorldMapWindowOpen ? "false" : "true");
@@ -7187,6 +7317,9 @@ function bindWorldBuilderInputs() {
   const setNameBtn = document.getElementById("worldCellSetNameBtn");
   const saveBtn = document.getElementById("worldCellSaveBtn");
   const clearBtn = document.getElementById("worldCellClearBtn");
+  const markerSaveBtn = document.getElementById("worldMarkerSaveBtn");
+  const markerDeleteBtn = document.getElementById("worldMarkerDeleteBtn");
+  const markerClearBtn = document.getElementById("worldMarkerClearBtn");
   const generateTerrainBtn = document.getElementById("worldGenerateTerrainBtn");
 
   bindWorldMapViewportInteractions();
@@ -7260,6 +7393,18 @@ function bindWorldBuilderInputs() {
   if (clearBtn && !clearBtn.dataset.bound) {
     clearBtn.dataset.bound = "1";
     clearBtn.addEventListener("click", clearSelectedWorldCellMeta);
+  }
+  if (markerSaveBtn && !markerSaveBtn.dataset.bound) {
+    markerSaveBtn.dataset.bound = "1";
+    markerSaveBtn.addEventListener("click", saveWorldMarkerFromForm);
+  }
+  if (markerDeleteBtn && !markerDeleteBtn.dataset.bound) {
+    markerDeleteBtn.dataset.bound = "1";
+    markerDeleteBtn.addEventListener("click", deleteWorldMarkerSelection);
+  }
+  if (markerClearBtn && !markerClearBtn.dataset.bound) {
+    markerClearBtn.dataset.bound = "1";
+    markerClearBtn.addEventListener("click", clearWorldMarkerSelection);
   }
   if (generateTerrainBtn && !generateTerrainBtn.dataset.bound) {
     generateTerrainBtn.dataset.bound = "1";
