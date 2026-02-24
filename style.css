@@ -659,6 +659,47 @@ body {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
 }
+.worldMapMarkerCoords {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.worldMapMarkerList {
+  display: grid;
+  gap: 6px;
+  max-height: 180px;
+  overflow: auto;
+}
+
+.worldMarkerListItem {
+  display: grid;
+  gap: 2px;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: rgba(11, 15, 25, 0.88);
+  color: #fff;
+  padding: 7px;
+  cursor: pointer;
+}
+
+.worldMarkerListItem .coords,
+.worldMarkerListItem .note {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.worldMarkerListItem.active,
+.worldMarkerListItem:hover {
+  border-color: rgba(255, 207, 92, 0.9);
+  background: rgba(47, 34, 14, 0.62);
+}
+
+.worldMarkerPin.active {
+  transform: translate(-50%, -50%) scale(1.16);
+}
+
 .diceTopRow {
   display: flex;
   align-items: center;
